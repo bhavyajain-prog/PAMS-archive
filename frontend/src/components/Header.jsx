@@ -1,3 +1,5 @@
+// Update the back button and check the forms submission process working perfectly!
+// Create the new pages needed by the admin and mentor to finally accept the forms
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "../assets/logo.jpg";
