@@ -86,12 +86,22 @@ router.put(
   authenticate,
   authorizeRoles("student"),
   asyncHandler(async (req, res) => {
-    const { projectTrack, tools, modules } = req.body;
+    const { projectTrack, githubRepo, tools, modules } = req.body;
 
     // Validate required fields
-    if (!projectTrack || !tools || !modules) {
+    if (!projectTrack || !githubRepo || !tools || !modules) {
       return res.status(400).json({
-        message: "Project track, tools, and modules are required",
+        message:
+          "Project track, GitHub repository, tools, and modules are required",
+      });
+    }
+
+    // Basic GitHub URL validation
+    const githubUrlPattern =
+      /^https?:\/\/(www\.)?github\.com\/[\w-.]+\/[\w-.]+\/?$/;
+    if (!githubUrlPattern.test(githubRepo.trim())) {
+      return res.status(400).json({
+        message: "Please provide a valid GitHub repository URL",
       });
     }
 
@@ -123,6 +133,7 @@ router.put(
     // Update project abstract
     team.projectAbstract = {
       projectTrack,
+      githubRepo: githubRepo.trim(),
       tools: tools.map((tool) => ({
         name: tool.name,
         version: tool.version || "",

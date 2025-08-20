@@ -71,13 +71,12 @@ const teamSchema = new mongoose.Schema(
       },
     ],
 
-    githubRepo: { type: String },
-
     projectAbstract: {
       projectTrack: {
         type: String,
         enum: ["R&D", "Consultancy", "Startup", "Project Pool", "Hardware"],
       },
+      githubRepo: { type: String },
       tools: [
         {
           name: { type: String, required: true },
