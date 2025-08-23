@@ -123,11 +123,6 @@ const teamSchema = new mongoose.Schema(
               softDeadline: { type: Date },
               hardDeadline: { type: Date },
               details: { type: String },
-              status: {
-                type: String,
-                enum: ["pending", "in-progress", "completed"],
-                default: "pending",
-              },
             },
           ],
         },
@@ -273,19 +268,15 @@ teamSchema.methods.updateProjectProgress = function () {
   if (!this.evaluation?.weeklyStatus?.length) return;
 
   const totalModules = this.projectAbstract?.modules?.length || 1;
-  const completedActivities =
-    this.roleSpecification?.assignments?.reduce((acc, assignment) => {
-      return (
-        acc +
-        (assignment.activities?.filter((a) => a.status === "completed")
-          .length || 0)
-      );
-    }, 0) || 0;
-
+  // Since status field is removed, we'll calculate based on total activities
   const totalActivities =
     this.roleSpecification?.assignments?.reduce((acc, assignment) => {
       return acc + (assignment.activities?.length || 0);
     }, 0) || 1;
+
+  // For now, we'll use a simple calculation based on weekly status submissions
+  const weeklyProgress = this.evaluation.weeklyStatus.length;
+  const estimatedWeeks = 12; // Assuming a 12-week project
 
   if (!this.evaluation.summary) {
     this.evaluation.summary = {};
@@ -293,10 +284,8 @@ teamSchema.methods.updateProjectProgress = function () {
 
   this.evaluation.summary.moduleCompletion = {
     total: totalModules,
-    completed: Math.floor(
-      (completedActivities / totalActivities) * totalModules
-    ),
-    percentage: Math.round((completedActivities / totalActivities) * 100),
+    completed: Math.floor((weeklyProgress / estimatedWeeks) * totalModules),
+    percentage: Math.round((weeklyProgress / estimatedWeeks) * 100),
   };
 
   this.evaluation.summary.lastUpdated = new Date();
