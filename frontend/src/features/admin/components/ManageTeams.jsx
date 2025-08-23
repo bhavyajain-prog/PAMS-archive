@@ -592,17 +592,6 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                                     )}
                                   </div>
                                 </div>
-                                <span
-                                  className={`px-2 py-1 text-xs font-medium rounded ${
-                                    activity.status === "completed"
-                                      ? "bg-green-100 text-green-800"
-                                      : activity.status === "in-progress"
-                                      ? "bg-blue-100 text-blue-800"
-                                      : "bg-gray-100 text-gray-800"
-                                  }`}
-                                >
-                                  {activity.status || "pending"}
-                                </span>
                               </div>
                             </div>
                           ))}
@@ -1039,8 +1028,10 @@ const ActionModal = ({
         // If team doesn't already have a final project, require one
         const finalProjectId = team?.finalProject?._id || selectedProject;
         // Require final project selection only if choices exist and none is already allocated/selected
-        if (!finalProjectId && (team?.projectChoices?.length > 0)) {
-          throw new Error("Please select a final project from the team's choices.");
+        if (!finalProjectId && team?.projectChoices?.length > 0) {
+          throw new Error(
+            "Please select a final project from the team's choices."
+          );
         }
 
         await axios.post(`/admin/allocate/${team._id}/${selectedMentor}`, {
@@ -1151,7 +1142,8 @@ const ActionModal = ({
                   </select>
                 ) : (
                   <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded p-3">
-                    This team has no project choices. Add choices before allocating a final project.
+                    This team has no project choices. Add choices before
+                    allocating a final project.
                   </div>
                 )}
               </div>

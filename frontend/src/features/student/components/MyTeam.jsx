@@ -667,17 +667,6 @@ export default function MyTeam() {
                                           )}
                                         </div>
                                       </div>
-                                      <span
-                                        className={`px-2 py-1 text-xs font-medium rounded ${
-                                          activity.status === "completed"
-                                            ? "bg-green-100 text-green-800"
-                                            : activity.status === "in-progress"
-                                            ? "bg-blue-100 text-blue-800"
-                                            : "bg-gray-100 text-gray-800"
-                                        }`}
-                                      >
-                                        {activity.status || "pending"}
-                                      </span>
                                     </div>
                                   </div>
                                 )

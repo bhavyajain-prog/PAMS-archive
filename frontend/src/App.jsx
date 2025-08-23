@@ -37,6 +37,7 @@ import ManageProjects from "./features/admin/components/ManageProjects";
 
 import ProjectAbstractForm from "./features/forms/components/Form1";
 import RoleSpecificationForm from "./features/forms/components/Form2";
+import WeeklyStatusMatrix from "./features/forms/components/Form3";
 
 export default function App() {
   return (
@@ -186,6 +187,14 @@ export default function App() {
                 element={
                   <RoleBasedRoute roles={["student"]}>
                     <RoleSpecificationForm />
+                  </RoleBasedRoute>
+                }
+              />
+              <Route
+                path="/weekly-status-matrix"
+                element={
+                  <RoleBasedRoute roles={["student"]}>
+                    <WeeklyStatusMatrix />
                   </RoleBasedRoute>
                 }
               />

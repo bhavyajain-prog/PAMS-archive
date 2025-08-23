@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
 import {
-  FaCalendarAlt,
   FaPlus,
   FaTrash,
-  FaUser,
-  FaCheckCircle,
-  FaClock,
-  FaExclamationTriangle,
-  FaSpinner,
   FaSave,
   FaUndo,
+  FaSpinner,
+  FaCheckCircle,
+  FaExclamationTriangle,
+  FaUser,
+  FaCalendarAlt,
 } from "react-icons/fa";
 import axios from "../../../services/axios";
 
@@ -31,7 +30,6 @@ const RoleSpecificationForm = () => {
             softDeadline: "",
             hardDeadline: "",
             details: "",
-            status: "pending",
           },
         ],
       },
@@ -52,54 +50,12 @@ const RoleSpecificationForm = () => {
     const loadData = async () => {
       try {
         setLoadingStatus(true);
+        console.log("🔄 Starting Form2 data load...");
 
-        // Load existing role specification
-        const roleResponse = await axios.get("/team/role-specification/status");
-        if (roleResponse.data.roleSpecification) {
-          const data = roleResponse.data.roleSpecification;
-          setExistingData(data);
-          setFormData({
-            assignments:
-              data.assignments && data.assignments.length > 0
-                ? data.assignments.map((assignment) => ({
-                    member: assignment.member._id || assignment.member,
-                    modules:
-                      assignment.modules && assignment.modules.length > 0
-                        ? assignment.modules
-                        : [""],
-                    activities:
-                      assignment.activities && assignment.activities.length > 0
-                        ? assignment.activities.map((activity) => ({
-                            name: activity.name || "",
-                            softDeadline: activity.softDeadline
-                              ? new Date(activity.softDeadline)
-                                  .toISOString()
-                                  .slice(0, 16)
-                              : "",
-                            hardDeadline: activity.hardDeadline
-                              ? new Date(activity.hardDeadline)
-                                  .toISOString()
-                                  .slice(0, 16)
-                              : "",
-                            details: activity.details || "",
-                            status: activity.status || "pending",
-                          }))
-                        : [
-                            {
-                              name: "",
-                              softDeadline: "",
-                              hardDeadline: "",
-                              details: "",
-                              status: "pending",
-                            },
-                          ],
-                  }))
-                : initialFormState.assignments,
-          });
-        }
-
-        // Load team members
+        // Load team members first
         const teamResponse = await axios.get("/team/my-team");
+        console.log("👥 Team data received:", teamResponse.data);
+
         if (teamResponse.data.team) {
           const team = teamResponse.data.team;
           const members = [];
@@ -130,33 +86,133 @@ const RoleSpecificationForm = () => {
             });
           }
 
+          console.log("👥 Processed team members:", members);
           setTeamMembers(members);
+
+          // Load existing role specification
+          try {
+            const roleResponse = await axios.get(
+              "/team/role-specification/status"
+            );
+            console.log("📋 Role specification response:", roleResponse.data);
+
+            if (roleResponse.data.roleSpecification) {
+              const data = roleResponse.data.roleSpecification;
+              setExistingData(data);
+
+              // Process assignments with safer data handling
+              const processedAssignments = members.map((member) => {
+                // Find existing assignment for this member
+                const existingAssignment = data.assignments?.find(
+                  (a) => (a.member?._id || a.member) === member._id
+                );
+
+                return {
+                  member: member._id,
+                  modules:
+                    existingAssignment?.modules?.length > 0
+                      ? existingAssignment.modules
+                      : [""],
+                  activities:
+                    existingAssignment?.activities?.length > 0
+                      ? existingAssignment.activities.map((activity) => ({
+                          name: activity.name || "",
+                          softDeadline: activity.softDeadline
+                            ? new Date(activity.softDeadline)
+                                .toISOString()
+                                .slice(0, 10)
+                            : "",
+                          hardDeadline: activity.hardDeadline
+                            ? new Date(activity.hardDeadline)
+                                .toISOString()
+                                .slice(0, 10)
+                            : "",
+                          details: activity.details || "",
+                        }))
+                      : [
+                          {
+                            name: "",
+                            softDeadline: "",
+                            hardDeadline: "",
+                            details: "",
+                          },
+                        ],
+                };
+              });
+
+              console.log("📋 Processed assignments:", processedAssignments);
+              setFormData({ assignments: processedAssignments });
+            } else {
+              console.log(
+                "📋 No existing role specification found - creating assignments for all members"
+              );
+              // Create default assignments for all team members
+              const defaultAssignments = members.map((member) => ({
+                member: member._id,
+                modules: [""],
+                activities: [
+                  {
+                    name: "",
+                    softDeadline: "",
+                    hardDeadline: "",
+                    details: "",
+                    status: "pending",
+                  },
+                ],
+              }));
+              setFormData({ assignments: defaultAssignments });
+            }
+          } catch (roleError) {
+            console.log(
+              "📋 Role specification not found (404 expected for new forms):",
+              roleError.response?.status
+            );
+            if (roleError.response?.status === 404) {
+              // Create default assignments for all team members
+              const defaultAssignments = members.map((member) => ({
+                member: member._id,
+                modules: [""],
+                activities: [
+                  {
+                    name: "",
+                    softDeadline: "",
+                    hardDeadline: "",
+                    details: "",
+                    status: "pending",
+                  },
+                ],
+              }));
+              setFormData({ assignments: defaultAssignments });
+            } else {
+              console.error(
+                "📋 Unexpected error loading role specification:",
+                roleError
+              );
+              setMessage({
+                type: "error",
+                text: "Failed to load role specification. Starting with fresh form.",
+              });
+            }
+          }
         }
       } catch (error) {
-        console.error("Error loading data:", error);
-        if (error.response?.status !== 404) {
-          setMessage({
-            type: "error",
-            text: "Failed to load existing data. Starting with fresh form.",
-          });
-        }
+        console.error("❌ Critical error loading team data:", error);
+        setMessage({
+          type: "error",
+          text: "Failed to load team data. Please refresh the page and try again.",
+        });
       } finally {
         setLoadingStatus(false);
+        console.log("✅ Form2 data load complete");
       }
     };
 
     loadData();
-  });
+  }, []); // ← FIXED: Added proper dependency array
 
   const showMessage = (type, text) => {
     setMessage({ type, text });
     setTimeout(() => setMessage({ type: "", text: "" }), 5000);
-  };
-
-  const handleAssignmentChange = (assignmentIndex, field, value) => {
-    const updatedAssignments = [...formData.assignments];
-    updatedAssignments[assignmentIndex][field] = value;
-    setFormData({ ...formData, assignments: updatedAssignments });
   };
 
   const handleModuleChange = (assignmentIndex, moduleIndex, value) => {
@@ -174,36 +230,6 @@ const RoleSpecificationForm = () => {
     const updatedAssignments = [...formData.assignments];
     updatedAssignments[assignmentIndex].activities[activityIndex][field] =
       value;
-    setFormData({ ...formData, assignments: updatedAssignments });
-  };
-
-  const addAssignment = () => {
-    setFormData({
-      ...formData,
-      assignments: [
-        ...formData.assignments,
-        {
-          member: "",
-          modules: [""],
-          activities: [
-            {
-              name: "",
-              softDeadline: "",
-              hardDeadline: "",
-              details: "",
-              status: "pending",
-            },
-          ],
-        },
-      ],
-    });
-  };
-
-  const removeAssignment = (index) => {
-    if (formData.assignments.length <= 1) return;
-    const updatedAssignments = formData.assignments.filter(
-      (_, i) => i !== index
-    );
     setFormData({ ...formData, assignments: updatedAssignments });
   };
 
@@ -229,7 +255,6 @@ const RoleSpecificationForm = () => {
       softDeadline: "",
       hardDeadline: "",
       details: "",
-      status: "pending",
     });
     setFormData({ ...formData, assignments: updatedAssignments });
   };
@@ -244,18 +269,21 @@ const RoleSpecificationForm = () => {
   };
 
   const validateForm = () => {
-    // Check if at least one assignment has a member selected
-    const validAssignments = formData.assignments.filter(
-      (assignment) =>
-        assignment.member && assignment.modules.some((module) => module.trim())
-    );
-
-    if (validAssignments.length === 0) {
-      showMessage(
-        "error",
-        "Please add at least one assignment with a member and module"
+    // Check if all assignments have at least one module
+    for (let i = 0; i < formData.assignments.length; i++) {
+      const assignment = formData.assignments[i];
+      const memberDetails = teamMembers.find(
+        (m) => m._id === assignment.member
       );
-      return false;
+      const memberName = memberDetails ? memberDetails.name : `Member ${i + 1}`;
+
+      if (!assignment.modules.some((module) => module.trim())) {
+        showMessage(
+          "error",
+          `Please add at least one module for ${memberName}`
+        );
+        return false;
+      }
     }
 
     return true;
@@ -283,13 +311,12 @@ const RoleSpecificationForm = () => {
               .map((activity) => ({
                 name: activity.name,
                 softDeadline: activity.softDeadline
-                  ? new Date(activity.softDeadline).toISOString()
+                  ? new Date(activity.softDeadline).toISOString().slice(0, 10)
                   : null,
                 hardDeadline: activity.hardDeadline
-                  ? new Date(activity.hardDeadline).toISOString()
+                  ? new Date(activity.hardDeadline).toISOString().slice(0, 10)
                   : null,
                 details: activity.details,
-                status: activity.status,
               })),
           })),
       };
@@ -317,28 +344,6 @@ const RoleSpecificationForm = () => {
     setMessage({ type: "", text: "" });
   };
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "completed":
-        return <FaCheckCircle className="w-4 h-4 text-green-500" />;
-      case "in-progress":
-        return <FaClock className="w-4 h-4 text-blue-500" />;
-      default:
-        return <FaClock className="w-4 h-4 text-gray-400" />;
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "completed":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "in-progress":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
   if (loadingStatus) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-cyan-50 flex items-center justify-center">
@@ -360,7 +365,8 @@ const RoleSpecificationForm = () => {
               Role Specification Form
             </h1>
             <h2 className="text-base sm:text-lg font-medium text-gray-700">
-              Define assignments, modules, and activities for team members
+              Assign modules and activities to each team member (one assignment
+              per member)
             </h2>
             {existingData && (
               <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 border rounded-md">
@@ -437,319 +443,282 @@ const RoleSpecificationForm = () => {
         {/* Form Content */}
         <div className="bg-white rounded-b-xl shadow-lg p-8">
           <div className="space-y-8">
-            {formData.assignments.map((assignment, assignmentIndex) => (
-              <div key={assignmentIndex} className="bg-gray-50 rounded-lg p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                    <FaUser className="w-5 h-5 mr-2 text-teal-600" />
-                    Assignment {assignmentIndex + 1}
-                  </h3>
-                  {formData.assignments.length > 1 && isEditable && (
-                    <button
-                      type="button"
-                      onClick={() => removeAssignment(assignmentIndex)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all duration-200"
-                      title="Remove Assignment"
-                    >
-                      <FaTrash className="w-5 h-5" />
-                    </button>
-                  )}
-                </div>
+            {formData.assignments.map((assignment, assignmentIndex) => {
+              // Find the member details for this assignment
+              const memberDetails = teamMembers.find(
+                (m) => m._id === assignment.member
+              );
 
-                {/* Member Selection */}
-                <div className="mb-6">
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Assign to Member <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    value={assignment.member}
-                    onChange={(e) =>
-                      handleAssignmentChange(
-                        assignmentIndex,
-                        "member",
-                        e.target.value
-                      )
-                    }
-                    disabled={!isEditable}
-                    required
-                    className={`w-full border border-gray-300 rounded-lg px-4 py-3 transition-all ${
-                      isEditable
-                        ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                        : "bg-gray-100 cursor-not-allowed"
-                    }`}
-                  >
-                    <option value="">Select a team member</option>
-                    {teamMembers.map((member) => (
-                      <option key={member._id} value={member._id}>
-                        {member.name} {member.isLeader ? "(Leader)" : ""} -{" "}
-                        {member.rollNumber || member.email}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Modules */}
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <label className="block text-sm font-semibold text-gray-700">
-                      Modules <span className="text-red-500">*</span>
-                    </label>
-                    {isEditable && (
-                      <button
-                        type="button"
-                        onClick={() => addModule(assignmentIndex)}
-                        className="bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1 transition-all duration-200"
-                      >
-                        <FaPlus className="w-3 h-3" />
-                        Add Module
-                      </button>
-                    )}
-                  </div>
-                  <div className="space-y-3">
-                    {assignment.modules.map((module, moduleIndex) => (
-                      <div
-                        key={moduleIndex}
-                        className="flex items-center gap-3"
-                      >
-                        <input
-                          type="text"
-                          value={module}
-                          onChange={(e) =>
-                            handleModuleChange(
-                              assignmentIndex,
-                              moduleIndex,
-                              e.target.value
-                            )
-                          }
-                          placeholder="e.g., User Authentication, Dashboard"
-                          disabled={!isEditable}
-                          required
-                          className={`flex-1 border border-gray-300 rounded-lg px-3 py-2 transition-all ${
-                            isEditable
-                              ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                              : "bg-gray-100 cursor-not-allowed"
-                          }`}
-                        />
-                        {assignment.modules.length > 1 && isEditable && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              removeModule(assignmentIndex, moduleIndex)
-                            }
-                            className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all duration-200"
-                            title="Remove module"
-                          >
-                            <FaTrash className="w-4 h-4" />
-                          </button>
+              return (
+                <div
+                  key={assignmentIndex}
+                  className="bg-gray-50 rounded-lg p-6"
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center">
+                      <FaUser className="w-5 h-5 mr-2 text-teal-600" />
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {memberDetails ? (
+                            <>
+                              {memberDetails.name}
+                              {memberDetails.isLeader && (
+                                <span className="ml-2 px-2 py-1 bg-teal-100 text-teal-800 text-xs rounded-full">
+                                  Leader
+                                </span>
+                              )}
+                            </>
+                          ) : (
+                            `Assignment ${assignmentIndex + 1}`
+                          )}
+                        </h3>
+                        {memberDetails && (
+                          <p className="text-sm text-gray-600">
+                            {memberDetails.rollNumber || memberDetails.email}
+                          </p>
                         )}
                       </div>
-                    ))}
+                    </div>
                   </div>
-                </div>
 
-                {/* Activities */}
-                <div className="mb-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <label className="block text-sm font-semibold text-gray-700">
-                      Activities
+                  {/* Member Assignment Info (Read-only) */}
+                  <div className="mb-6">
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                      Team Member
                     </label>
-                    {isEditable && (
-                      <button
-                        type="button"
-                        onClick={() => addActivity(assignmentIndex)}
-                        className="bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1 transition-all duration-200"
-                      >
-                        <FaPlus className="w-3 h-3" />
-                        Add Activity
-                      </button>
-                    )}
+                    <div className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-100 text-gray-700">
+                      {memberDetails ? (
+                        <>
+                          {memberDetails.name}{" "}
+                          {memberDetails.isLeader ? "(Leader)" : ""} -{" "}
+                          {memberDetails.rollNumber || memberDetails.email}
+                        </>
+                      ) : (
+                        "Member not found"
+                      )}
+                    </div>
+                    <p className="mt-1 text-xs text-gray-600">
+                      Each team member automatically gets one assignment. Add
+                      modules and activities below.
+                    </p>
                   </div>
-                  <div className="space-y-4">
-                    {assignment.activities.map((activity, activityIndex) => (
-                      <div
-                        key={activityIndex}
-                        className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm"
-                      >
-                        <div className="flex items-center justify-between mb-4">
-                          <h4 className="text-sm font-semibold text-gray-800">
-                            Activity {activityIndex + 1}
-                          </h4>
-                          <div className="flex items-center gap-2">
-                            <div
-                              className={`flex items-center px-2 py-1 rounded-full text-xs border font-medium ${getStatusColor(
-                                activity.status
-                              )}`}
+
+                  {/* Modules */}
+                  <div className="mb-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <label className="block text-sm font-semibold text-gray-700">
+                        Modules <span className="text-red-500">*</span>
+                      </label>
+                      {isEditable && (
+                        <button
+                          type="button"
+                          onClick={() => addModule(assignmentIndex)}
+                          className="bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1 transition-all duration-200"
+                        >
+                          <FaPlus className="w-3 h-3" />
+                          Add Module
+                        </button>
+                      )}
+                    </div>
+                    <div className="space-y-3">
+                      {assignment.modules.map((module, moduleIndex) => (
+                        <div
+                          key={moduleIndex}
+                          className="flex items-center gap-3"
+                        >
+                          <input
+                            type="text"
+                            value={module}
+                            onChange={(e) =>
+                              handleModuleChange(
+                                assignmentIndex,
+                                moduleIndex,
+                                e.target.value
+                              )
+                            }
+                            placeholder="e.g., User Authentication, Dashboard"
+                            disabled={!isEditable}
+                            required
+                            className={`flex-1 border border-gray-300 rounded-lg px-3 py-2 transition-all ${
+                              isEditable
+                                ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                                : "bg-gray-100 cursor-not-allowed"
+                            }`}
+                          />
+                          {assignment.modules.length > 1 && isEditable && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                removeModule(assignmentIndex, moduleIndex)
+                              }
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all duration-200"
+                              title="Remove module"
                             >
-                              {getStatusIcon(activity.status)}
-                              <span className="ml-1 capitalize">
-                                {activity.status.replace("-", " ")}
-                              </span>
+                              <FaTrash className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Activities */}
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <label className="block text-sm font-semibold text-gray-700">
+                        Activities
+                      </label>
+                      {isEditable && (
+                        <button
+                          type="button"
+                          onClick={() => addActivity(assignmentIndex)}
+                          className="bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1 transition-all duration-200"
+                        >
+                          <FaPlus className="w-3 h-3" />
+                          Add Activity
+                        </button>
+                      )}
+                    </div>
+                    <div className="space-y-4">
+                      {assignment.activities.map((activity, activityIndex) => (
+                        <div
+                          key={activityIndex}
+                          className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm"
+                        >
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-sm font-semibold text-gray-800">
+                              Activity {activityIndex + 1}
+                            </h4>
+                            <div className="flex items-center gap-2">
+                              {assignment.activities.length > 1 &&
+                                isEditable && (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      removeActivity(
+                                        assignmentIndex,
+                                        activityIndex
+                                      )
+                                    }
+                                    className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded-lg transition-all duration-200"
+                                    title="Remove activity"
+                                  >
+                                    <FaTrash className="w-4 h-4" />
+                                  </button>
+                                )}
                             </div>
-                            {assignment.activities.length > 1 && isEditable && (
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  removeActivity(assignmentIndex, activityIndex)
+                          </div>
+
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <div className="lg:col-span-2">
+                              <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+                                Activity Name{" "}
+                                <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={activity.name}
+                                onChange={(e) =>
+                                  handleActivityChange(
+                                    assignmentIndex,
+                                    activityIndex,
+                                    "name",
+                                    e.target.value
+                                  )
                                 }
-                                className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded-lg transition-all duration-200"
-                                title="Remove activity"
-                              >
-                                <FaTrash className="w-4 h-4" />
-                              </button>
-                            )}
+                                placeholder="e.g., Design user interface, Implement login system"
+                                disabled={!isEditable}
+                                required
+                                className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${
+                                  isEditable
+                                    ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                                    : "bg-gray-100 cursor-not-allowed"
+                                }`}
+                              />
+                            </div>
+
+                            <div>
+                              <label className="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide flex items-center">
+                                <FaCalendarAlt className="w-3 h-3 mr-1" />
+                                Soft Deadline
+                              </label>
+                              <input
+                                type="date"
+                                value={activity.softDeadline}
+                                onChange={(e) =>
+                                  handleActivityChange(
+                                    assignmentIndex,
+                                    activityIndex,
+                                    "softDeadline",
+                                    e.target.value
+                                  )
+                                }
+                                disabled={!isEditable}
+                                className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${
+                                  isEditable
+                                    ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                                    : "bg-gray-100 cursor-not-allowed"
+                                }`}
+                              />
+                            </div>
+
+                            <div>
+                              <label className="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide flex items-center">
+                                <FaCalendarAlt className="w-3 h-3 mr-1" />
+                                Hard Deadline
+                              </label>
+                              <input
+                                type="date"
+                                value={activity.hardDeadline}
+                                onChange={(e) =>
+                                  handleActivityChange(
+                                    assignmentIndex,
+                                    activityIndex,
+                                    "hardDeadline",
+                                    e.target.value
+                                  )
+                                }
+                                disabled={!isEditable}
+                                className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${
+                                  isEditable
+                                    ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                                    : "bg-gray-100 cursor-not-allowed"
+                                }`}
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+                                Details
+                              </label>
+                              <textarea
+                                value={activity.details}
+                                onChange={(e) =>
+                                  handleActivityChange(
+                                    assignmentIndex,
+                                    activityIndex,
+                                    "details",
+                                    e.target.value
+                                  )
+                                }
+                                placeholder="Activity details and requirements..."
+                                disabled={!isEditable}
+                                rows={2}
+                                className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all resize-none ${
+                                  isEditable
+                                    ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                                    : "bg-gray-100 cursor-not-allowed"
+                                }`}
+                              />
+                            </div>
                           </div>
                         </div>
-
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                          <div className="lg:col-span-2">
-                            <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
-                              Activity Name{" "}
-                              <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                              type="text"
-                              value={activity.name}
-                              onChange={(e) =>
-                                handleActivityChange(
-                                  assignmentIndex,
-                                  activityIndex,
-                                  "name",
-                                  e.target.value
-                                )
-                              }
-                              placeholder="e.g., Design user interface, Implement login system"
-                              disabled={!isEditable}
-                              required
-                              className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${
-                                isEditable
-                                  ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                                  : "bg-gray-100 cursor-not-allowed"
-                              }`}
-                            />
-                          </div>
-
-                          <div>
-                            <label className="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide flex items-center">
-                              <FaCalendarAlt className="w-3 h-3 mr-1" />
-                              Soft Deadline
-                            </label>
-                            <input
-                              type="datetime-local"
-                              value={activity.softDeadline}
-                              onChange={(e) =>
-                                handleActivityChange(
-                                  assignmentIndex,
-                                  activityIndex,
-                                  "softDeadline",
-                                  e.target.value
-                                )
-                              }
-                              disabled={!isEditable}
-                              className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${
-                                isEditable
-                                  ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                                  : "bg-gray-100 cursor-not-allowed"
-                              }`}
-                            />
-                          </div>
-
-                          <div>
-                            <label className="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide flex items-center">
-                              <FaCalendarAlt className="w-3 h-3 mr-1" />
-                              Hard Deadline
-                            </label>
-                            <input
-                              type="datetime-local"
-                              value={activity.hardDeadline}
-                              onChange={(e) =>
-                                handleActivityChange(
-                                  assignmentIndex,
-                                  activityIndex,
-                                  "hardDeadline",
-                                  e.target.value
-                                )
-                              }
-                              disabled={!isEditable}
-                              className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${
-                                isEditable
-                                  ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                                  : "bg-gray-100 cursor-not-allowed"
-                              }`}
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
-                              Status
-                            </label>
-                            <select
-                              value={activity.status}
-                              onChange={(e) =>
-                                handleActivityChange(
-                                  assignmentIndex,
-                                  activityIndex,
-                                  "status",
-                                  e.target.value
-                                )
-                              }
-                              disabled={!isEditable}
-                              className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${
-                                isEditable
-                                  ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                                  : "bg-gray-100 cursor-not-allowed"
-                              }`}
-                            >
-                              <option value="pending">Pending</option>
-                              <option value="in-progress">In Progress</option>
-                              <option value="completed">Completed</option>
-                            </select>
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
-                              Details
-                            </label>
-                            <textarea
-                              value={activity.details}
-                              onChange={(e) =>
-                                handleActivityChange(
-                                  assignmentIndex,
-                                  activityIndex,
-                                  "details",
-                                  e.target.value
-                                )
-                              }
-                              placeholder="Activity details and requirements..."
-                              disabled={!isEditable}
-                              rows={2}
-                              className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all resize-none ${
-                                isEditable
-                                  ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                                  : "bg-gray-100 cursor-not-allowed"
-                              }`}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-
-            {/* Add Assignment Button */}
-            {isEditable && (
-              <div className="flex justify-center">
-                <button
-                  type="button"
-                  onClick={addAssignment}
-                  className="flex items-center px-6 py-3 text-teal-600 bg-teal-50 border border-teal-200 rounded-lg hover:bg-teal-100 font-medium transition-all duration-200 transform hover:scale-105"
-                >
-                  <FaPlus className="w-4 h-4 mr-2" />
-                  Add Another Assignment
-                </button>
-              </div>
-            )}
+              );
+            })}
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6 border-t border-gray-200">

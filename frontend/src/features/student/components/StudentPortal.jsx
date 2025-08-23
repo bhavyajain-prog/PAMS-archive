@@ -124,21 +124,17 @@ export default function StudentPortal() {
                 icon={<FaTachometerAlt />}
               />
               <StudentActionCard
-                to="/weekly-progress" // Placeholder route
-                title="Weekly Progress"
-                description="Submit your team's weekly progress report and logs."
+                to="/weekly-status-matrix"
+                title="Weekly Status Matrix"
+                description="Submit your team's weekly progress report and evaluation matrix."
                 icon={<FaFileUpload />}
               />
-            </div>
-            <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-16">
-              <div className="md:col-start-2">
-                <StudentActionCard
-                  to="/project-bank"
-                  title="Project Bank"
-                  description="Browse the project bank, see your proposals, or propose a new idea."
-                  icon={<FaBook />}
-                />
-              </div>
+              <StudentActionCard
+                to="/project-bank"
+                title="Project Bank"
+                description="Browse the project bank, see your proposals, or propose a new idea."
+                icon={<FaBook />}
+              />
             </div>
           </div>
         ) : (
