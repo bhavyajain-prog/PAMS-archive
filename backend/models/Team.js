@@ -157,8 +157,32 @@ const teamSchema = new mongoose.Schema(
           achievements: [{ type: String }],
           challenges: [{ type: String }],
           studentRemarks: { type: String },
+
+          // File upload information
+          projectFile: {
+            originalName: { type: String },
+            filename: { type: String },
+            path: { type: String },
+            size: { type: Number },
+            uploadedAt: { type: Date },
+          },
+
+          // Mentor evaluation
           mentorComments: { type: String },
           mentorScore: { type: Number, min: 0, max: 10 },
+          mentorEvaluatedAt: { type: Date },
+          mentorEvaluatedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+          },
+
+          // Status for approval workflow
+          status: {
+            type: String,
+            enum: ["draft", "submitted", "mentor_approved"],
+            default: "draft",
+          },
+
           submittedAt: { type: Date, default: Date.now },
           submittedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
         },
@@ -179,6 +203,38 @@ const teamSchema = new mongoose.Schema(
         mentorRemarks: { type: String },
       },
     },
+
+    // Project Timeline Management
+    projectTimeline: {
+      startDate: {
+        type: Date,
+        default: null,
+        index: true,
+      },
+      endDate: {
+        type: Date,
+        default: null,
+      },
+      assignedAt: {
+        type: Date,
+        default: null,
+      },
+      assignedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: null,
+      },
+      isAutoAssigned: {
+        type: Boolean,
+        default: false,
+      },
+      weekDuration: {
+        type: Number,
+        default: 12, // Default 12-week project
+        min: 1,
+        max: 52,
+      },
+    },
   },
   {
     timestamps: true,
@@ -195,6 +251,8 @@ teamSchema.index({ status: 1 });
 teamSchema.index({ createdAt: -1 });
 teamSchema.index({ "projectAbstract.status": 1 });
 teamSchema.index({ "roleSpecification.status": 1 });
+teamSchema.index({ "projectTimeline.startDate": 1 });
+teamSchema.index({ "projectTimeline.assignedAt": 1 });
 
 teamSchema.pre("save", function (next) {
   if (this.members.length > 3) {
@@ -245,6 +303,109 @@ teamSchema.virtual("isFormComplete").get(function () {
     hasWeeklyStatus: (this.evaluation?.weeklyStatus?.length || 0) > 0,
   };
 });
+
+// Virtual for checking if team meets criteria for project timeline assignment
+teamSchema.virtual("meetsTimelineAssignmentCriteria").get(function () {
+  return (
+    this.status === "approved" &&
+    this.mentor?.assigned &&
+    !this.projectTimeline?.startDate
+  );
+});
+
+// Virtual for checking if team can access weekly status
+teamSchema.virtual("canAccessWeeklyStatus").get(function () {
+  return Boolean(this.projectTimeline?.startDate);
+});
+
+// Virtual for current project week
+teamSchema.virtual("currentProjectWeek").get(function () {
+  if (!this.projectTimeline?.startDate) return 0;
+
+  const now = new Date();
+  const start = new Date(this.projectTimeline.startDate);
+  const diffTime = Math.abs(now - start);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const weekNumber = Math.ceil(diffDays / 7);
+
+  return weekNumber > 0 ? weekNumber : 1;
+});
+
+// Virtual for project progress percentage based on timeline
+teamSchema.virtual("timelineProgressPercentage").get(function () {
+  if (!this.projectTimeline?.startDate || !this.projectTimeline?.weekDuration)
+    return 0;
+
+  const currentWeek = this.currentProjectWeek;
+  const totalWeeks = this.projectTimeline.weekDuration;
+
+  return Math.min(Math.round((currentWeek / totalWeeks) * 100), 100);
+});
+
+// Method to assign project timeline
+teamSchema.methods.assignProjectTimeline = function (
+  startDate,
+  duration = 12,
+  assignedBy = null,
+  isAutoAssigned = false
+) {
+  this.projectTimeline = {
+    startDate: new Date(startDate),
+    endDate: new Date(
+      new Date(startDate).getTime() + duration * 7 * 24 * 60 * 60 * 1000
+    ), // duration in weeks
+    assignedAt: new Date(),
+    assignedBy: assignedBy,
+    isAutoAssigned: isAutoAssigned,
+    weekDuration: duration,
+  };
+
+  return this.save();
+};
+
+// Method to check if team meets auto-assignment criteria
+teamSchema.methods.checkAutoAssignmentEligibility = function () {
+  return (
+    this.status === "approved" &&
+    this.mentor?.assigned &&
+    !this.projectTimeline?.startDate
+  );
+};
+
+// Static method to find teams eligible for auto-assignment
+teamSchema.statics.findEligibleForAutoAssignment = function () {
+  return this.find({
+    status: "approved",
+    "mentor.assigned": { $exists: true, $ne: null },
+    "projectTimeline.startDate": { $exists: false },
+  });
+};
+
+// Static method to auto-assign timeline to eligible teams
+teamSchema.statics.autoAssignTimeline = async function (
+  globalStartDate,
+  duration = 12,
+  assignedBy = null
+) {
+  const eligibleTeams = await this.findEligibleForAutoAssignment();
+
+  const results = [];
+  for (const team of eligibleTeams) {
+    try {
+      await team.assignProjectTimeline(
+        globalStartDate,
+        duration,
+        assignedBy,
+        true
+      );
+      results.push({ teamId: team._id, status: "success" });
+    } catch (error) {
+      results.push({ teamId: team._id, status: "error", error: error.message });
+    }
+  }
+
+  return results;
+};
 
 teamSchema.methods.addWeeklyStatus = function (weekData, studentId) {
   if (!this.evaluation) {

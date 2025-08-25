@@ -40,14 +40,15 @@ const projectBankSchema = new mongoose.Schema(
 // Indexes
 projectBankSchema.index({ category: 1 });
 projectBankSchema.index({ isApproved: 1 });
-projectBankSchema.index({rejectedAt: 1 },{expireAfterSeconds: 60 * 60 * 24 * 2});
+// TTL index: Delete rejected projects after 2 days (172800 seconds)
+projectBankSchema.index(
+  { rejectedAt: 1 },
+  { expireAfterSeconds: 60 * 60 * 24 * 2 }
+);
 
 // ✅ Dynamic virtual
 projectBankSchema.virtual("isAvailable").get(function () {
-  return (
-    this.isApproved &&
-    this.assignedTeams.length < this.maxTeams
-  );
+  return this.isApproved && this.assignedTeams.length < this.maxTeams;
 });
 
 projectBankSchema.virtual("assignedTeamCount").get(function () {

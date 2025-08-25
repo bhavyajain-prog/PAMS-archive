@@ -992,4 +992,93 @@ router.delete(
   })
 );
 
+// TTL Monitoring Route
+router.get(
+  "/ttl-status",
+  authenticate,
+  authorizeRoles("admin", "sub-admin"),
+  asyncHandler(async (req, res) => {
+    try {
+      // Check TTL index exists
+      const indexes = await Project.collection.getIndexes();
+      const ttlIndex = Object.keys(indexes).find(
+        (key) => indexes[key].expireAfterSeconds !== undefined
+      );
+
+      // Find expired projects that should have been deleted
+      const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+      const expiredProjects = await Project.find(
+        {
+          rejectedAt: { $lt: twoDaysAgo, $ne: null },
+        },
+        "title rejectedAt"
+      );
+
+      // Get project statistics
+      const totalProjects = await Project.countDocuments();
+      const approvedCount = await Project.countDocuments({ isApproved: true });
+      const rejectedCount = await Project.countDocuments({
+        rejectedAt: { $ne: null },
+      });
+      const pendingCount = await Project.countDocuments({
+        isApproved: false,
+        rejectedAt: null,
+      });
+
+      // Get recent rejections (last 7 days)
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const recentRejections = await Project.find(
+        {
+          rejectedAt: { $gte: sevenDaysAgo },
+        },
+        "title rejectedAt"
+      ).sort({ rejectedAt: -1 });
+
+      res.status(200).json({
+        ttlIndex: {
+          exists: !!ttlIndex,
+          name: ttlIndex || null,
+          expireAfterSeconds: ttlIndex
+            ? indexes[ttlIndex].expireAfterSeconds
+            : null,
+          expireAfterDays: ttlIndex
+            ? indexes[ttlIndex].expireAfterSeconds / (24 * 60 * 60)
+            : null,
+        },
+        expiredProjects: {
+          count: expiredProjects.length,
+          projects: expiredProjects.map((p) => ({
+            title: p.title,
+            rejectedAt: p.rejectedAt,
+            daysAgo: Math.floor(
+              (Date.now() - new Date(p.rejectedAt).getTime()) /
+                (1000 * 60 * 60 * 24)
+            ),
+          })),
+        },
+        statistics: {
+          total: totalProjects,
+          approved: approvedCount,
+          rejected: rejectedCount,
+          pending: pendingCount,
+        },
+        recentRejections: recentRejections.map((p) => ({
+          title: p.title,
+          rejectedAt: p.rejectedAt,
+          daysAgo: Math.floor(
+            (Date.now() - new Date(p.rejectedAt).getTime()) /
+              (1000 * 60 * 60 * 24)
+          ),
+        })),
+      });
+    } catch (error) {
+      console.error("TTL Status Error:", error);
+      res.status(500).json({
+        message: "Error checking TTL status",
+        error: error.message,
+      });
+    }
+  })
+);
+
 module.exports = router;

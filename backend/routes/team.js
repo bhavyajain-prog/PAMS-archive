@@ -1,9 +1,83 @@
 const router = require("express").Router();
 const asyncHandler = require("express-async-handler");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 const Team = require("../models/Team");
 const User = require("../models/User");
+const SystemSettings = require("../models/SystemSettings");
 const authenticate = require("../middleware/authenticate");
 const authorizeRoles = require("../middleware/authorizeRoles");
+
+// Helper functions for week calculations
+const calculateCurrentWeek = (startDate) => {
+  if (!startDate) return 0; // No week if no start date
+
+  const now = new Date();
+  const start = new Date(startDate);
+
+  // Calculate difference in days
+  const diffTime = Math.abs(now - start);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  // Calculate week number (1-indexed)
+  const weekNumber = Math.ceil(diffDays / 7);
+
+  return weekNumber > 0 ? weekNumber : 1;
+};
+
+const getWeekDateRange = (startDate, weekNumber) => {
+  const start = new Date(startDate);
+  const weekStart = new Date(
+    start.getTime() + (weekNumber - 1) * 7 * 24 * 60 * 60 * 1000
+  );
+  const weekEnd = new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000);
+
+  return {
+    from: weekStart,
+    to: weekEnd,
+  };
+};
+
+const checkTeamTimelineAccess = (team) => {
+  return Boolean(team.projectTimeline?.startDate);
+};
+
+// Configure multer for weekly status file uploads
+const weeklyUploadsStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadPath = path.join(__dirname, "..", "uploads", "weekly-status");
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: function (req, file, cb) {
+    // Get user info for filename
+    const userId = req.user._id;
+    const originalName = file.originalname;
+    const extension = path.extname(originalName);
+
+    // We'll set the proper filename after getting team info
+    cb(null, `temp_${userId}_${Date.now()}${extension}`);
+  },
+});
+
+const weeklyUpload = multer({
+  storage: weeklyUploadsStorage,
+  fileFilter: function (req, file, cb) {
+    // Only accept .zip files
+    if (path.extname(file.originalname).toLowerCase() === ".zip") {
+      cb(null, true);
+    } else {
+      cb(new Error("Only .zip files are allowed!"), false);
+    }
+  },
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50MB limit
+  },
+});
 
 router.get(
   "/my-team",
@@ -357,6 +431,63 @@ router.get(
   })
 );
 
+// Get current week information for team
+router.get(
+  "/current-week",
+  authenticate,
+  authorizeRoles("student"),
+  asyncHandler(async (req, res) => {
+    const student = await User.findById(req.user._id);
+    if (!student || !student.studentData?.currentTeam) {
+      return res
+        .status(404)
+        .json({ message: "No team found for this student" });
+    }
+
+    const team = await Team.findById(student.studentData.currentTeam);
+    if (!team) {
+      return res.status(404).json({ message: "Team not found" });
+    }
+
+    // Check if team has project timeline assigned
+    if (!checkTeamTimelineAccess(team)) {
+      return res.status(403).json({
+        message:
+          "Project timeline not assigned yet. Please wait for admin to set the project start date.",
+        hasTimeline: false,
+        teamStatus: team.status,
+        hasMentor: Boolean(team.mentor?.assigned),
+      });
+    }
+
+    const projectStart = team.projectTimeline.startDate;
+    const currentWeek = calculateCurrentWeek(projectStart);
+    const weekDateRange = getWeekDateRange(projectStart, currentWeek);
+
+    // Check if current week already has submission
+    const hasSubmission = team.evaluation?.weeklyStatus?.some(
+      (status) => status.week === currentWeek
+    );
+
+    // Get max allowable week (current week)
+    const maxWeek = currentWeek;
+
+    res.status(200).json({
+      hasTimeline: true,
+      currentWeek,
+      maxWeek,
+      dateRange: weekDateRange,
+      hasSubmission,
+      projectStartDate: projectStart,
+      projectEndDate: team.projectTimeline.endDate,
+      projectDuration: team.projectTimeline.weekDuration,
+      timelineProgress: team.timelineProgressPercentage,
+      availableWeeks: Array.from({ length: currentWeek }, (_, i) => i + 1),
+      isAutoAssigned: team.projectTimeline.isAutoAssigned,
+    });
+  })
+);
+
 // Weekly Status Routes
 router.get(
   "/weekly-status",
@@ -373,7 +504,7 @@ router.get(
 
     // Get team with weekly status data
     const team = await Team.findById(user.studentData.currentTeam)
-      .select("evaluation.weeklyStatus")
+      .select("evaluation.weeklyStatus projectTimeline")
       .populate({
         path: "evaluation.weeklyStatus.submittedBy",
         select: "name email",
@@ -383,8 +514,46 @@ router.get(
       return res.status(404).json({ message: "Team not found" });
     }
 
+    // Check timeline access
+    if (!checkTeamTimelineAccess(team)) {
+      return res.status(403).json({
+        message:
+          "Weekly status access denied. Project timeline not assigned yet.",
+        hasTimeline: false,
+      });
+    }
+
+    // Format weekly status for student view (exclude file paths for security)
+    const formattedWeeklyStatus =
+      team.evaluation?.weeklyStatus?.map((submission) => ({
+        _id: submission._id,
+        week: submission.week,
+        dateRange: submission.dateRange,
+        module: submission.module,
+        progress: submission.progress,
+        achievements: submission.achievements,
+        challenges: submission.challenges,
+        studentRemarks: submission.studentRemarks,
+        projectFile: submission.projectFile
+          ? {
+              originalName: submission.projectFile.originalName,
+              filename: submission.projectFile.filename,
+              size: submission.projectFile.size,
+              uploadedAt: submission.projectFile.uploadedAt,
+            }
+          : null,
+        status: submission.status || "submitted",
+        mentorScore: submission.mentorScore || null,
+        mentorComments: submission.mentorComments || "",
+        submittedAt: submission.submittedAt,
+        submittedBy: submission.submittedBy,
+        scoredAt: submission.scoredAt || null,
+      })) || [];
+
     res.status(200).json({
-      weeklyStatus: team.evaluation?.weeklyStatus || [],
+      weeklyStatus: formattedWeeklyStatus,
+      hasTimeline: true,
+      projectTimeline: team.projectTimeline,
     });
   })
 );
@@ -393,6 +562,7 @@ router.post(
   "/weekly-status",
   authenticate,
   authorizeRoles("student"),
+  weeklyUpload.single("projectFile"),
   asyncHandler(async (req, res) => {
     const {
       week,
@@ -413,22 +583,47 @@ router.post(
       !achievements ||
       !challenges
     ) {
+      // Clean up uploaded file if validation fails
+      if (req.file) {
+        fs.unlink(req.file.path, () => {});
+      }
       return res.status(400).json({
-        message:
-          "Week, date range, module, progress, achievements, and challenges are required",
+        message: "All required fields must be provided",
+        required: [
+          "week",
+          "dateRange",
+          "module",
+          "progress",
+          "achievements",
+          "challenges",
+        ],
+      });
+    }
+
+    // Validate that project file is uploaded
+    if (!req.file) {
+      return res.status(400).json({
+        message: "Project file (.zip) is required",
       });
     }
 
     // Find the student's team
     const student = await User.findById(req.user._id);
     if (!student || !student.studentData?.currentTeam) {
+      // Clean up uploaded file
+      fs.unlink(req.file.path, () => {});
       return res
         .status(404)
         .json({ message: "No team found for this student" });
     }
 
-    const team = await Team.findById(student.studentData.currentTeam);
+    const team = await Team.findById(student.studentData.currentTeam)
+      .populate("leader", "studentData.rollNumber")
+      .populate("members.student", "studentData.rollNumber");
+
     if (!team) {
+      // Clean up uploaded file
+      fs.unlink(req.file.path, () => {});
       return res.status(404).json({ message: "Team not found" });
     }
 
@@ -439,8 +634,46 @@ router.post(
     );
 
     if (!isLeader && !isMember) {
+      // Clean up uploaded file
+      fs.unlink(req.file.path, () => {});
       return res.status(403).json({
         message: "Only team members can submit weekly status",
+      });
+    }
+
+    // Check timeline access
+    if (!checkTeamTimelineAccess(team)) {
+      // Clean up uploaded file
+      fs.unlink(req.file.path, () => {});
+      return res.status(403).json({
+        message:
+          "Weekly status access denied. Project timeline not assigned yet.",
+        hasTimeline: false,
+      });
+    }
+
+    // Validate week number against current week
+    const currentWeek = calculateCurrentWeek(team.projectTimeline.startDate);
+    if (week > currentWeek) {
+      // Clean up uploaded file
+      fs.unlink(req.file.path, () => {});
+      return res.status(400).json({
+        message: `Cannot submit for future weeks. Current week is ${currentWeek}`,
+        currentWeek,
+        maxWeek: currentWeek,
+      });
+    }
+
+    if (week < 1 || week > team.projectTimeline.weekDuration) {
+      // Clean up uploaded file
+      fs.unlink(req.file.path, () => {});
+      return res.status(400).json({
+        message: `Invalid week number. Must be between 1 and ${Math.min(
+          currentWeek,
+          team.projectTimeline.weekDuration
+        )}`,
+        currentWeek,
+        maxWeek: Math.min(currentWeek, team.projectTimeline.weekDuration),
       });
     }
 
@@ -454,6 +687,8 @@ router.post(
     );
 
     if (existingSubmission) {
+      // Clean up uploaded file
+      fs.unlink(req.file.path, () => {});
       return res.status(400).json({
         message: `Week ${week} status has already been submitted`,
       });
@@ -470,8 +705,35 @@ router.post(
     }
 
     if (!availableModules.includes(module)) {
+      // Clean up uploaded file
+      fs.unlink(req.file.path, () => {});
       return res.status(400).json({
         message: "Selected module is not available in your role specification",
+      });
+    }
+
+    // Get user's roll number for filename
+    const userRollNumber = student.studentData?.rollNumber;
+    if (!userRollNumber) {
+      // Clean up uploaded file
+      fs.unlink(req.file.path, () => {});
+      return res.status(400).json({
+        message: "Student roll number not found",
+      });
+    }
+
+    // Create proper filename: rollno_teamcode_weekX.zip
+    const properFilename = `${userRollNumber}_${team.code}_week${week}.zip`;
+    const newFilePath = path.join(path.dirname(req.file.path), properFilename);
+
+    try {
+      // Rename file to proper format
+      fs.renameSync(req.file.path, newFilePath);
+    } catch (error) {
+      // Clean up uploaded file
+      fs.unlink(req.file.path, () => {});
+      return res.status(500).json({
+        message: "Error processing uploaded file",
       });
     }
 
@@ -489,6 +751,18 @@ router.post(
         .map((a) => a.trim()),
       challenges: challenges.filter((c) => c && c.trim()).map((c) => c.trim()),
       studentRemarks: studentRemarks ? studentRemarks.trim() : "",
+
+      // File information
+      projectFile: {
+        originalName: req.file.originalname,
+        filename: properFilename,
+        path: newFilePath,
+        size: req.file.size,
+        uploadedAt: new Date(),
+      },
+
+      // Initial status
+      status: "submitted",
       submittedAt: new Date(),
       submittedBy: req.user._id,
     };
@@ -503,7 +777,7 @@ router.post(
 
     res.status(201).json({
       message: `Week ${week} status submitted successfully`,
-      weeklyStatus: team.evaluation.weeklyStatus,
+      weeklyStatus: newWeeklyStatus,
     });
   })
 );
@@ -595,6 +869,719 @@ router.put(
     res.status(200).json({
       message: `Week ${week} status updated successfully`,
       weeklyStatus: team.evaluation.weeklyStatus,
+    });
+  })
+);
+
+// Admin routes for project timeline management
+router.get(
+  "/admin/timeline-settings",
+  authenticate,
+  authorizeRoles("admin"),
+  asyncHandler(async (req, res) => {
+    const settings = await SystemSettings.getSettings();
+
+    res.status(200).json({
+      globalSettings: settings.projectTimeline,
+      academicCalendar: settings.academicCalendar,
+    });
+  })
+);
+
+router.put(
+  "/admin/timeline-settings",
+  authenticate,
+  authorizeRoles("admin"),
+  asyncHandler(async (req, res) => {
+    const { globalStartDate, autoAssignEnabled, defaultProjectDuration } =
+      req.body;
+
+    if (!globalStartDate) {
+      return res.status(400).json({
+        message: "Global start date is required",
+      });
+    }
+
+    const settings = await SystemSettings.getSettings();
+    await settings.updateProjectTimeline(
+      {
+        globalStartDate,
+        autoAssignEnabled: Boolean(autoAssignEnabled),
+        defaultProjectDuration: defaultProjectDuration || 12,
+      },
+      req.user._id
+    );
+
+    // If auto-assign is enabled, assign timeline to eligible teams
+    let autoAssignResults = [];
+    if (autoAssignEnabled) {
+      autoAssignResults = await Team.autoAssignTimeline(
+        globalStartDate,
+        defaultProjectDuration || 12,
+        req.user._id
+      );
+    }
+
+    res.status(200).json({
+      message: "Timeline settings updated successfully",
+      settings: settings.projectTimeline,
+      autoAssignResults,
+    });
+  })
+);
+
+router.get(
+  "/admin/eligible-teams",
+  authenticate,
+  authorizeRoles("admin"),
+  asyncHandler(async (req, res) => {
+    const eligibleTeams = await Team.findEligibleForAutoAssignment()
+      .populate("leader", "name email studentData.rollNumber")
+      .populate("members.student", "name email studentData.rollNumber")
+      .populate("mentor.assigned", "name email mentorData.department");
+
+    res.status(200).json({
+      eligibleTeams,
+      count: eligibleTeams.length,
+    });
+  })
+);
+
+router.post(
+  "/admin/assign-timeline/:teamId",
+  authenticate,
+  authorizeRoles("admin"),
+  asyncHandler(async (req, res) => {
+    const { teamId } = req.params;
+    const { startDate, duration = 12 } = req.body;
+
+    if (!startDate) {
+      return res.status(400).json({
+        message: "Start date is required",
+      });
+    }
+
+    const team = await Team.findById(teamId);
+    if (!team) {
+      return res.status(404).json({ message: "Team not found" });
+    }
+
+    if (team.projectTimeline?.startDate) {
+      return res.status(400).json({
+        message: "Team already has a project timeline assigned",
+      });
+    }
+
+    await team.assignProjectTimeline(startDate, duration, req.user._id, false);
+
+    res.status(200).json({
+      message: "Project timeline assigned successfully",
+      team: {
+        id: team._id,
+        code: team.code,
+        projectTimeline: team.projectTimeline,
+      },
+    });
+  })
+);
+
+router.delete(
+  "/admin/remove-timeline/:teamId",
+  authenticate,
+  authorizeRoles("admin"),
+  asyncHandler(async (req, res) => {
+    const { teamId } = req.params;
+
+    const team = await Team.findById(teamId);
+    if (!team) {
+      return res.status(404).json({ message: "Team not found" });
+    }
+
+    // Remove project timeline
+    team.projectTimeline = undefined;
+    await team.save();
+
+    res.status(200).json({
+      message: "Project timeline removed successfully",
+    });
+  })
+);
+
+// Routes for Form Approval
+
+// Get teams with forms pending approval (Admin)
+router.get(
+  "/admin/forms-for-approval",
+  authenticate,
+  authorizeRoles("admin", "sub-admin"),
+  asyncHandler(async (req, res) => {
+    try {
+      // Admin only sees forms that have been approved by mentor but not yet by admin
+      const teams = await Team.find({
+        $or: [
+          { "projectAbstract.status": "mentor_approved" },
+          { "roleSpecification.status": "mentor_approved" },
+        ],
+      })
+        .populate("leader", "name email")
+        .populate("members.student", "name email")
+        .lean();
+
+      // Add pending forms count for each team
+      const teamsWithCounts = teams.map((team) => {
+        let pendingFormsCount = 0;
+
+        if (team.projectAbstract?.status === "mentor_approved") {
+          pendingFormsCount++;
+        }
+        if (team.roleSpecification?.status === "mentor_approved") {
+          pendingFormsCount++;
+        }
+
+        return {
+          ...team,
+          pendingFormsCount,
+        };
+      });
+
+      res.status(200).json({
+        teams: teamsWithCounts,
+        totalPendingForms: teamsWithCounts.reduce(
+          (sum, team) => sum + team.pendingFormsCount,
+          0
+        ),
+      });
+    } catch (error) {
+      console.error("Error fetching teams for approval:", error);
+      res.status(500).json({ message: "Failed to fetch teams for approval" });
+    }
+  })
+);
+
+// Get teams with forms pending approval (Mentor)
+router.get(
+  "/mentor/forms-for-approval",
+  authenticate,
+  authorizeRoles("mentor", "sub-admin"),
+  asyncHandler(async (req, res) => {
+    try {
+      const mentorId = req.user._id;
+
+      const teams = await Team.find({
+        "mentor.assigned": mentorId,
+        $or: [
+          { "projectAbstract.status": "submitted" },
+          { "roleSpecification.status": "submitted" },
+        ],
+      })
+        .populate("leader", "name email")
+        .populate("members.student", "name email")
+        .lean();
+
+      // Add pending forms count for each team
+      const teamsWithCounts = teams.map((team) => {
+        let pendingFormsCount = 0;
+
+        if (team.projectAbstract?.status === "submitted") {
+          pendingFormsCount++;
+        }
+        if (team.roleSpecification?.status === "submitted") {
+          pendingFormsCount++;
+        }
+
+        return {
+          ...team,
+          pendingFormsCount,
+        };
+      });
+
+      res.status(200).json({
+        teams: teamsWithCounts,
+        totalPendingForms: teamsWithCounts.reduce(
+          (sum, team) => sum + team.pendingFormsCount,
+          0
+        ),
+      });
+    } catch (error) {
+      console.error("Error fetching teams for approval:", error);
+      res.status(500).json({ message: "Failed to fetch teams for approval" });
+    }
+  })
+);
+
+// Approve/Reject form (Admin)
+router.post(
+  "/admin/approve-form",
+  authenticate,
+  authorizeRoles("admin", "sub-admin"),
+  asyncHandler(async (req, res) => {
+    try {
+      const { teamId, formType, action, customMessage } = req.body;
+
+      if (!teamId || !formType || !action) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      if (!["approve", "reject"].includes(action)) {
+        return res.status(400).json({ message: "Invalid action" });
+      }
+
+      if (!["projectAbstract", "roleSpecification"].includes(formType)) {
+        return res.status(400).json({ message: "Invalid form type" });
+      }
+
+      const team = await Team.findById(teamId);
+      if (!team) {
+        return res.status(404).json({ message: "Team not found" });
+      }
+
+      const form = team[formType];
+      if (!form || form.status !== "mentor_approved") {
+        return res
+          .status(400)
+          .json({ message: "Form not found or not mentor approved yet" });
+      }
+
+      // Generate default message based on action and role
+      const defaultMessage =
+        action === "approve"
+          ? `${
+              formType === "projectAbstract"
+                ? "Project Abstract (Form 1)"
+                : "Role Specification (Form 2)"
+            } has been approved by Admin.`
+          : `${
+              formType === "projectAbstract"
+                ? "Project Abstract (Form 1)"
+                : "Role Specification (Form 2)"
+            } has been rejected by Admin. Please review and resubmit.`;
+
+      // Combine default message with custom message if provided
+      const finalMessage = customMessage
+        ? `${defaultMessage} Additional note: ${customMessage}`
+        : defaultMessage;
+
+      // Update form status
+      if (action === "approve") {
+        form.status = "admin_approved";
+        form.adminApproval = true;
+      } else {
+        form.status = "rejected";
+        form.adminApproval = false;
+      }
+
+      // Add feedback to team
+      team.feedback.push({
+        message: finalMessage,
+        byUser: req.user._id,
+        at: new Date(),
+      });
+
+      await team.save();
+
+      res.status(200).json({
+        message: `Form ${action}ed successfully`,
+        updatedStatus: form.status,
+      });
+    } catch (error) {
+      console.error("Error approving/rejecting form:", error);
+      res.status(500).json({ message: "Failed to process form action" });
+    }
+  })
+);
+
+// Approve/Reject form (Mentor)
+router.post(
+  "/mentor/approve-form",
+  authenticate,
+  authorizeRoles("mentor", "sub-admin"),
+  asyncHandler(async (req, res) => {
+    try {
+      const { teamId, formType, action, customMessage } = req.body;
+      const mentorId = req.user._id;
+
+      if (!teamId || !formType || !action) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      if (!["approve", "reject"].includes(action)) {
+        return res.status(400).json({ message: "Invalid action" });
+      }
+
+      if (!["projectAbstract", "roleSpecification"].includes(formType)) {
+        return res.status(400).json({ message: "Invalid form type" });
+      }
+
+      const team = await Team.findById(teamId);
+      if (!team) {
+        return res.status(404).json({ message: "Team not found" });
+      }
+
+      // Check if mentor is assigned to this team
+      if (
+        !team.mentor.assigned ||
+        team.mentor.assigned.toString() !== mentorId.toString()
+      ) {
+        return res
+          .status(403)
+          .json({ message: "You are not assigned to this team" });
+      }
+
+      const form = team[formType];
+      if (!form || form.status !== "submitted") {
+        return res
+          .status(400)
+          .json({ message: "Form not found or not submitted" });
+      }
+
+      // Generate default message based on action and role
+      const defaultMessage =
+        action === "approve"
+          ? `${
+              formType === "projectAbstract"
+                ? "Project Abstract (Form 1)"
+                : "Role Specification (Form 2)"
+            } has been approved by Mentor.`
+          : `${
+              formType === "projectAbstract"
+                ? "Project Abstract (Form 1)"
+                : "Role Specification (Form 2)"
+            } has been rejected by Mentor. Please review and resubmit.`;
+
+      // Combine default message with custom message if provided
+      const finalMessage = customMessage
+        ? `${defaultMessage} Additional note: ${customMessage}`
+        : defaultMessage;
+
+      // Update form status
+      if (action === "approve") {
+        form.status = "mentor_approved";
+        form.mentorApproval = true;
+      } else {
+        form.status = "rejected";
+        form.mentorApproval = false;
+      }
+
+      // Add feedback to team
+      team.feedback.push({
+        message: finalMessage,
+        byUser: req.user._id,
+        at: new Date(),
+      });
+
+      await team.save();
+
+      res.status(200).json({
+        message: `Form ${action}ed successfully`,
+        updatedStatus: form.status,
+      });
+    } catch (error) {
+      console.error("Error approving/rejecting form:", error);
+      res.status(500).json({ message: "Failed to process form action" });
+    }
+  })
+);
+
+// Admin routes for weekly submissions
+router.get(
+  "/admin/weekly-submissions",
+  authenticate,
+  authorizeRoles("admin", "sub-admin"),
+  asyncHandler(async (req, res) => {
+    const { teamId, status } = req.query;
+
+    // Build query filter
+    const filter = {};
+    if (teamId) {
+      filter._id = teamId;
+    }
+
+    // Find teams with weekly submissions
+    const teams = await Team.find(filter)
+      .select(
+        "code name leader members evaluation.weeklyStatus mentor projectTimeline"
+      )
+      .populate("leader", "name email studentData.rollNumber")
+      .populate("members.student", "name email studentData.rollNumber")
+      .populate("mentor.assigned", "name email")
+      .populate(
+        "evaluation.weeklyStatus.submittedBy",
+        "name email studentData.rollNumber"
+      )
+      .populate("evaluation.weeklyStatus.scoredBy", "name email");
+
+    // Format weekly submissions for admin review
+    const weeklySubmissions = [];
+
+    teams.forEach((team) => {
+      if (team.evaluation?.weeklyStatus?.length > 0) {
+        team.evaluation.weeklyStatus.forEach((submission) => {
+          // Apply status filter if provided
+          if (status && submission.status !== status) {
+            return;
+          }
+
+          weeklySubmissions.push({
+            _id: submission._id,
+            teamId: team._id,
+            teamCode: team.code,
+            teamName: team.name,
+            mentorName: team.mentor?.assigned?.name || "Not assigned",
+            week: submission.week,
+            dateRange: submission.dateRange,
+            module: submission.module,
+            progress: submission.progress,
+            achievements: submission.achievements,
+            challenges: submission.challenges,
+            studentRemarks: submission.studentRemarks,
+            projectFile: submission.projectFile,
+            status: submission.status || "submitted",
+            mentorScore: submission.mentorScore || null,
+            mentorComments: submission.mentorComments || "",
+            submittedAt: submission.submittedAt,
+            submittedBy: submission.submittedBy,
+            scoredAt: submission.scoredAt || null,
+            scoredBy: submission.scoredBy || null,
+          });
+        });
+      }
+    });
+
+    // Sort by submission date (newest first)
+    weeklySubmissions.sort(
+      (a, b) => new Date(b.submittedAt) - new Date(a.submittedAt)
+    );
+
+    res.status(200).json({
+      weeklySubmissions,
+      totalTeams: teams.length,
+      totalSubmissions: weeklySubmissions.length,
+    });
+  })
+);
+
+// Admin download project file
+router.get(
+  "/admin/download/:teamId/:week",
+  authenticate,
+  authorizeRoles("admin", "sub-admin"),
+  asyncHandler(async (req, res) => {
+    const { teamId, week } = req.params;
+
+    // Find team
+    const team = await Team.findById(teamId);
+
+    if (!team) {
+      return res.status(404).json({
+        message: "Team not found",
+      });
+    }
+
+    // Find the specific weekly submission
+    const submission = team.evaluation?.weeklyStatus?.find(
+      (s) => s.week === parseInt(week)
+    );
+
+    if (!submission || !submission.projectFile) {
+      return res.status(404).json({
+        message: "Weekly submission or project file not found",
+      });
+    }
+
+    const filePath = submission.projectFile.path;
+
+    // Check if file exists
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({
+        message: "Project file not found on server",
+      });
+    }
+
+    // Set appropriate headers for download
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${submission.projectFile.filename}"`
+    );
+
+    // Stream the file
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.pipe(res);
+  })
+);
+
+// Mentor routes for weekly submissions
+router.get(
+  "/mentor/weekly-submissions",
+  authenticate,
+  authorizeRoles("mentor"),
+  asyncHandler(async (req, res) => {
+    // Find all teams assigned to this mentor
+    const mentorTeams = await Team.find({
+      "mentor.assigned": req.user._id,
+      status: {
+        $in: ["mentor_approved", "timeline_assigned", "ongoing", "completed"],
+      },
+    })
+      .select(
+        "code name leader members evaluation.weeklyStatus projectTimeline"
+      )
+      .populate("leader", "name email studentData.rollNumber")
+      .populate("members.student", "name email studentData.rollNumber")
+      .populate(
+        "evaluation.weeklyStatus.submittedBy",
+        "name email studentData.rollNumber"
+      );
+
+    // Format weekly submissions for mentor review
+    const weeklySubmissions = [];
+
+    mentorTeams.forEach((team) => {
+      if (team.evaluation?.weeklyStatus?.length > 0) {
+        team.evaluation.weeklyStatus.forEach((submission) => {
+          weeklySubmissions.push({
+            _id: submission._id,
+            teamId: team._id,
+            teamCode: team.code,
+            teamName: team.name,
+            week: submission.week,
+            dateRange: submission.dateRange,
+            module: submission.module,
+            progress: submission.progress,
+            achievements: submission.achievements,
+            challenges: submission.challenges,
+            studentRemarks: submission.studentRemarks,
+            projectFile: submission.projectFile,
+            status: submission.status || "submitted",
+            mentorScore: submission.mentorScore || null,
+            mentorComments: submission.mentorComments || "",
+            submittedAt: submission.submittedAt,
+            submittedBy: submission.submittedBy,
+            scoredAt: submission.scoredAt || null,
+          });
+        });
+      }
+    });
+
+    // Sort by submission date (newest first)
+    weeklySubmissions.sort(
+      (a, b) => new Date(b.submittedAt) - new Date(a.submittedAt)
+    );
+
+    res.status(200).json({
+      weeklySubmissions,
+      totalTeams: mentorTeams.length,
+      totalSubmissions: weeklySubmissions.length,
+    });
+  })
+);
+
+// Download project file
+router.get(
+  "/mentor/download/:teamId/:week",
+  authenticate,
+  authorizeRoles("mentor"),
+  asyncHandler(async (req, res) => {
+    const { teamId, week } = req.params;
+
+    // Find team and verify mentor access
+    const team = await Team.findOne({
+      _id: teamId,
+      "mentor.assigned": req.user._id,
+    });
+
+    if (!team) {
+      return res.status(404).json({
+        message: "Team not found or not assigned to you",
+      });
+    }
+
+    // Find the specific weekly submission
+    const submission = team.evaluation?.weeklyStatus?.find(
+      (s) => s.week === parseInt(week)
+    );
+
+    if (!submission || !submission.projectFile) {
+      return res.status(404).json({
+        message: "Weekly submission or project file not found",
+      });
+    }
+
+    const filePath = submission.projectFile.path;
+
+    // Check if file exists
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({
+        message: "Project file not found on server",
+      });
+    }
+
+    // Set appropriate headers for download
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${submission.projectFile.filename}"`
+    );
+
+    // Stream the file
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.pipe(res);
+  })
+);
+
+// Mentor scoring route
+router.put(
+  "/mentor/score/:teamId/:week",
+  authenticate,
+  authorizeRoles("mentor"),
+  asyncHandler(async (req, res) => {
+    const { teamId, week } = req.params;
+    const { score, comments } = req.body;
+
+    // Validate score
+    if (score === undefined || score < 0 || score > 10) {
+      return res.status(400).json({
+        message: "Score must be between 0 and 10",
+      });
+    }
+
+    // Find team and verify mentor access
+    const team = await Team.findOne({
+      _id: teamId,
+      "mentor.assigned": req.user._id,
+    });
+
+    if (!team) {
+      return res.status(404).json({
+        message: "Team not found or not assigned to you",
+      });
+    }
+
+    // Find the specific weekly submission
+    const submissionIndex = team.evaluation?.weeklyStatus?.findIndex(
+      (s) => s.week === parseInt(week)
+    );
+
+    if (submissionIndex === -1) {
+      return res.status(404).json({
+        message: "Weekly submission not found",
+      });
+    }
+
+    // Update the submission with mentor score and comments
+    team.evaluation.weeklyStatus[submissionIndex].mentorScore =
+      parseFloat(score);
+    team.evaluation.weeklyStatus[submissionIndex].mentorComments =
+      comments || "";
+    team.evaluation.weeklyStatus[submissionIndex].status = "mentor_reviewed";
+    team.evaluation.weeklyStatus[submissionIndex].scoredAt = new Date();
+    team.evaluation.weeklyStatus[submissionIndex].scoredBy = req.user._id;
+
+    await team.save();
+
+    res.status(200).json({
+      message: "Weekly submission scored successfully",
+      submission: team.evaluation.weeklyStatus[submissionIndex],
     });
   })
 );
