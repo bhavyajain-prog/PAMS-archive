@@ -14,7 +14,286 @@ import {
   FaUserShield,
   FaUserGraduate,
   FaUsers,
+  FaClock,
+  FaPlay,
 } from "react-icons/fa";
+
+// Timeline Management Component
+const TimelineManagement = ({ onRefresh }) => {
+  const [loading, setLoading] = useState(false);
+  const [settings, setSettings] = useState(null);
+  const [eligibleTeams, setEligibleTeams] = useState([]);
+  const [showSettings, setShowSettings] = useState(false);
+  const [formData, setFormData] = useState({
+    globalStartDate: "",
+    autoAssignEnabled: false,
+    defaultProjectDuration: 12,
+  });
+  const [message, setMessage] = useState({ type: "", text: "" });
+
+  const fetchSettings = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("/team/admin/timeline-settings");
+      setSettings(response.data.globalSettings);
+
+      if (response.data.globalSettings.globalStartDate) {
+        setFormData({
+          globalStartDate: new Date(
+            response.data.globalSettings.globalStartDate
+          )
+            .toISOString()
+            .slice(0, 10),
+          autoAssignEnabled: response.data.globalSettings.autoAssignEnabled,
+          defaultProjectDuration:
+            response.data.globalSettings.defaultProjectDuration || 12,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching timeline settings:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchEligibleTeams = useCallback(async () => {
+    try {
+      const response = await axios.get("/team/admin/eligible-teams");
+      setEligibleTeams(response.data.eligibleTeams);
+    } catch (error) {
+      console.error("Error fetching eligible teams:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSettings();
+    fetchEligibleTeams();
+  }, [fetchSettings, fetchEligibleTeams]);
+
+  const handleUpdateSettings = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.put(
+        "/team/admin/timeline-settings",
+        formData
+      );
+
+      setMessage({
+        type: "success",
+        text: `Timeline settings updated successfully. ${
+          response.data.autoAssignResults?.length || 0
+        } teams auto-assigned.`,
+      });
+
+      await fetchSettings();
+      await fetchEligibleTeams();
+      if (onRefresh) onRefresh();
+
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+    } catch (error) {
+      setMessage({
+        type: "error",
+        text:
+          error.response?.data?.message || "Failed to update timeline settings",
+      });
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTeamTimelineAction = async (teamId, action, startDate = null) => {
+    try {
+      setLoading(true);
+
+      if (action === "assign") {
+        await axios.post(`/team/admin/assign-timeline/${teamId}`, {
+          startDate: startDate || formData.globalStartDate,
+          duration: formData.defaultProjectDuration,
+        });
+        setMessage({ type: "success", text: "Timeline assigned successfully" });
+      } else if (action === "remove") {
+        await axios.delete(`/team/admin/remove-timeline/${teamId}`);
+        setMessage({ type: "success", text: "Timeline removed successfully" });
+      }
+
+      await fetchEligibleTeams();
+      if (onRefresh) onRefresh();
+
+      setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+    } catch (error) {
+      setMessage({
+        type: "error",
+        text: error.response?.data?.message || `Failed to ${action} timeline`,
+      });
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow p-6 mb-6">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+          <FaClock className="text-blue-600" />
+          Project Timeline Management
+        </h2>
+        <button
+          onClick={() => setShowSettings(!showSettings)}
+          className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+        >
+          {showSettings ? <FaChevronUp /> : <FaChevronDown />}
+          Settings
+        </button>
+      </div>
+
+      {message.text && (
+        <div
+          className={`p-3 rounded-lg mb-4 ${
+            message.type === "success"
+              ? "bg-green-50 border border-green-200 text-green-800"
+              : "bg-red-50 border border-red-200 text-red-800"
+          }`}
+        >
+          {message.text}
+        </div>
+      )}
+
+      {showSettings && (
+        <div className="border rounded-lg p-4 mb-4 bg-gray-50">
+          <h3 className="font-semibold mb-3">Global Timeline Settings</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Global Start Date
+              </label>
+              <input
+                type="date"
+                value={formData.globalStartDate}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    globalStartDate: e.target.value,
+                  }))
+                }
+                className="w-full p-2 border rounded-md"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Duration (weeks)
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="52"
+                value={formData.defaultProjectDuration}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    defaultProjectDuration: parseInt(e.target.value) || 12,
+                  }))
+                }
+                className="w-full p-2 border rounded-md"
+              />
+            </div>
+            <div className="flex items-end">
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={formData.autoAssignEnabled}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      autoAssignEnabled: e.target.checked,
+                    }))
+                  }
+                  className="w-4 h-4"
+                />
+                <span className="text-sm font-medium text-gray-700">
+                  Auto-assign to eligible teams
+                </span>
+              </label>
+            </div>
+          </div>
+          <div className="mt-4">
+            <button
+              onClick={handleUpdateSettings}
+              disabled={loading || !formData.globalStartDate}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center gap-2 disabled:opacity-50"
+            >
+              {loading ? <FaSpinner className="animate-spin" /> : <FaPlay />}
+              Update Settings
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h3 className="font-semibold mb-2 text-green-700">
+            Current Settings
+          </h3>
+          {settings ? (
+            <div className="space-y-2 text-sm">
+              <div>
+                Global Start Date:{" "}
+                {settings.globalStartDate
+                  ? new Date(settings.globalStartDate).toLocaleDateString()
+                  : "Not set"}
+              </div>
+              <div>
+                Auto-assign:{" "}
+                {settings.autoAssignEnabled ? "Enabled" : "Disabled"}
+              </div>
+              <div>
+                Default Duration: {settings.defaultProjectDuration || 12} weeks
+              </div>
+              <div>
+                Last Updated:{" "}
+                {settings.enabledAt
+                  ? new Date(settings.enabledAt).toLocaleDateString()
+                  : "Never"}
+              </div>
+            </div>
+          ) : (
+            <div className="text-gray-500">Loading settings...</div>
+          )}
+        </div>
+
+        <div>
+          <h3 className="font-semibold mb-2 text-blue-700">
+            Eligible Teams ({eligibleTeams.length})
+          </h3>
+          <div className="max-h-32 overflow-y-auto space-y-1">
+            {eligibleTeams.length > 0 ? (
+              eligibleTeams.map((team) => (
+                <div
+                  key={team._id}
+                  className="flex justify-between items-center p-2 bg-blue-50 rounded text-sm"
+                >
+                  <span>
+                    {team.code} - {team.leader?.name}
+                  </span>
+                  <button
+                    onClick={() => handleTeamTimelineAction(team._id, "assign")}
+                    disabled={loading}
+                    className="text-blue-600 hover:text-blue-800 text-xs"
+                  >
+                    Assign
+                  </button>
+                </div>
+              ))
+            ) : (
+              <div className="text-gray-500 text-sm">No eligible teams</div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Reusable Modal Component
 const Modal = ({ isOpen, onClose, title, children }) => {
@@ -73,7 +352,11 @@ const ProjectCard = ({ project, onAction }) => {
             project.rejectedAt
           )} mt-2 sm:mt-0`}
         >
-          {project.isApproved ? "Approved" : project.rejectedAt ? "Rejected" : "Pending"}
+          {project.isApproved
+            ? "Approved"
+            : project.rejectedAt
+            ? "Rejected"
+            : "Pending"}
         </span>
       </div>
 
@@ -131,14 +414,15 @@ const ProjectCard = ({ project, onAction }) => {
             </button>
           </>
         )}
-        {!project.rejectedAt && project.assignedTeams?.length < project.maxTeams && (
-          <button
-            onClick={() => onAction("delete", project)}
-            className="text-sm bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md flex items-center"
-          >
-            <FaTrash className="mr-2" /> Delete
-          </button>
-        )}
+        {!project.rejectedAt &&
+          project.assignedTeams?.length < project.maxTeams && (
+            <button
+              onClick={() => onAction("delete", project)}
+              className="text-sm bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md flex items-center"
+            >
+              <FaTrash className="mr-2" /> Delete
+            </button>
+          )}
       </div>
       {project.rejectedAt && (
         <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
@@ -166,7 +450,8 @@ const ProjectCard = ({ project, onAction }) => {
           )}
           {project.rejectedAt && (
             <p>
-              <strong>Rejected on:</strong> {new Date(project.rejectedAt).toLocaleDateString()}
+              <strong>Rejected on:</strong>{" "}
+              {new Date(project.rejectedAt).toLocaleDateString()}
             </p>
           )}
           <div>
@@ -190,6 +475,210 @@ const ProjectCard = ({ project, onAction }) => {
               <span className="ml-2 italic">No feedback yet.</span>
             )}
           </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// TTL Status Component
+const TTLStatus = () => {
+  const [loading, setLoading] = useState(false);
+  const [ttlData, setTtlData] = useState(null);
+  const [showTTLStatus, setShowTTLStatus] = useState(false);
+  const [error, setError] = useState(null);
+
+  const fetchTTLStatus = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await axios.get("/admin/ttl-status");
+      setTtlData(response.data);
+    } catch (error) {
+      console.error("Error fetching TTL status:", error);
+      setError(error.response?.data?.message || "Failed to fetch TTL status");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (showTTLStatus && !ttlData) {
+      fetchTTLStatus();
+    }
+  }, [showTTLStatus, ttlData, fetchTTLStatus]);
+
+  return (
+    <div className="bg-white rounded-lg shadow p-6 mb-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+          <FaTrash className="mr-2 text-red-500" />
+          Auto-Deletion Status (TTL)
+        </h3>
+        <button
+          onClick={() => setShowTTLStatus(!showTTLStatus)}
+          className="flex items-center px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+        >
+          {showTTLStatus ? <FaChevronUp /> : <FaChevronDown />}
+          <span className="ml-1">{showTTLStatus ? "Hide" : "Show"}</span>
+        </button>
+      </div>
+
+      {showTTLStatus && (
+        <div className="space-y-4">
+          {loading && (
+            <div className="flex items-center justify-center py-4">
+              <FaSpinner className="animate-spin mr-2" />
+              <span>Loading TTL status...</span>
+            </div>
+          )}
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+              <p className="flex items-center">
+                <FaTimesCircle className="mr-2" />
+                {error}
+              </p>
+            </div>
+          )}
+
+          {ttlData && (
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* TTL Index Status */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+                  <FaClock className="mr-2 text-blue-500" />
+                  TTL Index Status
+                </h4>
+                <div className="space-y-2">
+                  <div className="flex items-center">
+                    {ttlData.ttlIndex.exists ? (
+                      <FaCheckCircle className="text-green-500 mr-2" />
+                    ) : (
+                      <FaTimesCircle className="text-red-500 mr-2" />
+                    )}
+                    <span className="text-sm">
+                      Index: {ttlData.ttlIndex.exists ? "Active" : "Missing"}
+                    </span>
+                  </div>
+                  {ttlData.ttlIndex.exists && (
+                    <>
+                      <p className="text-sm text-gray-600">
+                        Expires after: {ttlData.ttlIndex.expireAfterDays} days
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Index name: {ttlData.ttlIndex.name}
+                      </p>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Project Statistics */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+                  <FaInfoCircle className="mr-2 text-blue-500" />
+                  Project Statistics
+                </h4>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span className="text-gray-600">Total:</span>
+                    <span className="ml-2 font-medium">
+                      {ttlData.statistics.total}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Approved:</span>
+                    <span className="ml-2 font-medium text-green-600">
+                      {ttlData.statistics.approved}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Rejected:</span>
+                    <span className="ml-2 font-medium text-red-600">
+                      {ttlData.statistics.rejected}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Pending:</span>
+                    <span className="ml-2 font-medium text-yellow-600">
+                      {ttlData.statistics.pending}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Expired Projects Alert */}
+              {ttlData.expiredProjects.count > 0 && (
+                <div className="md:col-span-2 bg-red-50 border border-red-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-red-800 mb-3 flex items-center">
+                    <FaTimesCircle className="mr-2" />
+                    ⚠️ Expired Projects Found ({ttlData.expiredProjects.count})
+                  </h4>
+                  <p className="text-sm text-red-700 mb-3">
+                    These projects were rejected more than 2 days ago but
+                    haven&apos;t been auto-deleted yet:
+                  </p>
+                  <div className="space-y-2">
+                    {ttlData.expiredProjects.projects.map((project, index) => (
+                      <div
+                        key={index}
+                        className="text-sm bg-white bg-opacity-50 p-2 rounded"
+                      >
+                        <span className="font-medium">{project.title}</span>
+                        <span className="text-red-600 ml-2">
+                          (rejected {project.daysAgo} days ago)
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-red-600 mt-3">
+                    Note: MongoDB TTL runs every 60 seconds, so recently expired
+                    documents may take up to 1 minute to be deleted.
+                  </p>
+                </div>
+              )}
+
+              {/* Recent Rejections */}
+              {ttlData.recentRejections.length > 0 && (
+                <div className="md:col-span-2 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-yellow-800 mb-3 flex items-center">
+                    <FaCalendarAlt className="mr-2" />
+                    Recent Rejections (Last 7 Days)
+                  </h4>
+                  <div className="space-y-2 max-h-32 overflow-y-auto">
+                    {ttlData.recentRejections.map((project, index) => (
+                      <div
+                        key={index}
+                        className="text-sm bg-white bg-opacity-50 p-2 rounded"
+                      >
+                        <span className="font-medium">{project.title}</span>
+                        <span className="text-yellow-700 ml-2">
+                          (rejected {project.daysAgo} day
+                          {project.daysAgo !== 1 ? "s" : ""} ago)
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {ttlData && (
+            <div className="flex justify-end pt-4 border-t">
+              <button
+                onClick={fetchTTLStatus}
+                disabled={loading}
+                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
+              >
+                <FaSpinner
+                  className={`mr-2 ${loading ? "animate-spin" : ""}`}
+                />
+                Refresh Status
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -246,7 +735,7 @@ export default function ManageProjects() {
 
     const matchesApproval =
       approvalFilter === "all" ||
-      (approvalFilter === "rejected" 
+      (approvalFilter === "rejected"
         ? p.rejectedAt
         : approvalFilter === "approved"
         ? p.isApproved && !p.rejectedAt
@@ -334,7 +823,7 @@ export default function ManageProjects() {
     if (project?.rejectedAt && !["add"].includes(type)) {
       return;
     }
-    
+
     if (["edit", "add"].includes(type)) {
       handleOpenModal(type, project);
       return;
@@ -378,7 +867,7 @@ export default function ManageProjects() {
             setActionLoading(false);
             return;
           }
-          
+
           // Validate that the date is in the future
           const selectedDate = new Date(formData.discussionDate);
           const now = new Date();
@@ -387,7 +876,7 @@ export default function ManageProjects() {
             setActionLoading(false);
             return;
           }
-          
+
           await axios.post(endpoint, {
             projectId: selectedProject._id,
             dateTime: formData.discussionDate,
@@ -450,9 +939,13 @@ export default function ManageProjects() {
               />
             </div>
             {actionMessage && (
-              <p className={`text-sm ${
-                actionMessage.includes('successfully') ? 'text-green-600' : 'text-red-600'
-              }`}>
+              <p
+                className={`text-sm ${
+                  actionMessage.includes("successfully")
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
                 {actionMessage}
               </p>
             )}
@@ -488,9 +981,13 @@ export default function ManageProjects() {
               {selectedProject?.title}&quot;?
             </p>
             {actionMessage && (
-              <p className={`text-sm mt-2 ${
-                actionMessage.includes('successfully') ? 'text-green-600' : 'text-red-600'
-              }`}>
+              <p
+                className={`text-sm mt-2 ${
+                  actionMessage.includes("successfully")
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
                 {actionMessage}
               </p>
             )}
@@ -532,9 +1029,13 @@ export default function ManageProjects() {
               className="w-full p-2 border rounded mt-2 h-20"
             />
             {actionMessage && (
-              <p className={`text-sm mt-2 ${
-                actionMessage.includes('successfully') ? 'text-green-600' : 'text-red-600'
-              }`}>
+              <p
+                className={`text-sm mt-2 ${
+                  actionMessage.includes("successfully")
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
                 {actionMessage}
               </p>
             )}
@@ -564,7 +1065,9 @@ export default function ManageProjects() {
       case "schedule":
         return (
           <div>
-            <p className="mb-4">Schedule discussion for &quot;{selectedProject?.title}&quot;</p>
+            <p className="mb-4">
+              Schedule discussion for &quot;{selectedProject?.title}&quot;
+            </p>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -585,9 +1088,13 @@ export default function ManageProjects() {
               </div>
             </div>
             {actionMessage && (
-              <p className={`text-sm mt-3 ${
-                actionMessage.includes('successfully') ? 'text-green-600' : 'text-red-600'
-              }`}>
+              <p
+                className={`text-sm mt-3 ${
+                  actionMessage.includes("successfully")
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
                 {actionMessage}
               </p>
             )}
@@ -652,6 +1159,12 @@ export default function ManageProjects() {
           <FaPlus className="mr-2" /> Add New Project
         </button>
       </div>
+
+      {/* Timeline Management Section */}
+      <TimelineManagement onRefresh={fetchProjects} />
+
+      {/* TTL Status Section */}
+      <TTLStatus />
 
       {/* Search and Filter Controls */}
       <div className="mb-6 p-4 bg-white rounded-lg shadow">

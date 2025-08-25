@@ -34,6 +34,7 @@ import ManageTeams from "./features/admin/components/ManageTeams";
 import ManageMentors from "./features/admin/components/ManageMentors";
 import ManageStudents from "./features/admin/components/ManageStudents";
 import ManageProjects from "./features/admin/components/ManageProjects";
+import FormApproval from "./features/admin/components/FormApproval";
 
 import ProjectAbstractForm from "./features/forms/components/Form1";
 import RoleSpecificationForm from "./features/forms/components/Form2";
@@ -107,6 +108,14 @@ export default function App() {
                   </RoleBasedRoute>
                 }
               />
+              <Route
+                path="/admin/view-forms"
+                element={
+                  <RoleBasedRoute roles={["admin", "sub-admin"]}>
+                    <FormApproval />
+                  </RoleBasedRoute>
+                }
+              />
               {/* Student Routes */}
               <Route
                 path="/home"
@@ -170,6 +179,14 @@ export default function App() {
                 element={
                   <RoleBasedRoute roles={["mentor"]}>
                     <TeamSelection />
+                  </RoleBasedRoute>
+                }
+              />
+              <Route
+                path="/mentor/document-approval"
+                element={
+                  <RoleBasedRoute roles={["mentor", "sub-admin"]}>
+                    <FormApproval />
                   </RoleBasedRoute>
                 }
               />

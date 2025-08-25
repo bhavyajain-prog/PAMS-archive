@@ -8,6 +8,12 @@ import {
   FaProjectDiagram,
   FaChalkboardTeacher,
   FaCheckCircle,
+  FaDownload,
+  FaCalendarAlt,
+  FaStar,
+  FaFileArchive,
+  FaClock,
+  FaComment,
 } from "react-icons/fa";
 
 // Enhanced Modal Component
@@ -48,6 +54,41 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
   if (!team) return null;
 
   const leader = team.leader;
+
+  // Handle file download
+  const handleDownloadFile = async (teamId, week) => {
+    try {
+      const response = await axios.get(
+        `/api/teams/admin/download/${teamId}/${week}`,
+        {
+          responseType: "blob",
+        }
+      );
+
+      // Get filename from response headers or create default
+      const contentDisposition = response.headers["content-disposition"];
+      let filename = `team_${teamId}_week_${week}.zip`;
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      alert("Error downloading file. Please try again.");
+    }
+  };
 
   return (
     <Modal
@@ -133,6 +174,69 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
             </div>
           </div>
         </div>
+
+        {/* Quick Evaluation Summary */}
+        {team.evaluation?.weeklyStatus &&
+          team.evaluation.weeklyStatus.length > 0 && (
+            <div className="bg-gradient-to-br from-teal-50 to-teal-100 p-4 rounded-xl border border-teal-200 shadow-sm">
+              <h4 className="font-bold text-teal-800 mb-3 text-md flex items-center">
+                <FaCheckCircle className="mr-2" />
+                Weekly Evaluation Summary
+              </h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div className="bg-white bg-opacity-60 p-3 rounded-lg">
+                  <div className="text-lg font-bold text-teal-700">
+                    {team.evaluation.weeklyStatus.length}
+                  </div>
+                  <div className="text-xs text-teal-600">Submissions</div>
+                </div>
+                <div className="bg-white bg-opacity-60 p-3 rounded-lg">
+                  <div className="text-lg font-bold text-green-700">
+                    {
+                      team.evaluation.weeklyStatus.filter(
+                        (s) => s.status === "mentor_reviewed"
+                      ).length
+                    }
+                  </div>
+                  <div className="text-xs text-green-600">Reviewed</div>
+                </div>
+                <div className="bg-white bg-opacity-60 p-3 rounded-lg">
+                  <div className="text-lg font-bold text-blue-700">
+                    {team.evaluation.weeklyStatus.filter(
+                      (s) =>
+                        s.mentorScore !== null && s.mentorScore !== undefined
+                    ).length > 0
+                      ? (
+                          team.evaluation.weeklyStatus
+                            .filter(
+                              (s) =>
+                                s.mentorScore !== null &&
+                                s.mentorScore !== undefined
+                            )
+                            .reduce((sum, s) => sum + s.mentorScore, 0) /
+                          team.evaluation.weeklyStatus.filter(
+                            (s) =>
+                              s.mentorScore !== null &&
+                              s.mentorScore !== undefined
+                          ).length
+                        ).toFixed(1)
+                      : "N/A"}
+                  </div>
+                  <div className="text-xs text-blue-600">Avg Score</div>
+                </div>
+                <div className="bg-white bg-opacity-60 p-3 rounded-lg">
+                  <div className="text-lg font-bold text-orange-700">
+                    {
+                      team.evaluation.weeklyStatus.filter(
+                        (s) => s.status === "submitted"
+                      ).length
+                    }
+                  </div>
+                  <div className="text-xs text-orange-600">Pending</div>
+                </div>
+              </div>
+            </div>
+          )}
 
         {/* Team Leader */}
         <div>
@@ -323,42 +427,319 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
           )}
         </div>
 
-        {/* Evaluation Data */}
+        {/* Weekly Status Evaluation */}
         {team.evaluation && (
           <div>
             <h4 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
               <FaCheckCircle className="mr-2 text-teal-600" />
-              Evaluation Data
+              Weekly Status & Evaluation
             </h4>
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {team.evaluation.weeklyProgress?.length > 0 && (
-                  <div>
-                    <p className="text-sm text-gray-600">
-                      Average Weekly Progress
-                    </p>
-                    <p className="font-semibold text-blue-700">
-                      {team.averageWeeklyProgress?.toFixed(2) || "N/A"}
-                    </p>
+
+            {team.evaluation.weeklyStatus &&
+            team.evaluation.weeklyStatus.length > 0 ? (
+              <div className="space-y-4">
+                {/* Summary Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <div className="flex items-center gap-2">
+                      <FaCalendarAlt className="text-blue-600" />
+                      <div>
+                        <p className="text-sm text-gray-600">
+                          Total Submissions
+                        </p>
+                        <p className="font-bold text-blue-700 text-lg">
+                          {team.evaluation.weeklyStatus.length}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                )}
-                {team.evaluation.finalEvaluation?.score && (
-                  <div>
-                    <p className="text-sm text-gray-600">Final Score</p>
-                    <p className="font-semibold text-blue-700">
-                      {team.evaluation.finalEvaluation.score}
-                    </p>
+
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                    <div className="flex items-center gap-2">
+                      <FaStar className="text-green-600" />
+                      <div>
+                        <p className="text-sm text-gray-600">Avg Score</p>
+                        <p className="font-bold text-green-700 text-lg">
+                          {team.evaluation.weeklyStatus.filter(
+                            (s) =>
+                              s.mentorScore !== null &&
+                              s.mentorScore !== undefined
+                          ).length > 0
+                            ? (
+                                team.evaluation.weeklyStatus
+                                  .filter(
+                                    (s) =>
+                                      s.mentorScore !== null &&
+                                      s.mentorScore !== undefined
+                                  )
+                                  .reduce((sum, s) => sum + s.mentorScore, 0) /
+                                team.evaluation.weeklyStatus.filter(
+                                  (s) =>
+                                    s.mentorScore !== null &&
+                                    s.mentorScore !== undefined
+                                ).length
+                              ).toFixed(1)
+                            : "N/A"}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                )}
+
+                  <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                    <div className="flex items-center gap-2">
+                      <FaComment className="text-purple-600" />
+                      <div>
+                        <p className="text-sm text-gray-600">Reviewed</p>
+                        <p className="font-bold text-purple-700 text-lg">
+                          {
+                            team.evaluation.weeklyStatus.filter(
+                              (s) => s.status === "mentor_reviewed"
+                            ).length
+                          }
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                    <div className="flex items-center gap-2">
+                      <FaClock className="text-orange-600" />
+                      <div>
+                        <p className="text-sm text-gray-600">Pending</p>
+                        <p className="font-bold text-orange-700 text-lg">
+                          {
+                            team.evaluation.weeklyStatus.filter(
+                              (s) => s.status === "submitted"
+                            ).length
+                          }
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Weekly Submissions List */}
+                <div className="space-y-3">
+                  {team.evaluation.weeklyStatus
+                    .sort((a, b) => b.week - a.week)
+                    .map((submission, index) => (
+                      <div
+                        key={submission._id || index}
+                        className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center">
+                              <span className="font-bold text-teal-700 text-sm">
+                                W{submission.week}
+                              </span>
+                            </div>
+                            <div>
+                              <h5 className="font-semibold text-gray-800">
+                                Week {submission.week} - {submission.module}
+                              </h5>
+                              <p className="text-sm text-gray-600">
+                                {new Date(
+                                  submission.dateRange.from
+                                ).toLocaleDateString()}{" "}
+                                -{" "}
+                                {new Date(
+                                  submission.dateRange.to
+                                ).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            {/* Status Badge */}
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                submission.status === "mentor_reviewed"
+                                  ? "bg-green-100 text-green-800 border border-green-200"
+                                  : submission.status === "submitted"
+                                  ? "bg-yellow-100 text-yellow-800 border border-yellow-200"
+                                  : "bg-gray-100 text-gray-800 border border-gray-200"
+                              }`}
+                            >
+                              {submission.status === "mentor_reviewed"
+                                ? "Reviewed"
+                                : submission.status === "submitted"
+                                ? "Pending"
+                                : submission.status || "Unknown"}
+                            </span>
+
+                            {/* Mentor Score */}
+                            {submission.mentorScore !== null &&
+                              submission.mentorScore !== undefined && (
+                                <div className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded">
+                                  <FaStar className="text-blue-600 text-xs" />
+                                  <span className="text-sm font-semibold text-blue-700">
+                                    {submission.mentorScore}/10
+                                  </span>
+                                </div>
+                              )}
+
+                            {/* Download Button */}
+                            {submission.projectFile && (
+                              <button
+                                onClick={() =>
+                                  handleDownloadFile(team._id, submission.week)
+                                }
+                                className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded text-sm font-medium text-gray-700 transition-colors"
+                                title={`Download ${submission.projectFile.filename}`}
+                              >
+                                <FaDownload className="text-xs" />
+                                <FaFileArchive className="text-xs" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Progress & Achievements */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                          <div>
+                            <h6 className="font-medium text-gray-700 text-sm mb-1">
+                              Progress:
+                            </h6>
+                            <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                              {submission.progress}
+                            </p>
+                          </div>
+
+                          {submission.achievements &&
+                            submission.achievements.length > 0 && (
+                              <div>
+                                <h6 className="font-medium text-gray-700 text-sm mb-1">
+                                  Achievements:
+                                </h6>
+                                <div className="space-y-1">
+                                  {submission.achievements
+                                    .slice(0, 2)
+                                    .map((achievement, i) => (
+                                      <p
+                                        key={i}
+                                        className="text-sm text-gray-600 bg-green-50 p-2 rounded"
+                                      >
+                                        • {achievement}
+                                      </p>
+                                    ))}
+                                  {submission.achievements.length > 2 && (
+                                    <p className="text-xs text-gray-500 italic">
+                                      +{submission.achievements.length - 2} more
+                                      achievements
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                        </div>
+
+                        {/* Challenges */}
+                        {submission.challenges &&
+                          submission.challenges.length > 0 && (
+                            <div className="mb-3">
+                              <h6 className="font-medium text-gray-700 text-sm mb-1">
+                                Challenges:
+                              </h6>
+                              <div className="space-y-1">
+                                {submission.challenges
+                                  .slice(0, 2)
+                                  .map((challenge, i) => (
+                                    <p
+                                      key={i}
+                                      className="text-sm text-gray-600 bg-red-50 p-2 rounded"
+                                    >
+                                      • {challenge}
+                                    </p>
+                                  ))}
+                                {submission.challenges.length > 2 && (
+                                  <p className="text-xs text-gray-500 italic">
+                                    +{submission.challenges.length - 2} more
+                                    challenges
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                        {/* File Info */}
+                        {submission.projectFile && (
+                          <div className="mb-3">
+                            <h6 className="font-medium text-gray-700 text-sm mb-1">
+                              Project File:
+                            </h6>
+                            <div className="flex items-center gap-2 bg-blue-50 p-2 rounded">
+                              <FaFileArchive className="text-blue-600" />
+                              <span className="text-sm font-medium text-blue-700">
+                                {submission.projectFile.filename}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                (
+                                {(
+                                  submission.projectFile.size /
+                                  (1024 * 1024)
+                                ).toFixed(2)}{" "}
+                                MB)
+                              </span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Mentor Comments */}
+                        {submission.mentorComments && (
+                          <div className="mb-3">
+                            <h6 className="font-medium text-gray-700 text-sm mb-1">
+                              Mentor Comments:
+                            </h6>
+                            <p className="text-sm text-gray-600 bg-yellow-50 p-2 rounded border border-yellow-200">
+                              {submission.mentorComments}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Student Remarks */}
+                        {submission.studentRemarks && (
+                          <div className="mb-3">
+                            <h6 className="font-medium text-gray-700 text-sm mb-1">
+                              Student Remarks:
+                            </h6>
+                            <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                              {submission.studentRemarks}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Timestamps */}
+                        <div className="flex items-center justify-between text-xs text-gray-500 border-t pt-2">
+                          <span>
+                            Submitted:{" "}
+                            {new Date(submission.submittedAt).toLocaleString()}
+                            {submission.submittedBy?.name &&
+                              ` by ${submission.submittedBy.name}`}
+                          </span>
+                          {submission.scoredAt && (
+                            <span>
+                              Scored:{" "}
+                              {new Date(submission.scoredAt).toLocaleString()}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                </div>
               </div>
-              {(!team.evaluation.weeklyProgress ||
-                team.evaluation.weeklyProgress.length === 0) &&
-                !team.evaluation.finalEvaluation?.score && (
-                  <p className="text-center text-gray-500 italic">
-                    No evaluation data recorded yet
-                  </p>
-                )}
-            </div>
+            ) : (
+              <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 text-center">
+                <FaCalendarAlt className="mx-auto text-gray-400 text-2xl mb-2" />
+                <p className="text-gray-500 font-medium">
+                  No weekly submissions yet
+                </p>
+                <p className="text-sm text-gray-400 mt-1">
+                  Weekly status submissions will appear here once students start
+                  submitting
+                </p>
+              </div>
+            )}
           </div>
         )}
 

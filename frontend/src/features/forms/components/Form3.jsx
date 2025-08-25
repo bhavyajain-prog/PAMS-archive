@@ -22,30 +22,15 @@ const WeeklyStatusMatrix = () => {
   const [message, setMessage] = useState({ type: "", text: "" });
   const [existingData, setExistingData] = useState(null);
   const [availableModules, setAvailableModules] = useState([]);
-  const [currentWeek, setCurrentWeek] = useState(1);
-
-  // Get current week's date range
-  const getCurrentWeekRange = (weekNumber) => {
-    const startDate = new Date();
-    // Assuming project starts at the beginning of the current academic year
-    // You can adjust this logic based on your academic calendar
-    const projectStartDate = new Date(startDate.getFullYear(), 7, 1); // August 1st
-
-    const weekStart = new Date(projectStartDate);
-    weekStart.setDate(projectStartDate.getDate() + (weekNumber - 1) * 7);
-
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 6);
-
-    return {
-      from: weekStart.toISOString().split("T")[0],
-      to: weekEnd.toISOString().split("T")[0],
-    };
-  };
+  const [currentWeekInfo, setCurrentWeekInfo] = useState(null);
+  const [hasTimeline, setHasTimeline] = useState(false);
 
   const initialFormState = {
-    week: currentWeek,
-    dateRange: getCurrentWeekRange(currentWeek),
+    week: 1,
+    dateRange: {
+      from: "",
+      to: "",
+    },
     module: "",
     progress: "",
     achievements: [""],
@@ -60,6 +45,56 @@ const WeeklyStatusMatrix = () => {
     const loadData = async () => {
       try {
         setLoadingStatus(true);
+
+        // First, check if team has project timeline assigned
+        try {
+          const currentWeekResponse = await axios.get("/team/current-week");
+          const weekInfo = currentWeekResponse.data;
+
+          if (weekInfo.hasTimeline) {
+            setHasTimeline(true);
+            setCurrentWeekInfo(weekInfo);
+
+            // Set form data with current week info
+            setFormData({
+              week: weekInfo.currentWeek,
+              dateRange: {
+                from: new Date(weekInfo.dateRange.from)
+                  .toISOString()
+                  .slice(0, 10),
+                to: new Date(weekInfo.dateRange.to).toISOString().slice(0, 10),
+              },
+              module: "",
+              progress: "",
+              achievements: [""],
+              challenges: [""],
+              studentRemarks: "",
+            });
+          } else {
+            setHasTimeline(false);
+            setMessage({
+              type: "error",
+              text:
+                weekInfo.message ||
+                "Project timeline not assigned yet. Please contact admin.",
+            });
+            setLoadingStatus(false);
+            return;
+          }
+        } catch (error) {
+          if (error.response?.status === 403) {
+            setHasTimeline(false);
+            setMessage({
+              type: "error",
+              text:
+                error.response.data.message ||
+                "Weekly status access denied. Project timeline not assigned yet.",
+            });
+            setLoadingStatus(false);
+            return;
+          }
+          throw error;
+        }
 
         // Get team data to fetch available modules
         const teamResponse = await axios.get("/team/my-team");
@@ -78,57 +113,39 @@ const WeeklyStatusMatrix = () => {
           setAvailableModules(uniqueModules);
         }
 
-        // Try to get existing weekly status data
+        // Get existing weekly status data
         try {
           const statusResponse = await axios.get("/team/weekly-status");
           if (statusResponse.data.weeklyStatus) {
-            setExistingData(statusResponse.data.weeklyStatus);
-
-            // Find the current week or next week to work on
-            const submissions = statusResponse.data.weeklyStatus;
-            const latestWeek = Math.max(...submissions.map((s) => s.week), 0);
-            const nextWeek = latestWeek + 1;
-            setCurrentWeek(nextWeek);
-
             // Check if current week already has submission
-            const currentWeekData = submissions.find(
-              (s) => s.week === nextWeek
+            const currentWeekSubmission = statusResponse.data.weeklyStatus.find(
+              (s) => s.week === currentWeekInfo.currentWeek
             );
-            if (currentWeekData) {
+
+            if (currentWeekSubmission) {
               setFormData({
-                week: currentWeekData.week,
+                week: currentWeekSubmission.week,
                 dateRange: {
-                  from: new Date(currentWeekData.dateRange.from)
+                  from: new Date(currentWeekSubmission.dateRange.from)
                     .toISOString()
-                    .split("T")[0],
-                  to: new Date(currentWeekData.dateRange.to)
+                    .slice(0, 10),
+                  to: new Date(currentWeekSubmission.dateRange.to)
                     .toISOString()
-                    .split("T")[0],
+                    .slice(0, 10),
                 },
-                module: currentWeekData.module || "",
-                progress: currentWeekData.progress || "",
+                module: currentWeekSubmission.module || "",
+                progress: currentWeekSubmission.progress || "",
                 achievements:
-                  currentWeekData.achievements?.length > 0
-                    ? currentWeekData.achievements
+                  currentWeekSubmission.achievements?.length > 0
+                    ? currentWeekSubmission.achievements
                     : [""],
                 challenges:
-                  currentWeekData.challenges?.length > 0
-                    ? currentWeekData.challenges
+                  currentWeekSubmission.challenges?.length > 0
+                    ? currentWeekSubmission.challenges
                     : [""],
-                studentRemarks: currentWeekData.studentRemarks || "",
+                studentRemarks: currentWeekSubmission.studentRemarks || "",
               });
-            } else {
-              // Set form for new week
-              const weekRange = getCurrentWeekRange(nextWeek);
-              setFormData({
-                week: nextWeek,
-                dateRange: weekRange,
-                module: "",
-                progress: "",
-                achievements: [""],
-                challenges: [""],
-                studentRemarks: "",
-              });
+              setExistingData(currentWeekSubmission);
             }
           }
         } catch (error) {
@@ -149,7 +166,7 @@ const WeeklyStatusMatrix = () => {
     };
 
     loadData();
-  }, []); // Empty dependency array is fine since we're not using any state/props in the effect
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const showMessage = (type, text) => {
     setMessage({ type, text });
@@ -233,20 +250,21 @@ const WeeklyStatusMatrix = () => {
         "success",
         response.data.message || "Weekly status submitted successfully!"
       );
-      setExistingData(response.data.weeklyStatus);
 
-      // Move to next week
-      const nextWeek = formData.week + 1;
-      setCurrentWeek(nextWeek);
-      const weekRange = getCurrentWeekRange(nextWeek);
+      // Reset form for next submission
       setFormData({
-        week: nextWeek,
-        dateRange: weekRange,
-        module: "",
-        progress: "",
-        achievements: [""],
-        challenges: [""],
-        studentRemarks: "",
+        ...initialFormState,
+        week: currentWeekInfo?.currentWeek || 1,
+        dateRange: currentWeekInfo?.dateRange
+          ? {
+              from: new Date(currentWeekInfo.dateRange.from)
+                .toISOString()
+                .slice(0, 10),
+              to: new Date(currentWeekInfo.dateRange.to)
+                .toISOString()
+                .slice(0, 10),
+            }
+          : { from: "", to: "" },
       });
     } catch (error) {
       console.error("Submission error:", error);
@@ -260,15 +278,19 @@ const WeeklyStatusMatrix = () => {
   };
 
   const handleReset = () => {
-    const weekRange = getCurrentWeekRange(currentWeek);
     setFormData({
-      week: currentWeek,
-      dateRange: weekRange,
-      module: "",
-      progress: "",
-      achievements: [""],
-      challenges: [""],
-      studentRemarks: "",
+      ...initialFormState,
+      week: currentWeekInfo?.currentWeek || 1,
+      dateRange: currentWeekInfo?.dateRange
+        ? {
+            from: new Date(currentWeekInfo.dateRange.from)
+              .toISOString()
+              .slice(0, 10),
+            to: new Date(currentWeekInfo.dateRange.to)
+              .toISOString()
+              .slice(0, 10),
+          }
+        : { from: "", to: "" },
     });
     setMessage({ type: "", text: "" });
   };
@@ -279,6 +301,50 @@ const WeeklyStatusMatrix = () => {
         <div className="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center">
           <FaSpinner className="animate-spin text-4xl text-teal-600 mb-4" />
           <p className="text-gray-600">Loading weekly status matrix...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if team has timeline access
+  if (!hasTimeline) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-cyan-50 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-4xl mx-auto">
+          <div className="bg-white rounded-xl shadow-lg p-8">
+            <div className="text-center">
+              <FaClock className="mx-auto text-6xl text-orange-500 mb-6" />
+              <h1 className="text-2xl font-bold text-gray-800 mb-4">
+                Project Timeline Not Assigned
+              </h1>
+              <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+                Your team&apos;s project timeline has not been assigned yet.
+                Weekly status submissions will be available once the admin sets
+                the project start date.
+              </p>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <h3 className="font-semibold text-blue-800 mb-2">
+                  Requirements for Timeline Assignment:
+                </h3>
+                <ul className="text-blue-700 text-sm space-y-1">
+                  <li>✓ Team must be approved by admin</li>
+                  <li>✓ Mentor must be assigned to the team</li>
+                  <li>• Admin must set the project start date</li>
+                </ul>
+              </div>
+              {message.text && (
+                <div
+                  className={`p-4 rounded-lg border ${
+                    message.type === "success"
+                      ? "bg-green-50 border-green-200 text-green-800"
+                      : "bg-red-50 border-red-200 text-red-800"
+                  }`}
+                >
+                  {message.text}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -296,12 +362,40 @@ const WeeklyStatusMatrix = () => {
             <h2 className="text-base sm:text-lg font-medium text-gray-700">
               PROJECT EVALUATION & PROGRESS TRACKING (2024-25)
             </h2>
-            <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-teal-50 border border-teal-200 rounded-lg">
-              <FaCalendarAlt className="text-teal-600" />
-              <span className="text-teal-800 font-medium">
-                Week {formData.week} • {formData.dateRange.from} to{" "}
-                {formData.dateRange.to}
-              </span>
+            <div className="mt-4 space-y-3">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 border border-teal-200 rounded-lg">
+                <FaCalendarAlt className="text-teal-600" />
+                <span className="text-teal-800 font-medium">
+                  Current Week: {currentWeekInfo?.currentWeek || 1} of{" "}
+                  {currentWeekInfo?.projectDuration || 12}
+                </span>
+              </div>
+
+              {currentWeekInfo && (
+                <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-600">
+                  <div className="flex items-center gap-1">
+                    <FaClock className="text-blue-500" />
+                    <span>
+                      Started:{" "}
+                      {new Date(
+                        currentWeekInfo.projectStartDate
+                      ).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <FaChartLine className="text-green-500" />
+                    <span>
+                      Progress: {currentWeekInfo.timelineProgress || 0}%
+                    </span>
+                  </div>
+                  {currentWeekInfo.isAutoAssigned && (
+                    <div className="flex items-center gap-1">
+                      <FaLightbulb className="text-yellow-500" />
+                      <span>Auto-assigned</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
