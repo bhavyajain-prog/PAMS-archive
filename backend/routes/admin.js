@@ -670,48 +670,81 @@ router.post(
       return res.status(400).json({ message: "Invalid type" });
     }
     let data = [];
-    if (ext === ".xlsx") {
-      const workbook = XLSX.readFile(file.path);
-      data = [];
-      workbook.SheetNames.forEach((sheetName) => {
-        const sheet = workbook.Sheets[sheetName];
-        const sheetData = XLSX.utils.sheet_to_json(sheet);
 
-        sheetData.forEach((row) => {
-          data.push({ ...row, sheetName });
+    try {
+      if (ext === ".xlsx") {
+        const workbook = XLSX.readFile(file.path);
+        data = [];
+        workbook.SheetNames.forEach((sheetName) => {
+          const sheet = workbook.Sheets[sheetName];
+          const sheetData = XLSX.utils.sheet_to_json(sheet);
+
+          sheetData.forEach((row) => {
+            data.push({ ...row, sheetName });
+          });
         });
-      });
-    } else if (ext === ".csv") {
-      const fileContent = fs.readFileSync(file.path, "utf-8");
-      data = csvParse.parse(fileContent, {
-        columns: true,
-        skip_empty_lines: true,
+      } else if (ext === ".csv") {
+        const fileContent = fs.readFileSync(file.path, "utf-8");
+        data = csvParse.parse(fileContent, {
+          columns: true,
+          skip_empty_lines: true,
+        });
+      }
+    } catch (parseError) {
+      fs.unlinkSync(file.path);
+      return res.status(400).json({
+        message:
+          "Error parsing file. Please check the file format and content.",
+        error: parseError.message,
       });
     }
 
     fs.unlinkSync(file.path);
+
+    // Check if data was parsed successfully
+    if (!data || data.length === 0) {
+      return res.status(400).json({
+        message:
+          "No valid data found in the file. Please check the file format and content.",
+      });
+    }
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(process.env.DEFAULT_PASS, salt);
 
     if (type === "mentors") {
-      const bulkOps = data.map((row) => {
-        const email = row.email?.trim();
-        const username = email.split("@")[0].trim();
+      // Filter out rows with missing required fields
+      const validData = data.filter((row) => {
+        return row.email && row.name && row.email.includes("@");
+      });
+
+      if (validData.length === 0) {
+        return res.status(400).json({
+          message:
+            "No valid mentor records found. Please ensure the file contains columns: email, name, empNo, department, designation",
+          total: data.length,
+          processed: 0,
+        });
+      }
+
+      const bulkOps = validData.map((row) => {
+        const email = row.email.trim();
+        const username = row.username?.trim() || email.split("@")[0].trim();
         return {
           updateOne: {
             filter: { email },
             update: {
               $set: {
-                name: row.name,
+                name: row.name?.trim() || "",
                 username,
                 email,
-                phone: row.phone,
+                phone: row.phone?.trim() || "",
                 password: hashedPassword,
                 role: "mentor",
-                "mentorData.empNo": row.empNo,
-                "mentorData.department": row.department,
-                "mentorData.designation": row.designation,
-                "mentorData.maxTeams": row.maxTeams || 3,
+                "mentorData.empNo": row.empNo?.trim() || "",
+                "mentorData.department": row.department?.trim() || "",
+                "mentorData.designation": row.designation?.trim() || "",
+                "mentorData.maxTeams": parseInt(row.maxTeams) || 3,
               },
             },
             upsert: true,
@@ -724,26 +757,44 @@ router.post(
       return res.status(200).json({
         message: `Mentors uploaded and processed successfully`,
         count: bulkOps.length,
+        total: data.length,
+        skipped: data.length - validData.length,
       });
     } else if (type === "students") {
-      const bulkOps = data.map((row) => {
-        const email = row.email?.trim();
-        const username = email.split("@")[0].trim();
+      // Filter out rows with missing required fields
+      const validData = data.filter((row) => {
+        return (
+          row.email && row.name && row.email.includes("@") && row.rollNumber
+        );
+      });
+
+      if (validData.length === 0) {
+        return res.status(400).json({
+          message:
+            "No valid student records found. Please ensure the file contains columns: email, name, rollNumber, batch, department",
+          total: data.length,
+          processed: 0,
+        });
+      }
+
+      const bulkOps = validData.map((row) => {
+        const email = row.email.trim();
+        const username = row.username?.trim() || email.split("@")[0].trim();
 
         return {
           updateOne: {
             filter: { email },
             update: {
               $set: {
-                name: row.name,
+                name: row.name?.trim() || "",
                 username,
                 email,
-                phone: row.phone,
+                phone: row.phone?.trim() || "",
                 password: hashedPassword,
                 role: "student",
-                "studentData.rollNumber": row.rollNumber,
-                "studentData.batch": row.batch,
-                "studentData.department": row.department,
+                "studentData.rollNumber": row.rollNumber?.trim() || "",
+                "studentData.batch": row.batch?.trim() || "",
+                "studentData.department": row.department?.trim() || "",
               },
             },
             upsert: true,
@@ -756,6 +807,8 @@ router.post(
       return res.status(200).json({
         message: `Students uploaded and processed successfully`,
         count: bulkOps.length,
+        total: data.length,
+        skipped: data.length - validData.length,
       });
     } else if (type === "projects") {
       let newData = [];

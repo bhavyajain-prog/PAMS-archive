@@ -10,9 +10,7 @@ const FileInput = ({ id, onChange, accept, fileSelected, inputRef }) => (
       fileSelected ? "bg-teal-50 border-teal-500" : ""
     }`}
   >
-    <FaUpload
-      className={"w-6 h-6 mb-2 text-teal-600"}
-    />
+    <FaUpload className={"w-6 h-6 mb-2 text-teal-600"} />
     <span
       className={
         "mt-1 text-sm leading-normal truncate w-full text-center font-medium text-teal-600"
@@ -75,7 +73,18 @@ export default function AdminUpload() {
           "Content-Type": "multipart/form-data",
         },
       });
-      setMessage(response.data.message || successMessage);
+
+      // Create detailed success message
+      let message = response.data.message || successMessage;
+      if (response.data.count !== undefined) {
+        message += ` (${response.data.count} processed`;
+        if (response.data.total && response.data.skipped) {
+          message += `, ${response.data.skipped} skipped out of ${response.data.total} total`;
+        }
+        message += ")";
+      }
+
+      setMessage(message);
 
       // Clear the file state and input
       if (type === "students") {
