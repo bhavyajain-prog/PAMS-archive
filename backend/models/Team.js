@@ -251,7 +251,6 @@ teamSchema.index({ status: 1 });
 teamSchema.index({ createdAt: -1 });
 teamSchema.index({ "projectAbstract.status": 1 });
 teamSchema.index({ "roleSpecification.status": 1 });
-teamSchema.index({ "projectTimeline.startDate": 1 });
 teamSchema.index({ "projectTimeline.assignedAt": 1 });
 
 teamSchema.pre("save", function (next) {
