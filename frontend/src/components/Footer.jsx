@@ -1,4 +1,5 @@
 import { FaGithub, FaExternalLinkAlt } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -19,16 +20,14 @@ const Footer = () => {
 
           {/* Developer Info / About Section */}
           <div className="flex items-center space-x-4">
-            <a
-              href="https://github.com/bhavyajain-prog"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              to="/about-us"
               className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors duration-200 group"
             >
               <FaGithub className="text-lg" />
               <span className="text-sm">About Developer</span>
               <FaExternalLinkAlt className="text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-            </a>
+            </Link>
           </div>
         </div>
 
