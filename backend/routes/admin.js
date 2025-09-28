@@ -11,6 +11,7 @@ const Project = require("../models/ProjectBank");
 const authorizeRoles = require("../middleware/authorizeRoles");
 const authenticate = require("../middleware/authenticate");
 const insertUsers = require("../middleware/fixedUsers");
+const { DocumentTypesConfig } = require("../config/documentTypes");
 const fs = require("fs");
 const path = require("path");
 const nodemailer = require("nodemailer");
@@ -1128,6 +1129,241 @@ router.get(
       console.error("TTL Status Error:", error);
       res.status(500).json({
         message: "Error checking TTL status",
+        error: error.message,
+      });
+    }
+  })
+);
+
+// Get document review status for all teams
+router.get(
+  "/document-review-status",
+  authenticate,
+  authorizeRoles("admin", "sub-admin"),
+  asyncHandler(async (req, res) => {
+    try {
+      const teams = await Team.find({})
+        .select(
+          "code leader members projectAbstract roleSpecification evaluation status mentor finalProject batch department createdAt"
+        )
+        .populate("leader", "name email studentData.rollNumber")
+        .populate("members.student", "name email studentData.rollNumber")
+        .populate("mentor.assigned", "name email")
+        .populate("finalProject", "title category")
+        .lean({ virtuals: true });
+
+      // Get dynamic document types configuration
+      const documentTypes = DocumentTypesConfig.getEnabled();
+
+      // Process teams to create document review structure
+      const processedTeams = teams.map((team) => {
+        const documents = {};
+
+        documentTypes.forEach((docType) => {
+          if (docType.key === "projectAbstract") {
+            documents.projectAbstract = {
+              name: docType.name,
+              description: docType.description,
+              status: team.projectAbstract?.status || "not_submitted",
+              submitted: Boolean(team.projectAbstract?.submittedAt),
+              submittedAt: team.projectAbstract?.submittedAt,
+              submittedBy: team.projectAbstract?.submittedBy,
+              mentorApproved: team.projectAbstract?.mentorApproval || false,
+              adminApproved: team.projectAbstract?.adminApproval || false,
+              hasData: Boolean(
+                team.projectAbstract?.projectTrack ||
+                  team.projectAbstract?.githubRepo ||
+                  team.projectAbstract?.tools?.length ||
+                  team.projectAbstract?.modules?.length
+              ),
+              requiredForApproval: docType.requiredForApproval,
+            };
+          } else if (docType.key === "roleSpecification") {
+            documents.roleSpecification = {
+              name: docType.name,
+              description: docType.description,
+              status: team.roleSpecification?.status || "not_submitted",
+              submitted: Boolean(team.roleSpecification?.submittedAt),
+              submittedAt: team.roleSpecification?.submittedAt,
+              submittedBy: team.roleSpecification?.submittedBy,
+              mentorApproved: team.roleSpecification?.mentorApproval || false,
+              adminApproved: team.roleSpecification?.adminApproval || false,
+              hasData: Boolean(team.roleSpecification?.assignments?.length),
+              requiredForApproval: docType.requiredForApproval,
+            };
+          } else if (docType.key === "weeklyStatus") {
+            const weeklyReports = team.evaluation?.weeklyStatus || [];
+            documents.weeklyStatus = {
+              name: docType.name,
+              description: docType.description,
+              totalReports: weeklyReports.length,
+              submittedReports: weeklyReports.filter(
+                (w) =>
+                  w.status === "submitted" || w.status === "mentor_approved"
+              ).length,
+              approvedReports: weeklyReports.filter(
+                (w) => w.status === "mentor_approved"
+              ).length,
+              reportsWithFiles: weeklyReports.filter(
+                (w) => w.projectFile?.filename
+              ).length,
+              latestSubmission:
+                weeklyReports.length > 0
+                  ? weeklyReports[weeklyReports.length - 1].submittedAt
+                  : null,
+              requiredForApproval: docType.requiredForApproval,
+              reports: weeklyReports.map((report) => ({
+                week: report.week,
+                status: report.status,
+                submittedAt: report.submittedAt,
+                hasFile: Boolean(report.projectFile?.filename),
+                fileName: report.projectFile?.originalName,
+                mentorScore: report.mentorScore,
+                mentorComments: report.mentorComments,
+              })),
+            };
+          }
+          // Add handling for new document types here in the future
+        });
+
+        // Calculate completion summary based on enabled required documents
+        const requiredDocs = DocumentTypesConfig.getRequiredForApproval();
+        const submittedCount = Object.values(documents).filter((doc) => {
+          if (doc.totalReports !== undefined) {
+            return doc.totalReports > 0; // For weekly status
+          }
+          return doc.submitted;
+        }).length;
+
+        const approvedCount = Object.values(documents)
+          .filter((doc) => {
+            if (doc.totalReports !== undefined) {
+              return doc.approvedReports > 0; // For weekly status
+            }
+            return doc.adminApproved;
+          })
+          .filter((_, index) => {
+            const docKeys = Object.keys(documents);
+            const docKey = docKeys[index];
+            const docType = DocumentTypesConfig.getByKey(docKey);
+            return docType?.requiredForApproval;
+          }).length;
+
+        return {
+          _id: team._id,
+          code: team.code,
+          teamSize: team.teamSize,
+          status: team.status,
+          batch: team.batch,
+          department: team.department,
+          createdAt: team.createdAt,
+          leader: {
+            _id: team.leader._id,
+            name: team.leader.name,
+            email: team.leader.email,
+            rollNumber: team.leader.studentData?.rollNumber,
+          },
+          members: team.members.map((member) => ({
+            _id: member.student._id,
+            name: member.student.name,
+            email: member.student.email,
+            rollNumber: member.student.studentData?.rollNumber,
+            joinedAt: member.joinedAt,
+          })),
+          mentor: team.mentor?.assigned
+            ? {
+                _id: team.mentor.assigned._id,
+                name: team.mentor.assigned.name,
+                email: team.mentor.assigned.email,
+              }
+            : null,
+          finalProject: team.finalProject
+            ? {
+                _id: team.finalProject._id,
+                title: team.finalProject.title,
+                category: team.finalProject.category,
+              }
+            : null,
+          documents,
+          completionSummary: {
+            totalDocuments: requiredDocs.length,
+            submittedDocuments: submittedCount,
+            approvedDocuments: approvedCount,
+          },
+        };
+      });
+
+      // Calculate overall statistics based on enabled documents
+      const requiredDocCount =
+        DocumentTypesConfig.getRequiredForApproval().length;
+      const statistics = {
+        totalTeams: processedTeams.length,
+        teamsWithDocuments: processedTeams.filter(
+          (team) => team.completionSummary.submittedDocuments > 0
+        ).length,
+        fullyApprovedTeams: processedTeams.filter(
+          (team) =>
+            team.completionSummary.approvedDocuments === requiredDocCount
+        ).length,
+        pendingReviewCount: processedTeams.reduce((acc, team) => {
+          return (
+            acc +
+            Object.values(team.documents).filter(
+              (doc) =>
+                doc.status === "submitted" || doc.status === "mentor_approved"
+            ).length
+          );
+        }, 0),
+        documentTypeStats: documentTypes.map((docType) => {
+          const stats = {
+            name: docType.name,
+            key: docType.key,
+            submitted: 0,
+            mentorApproved: 0,
+            adminApproved: 0,
+            pending: 0,
+            enabled: docType.enabled,
+            requiredForApproval: docType.requiredForApproval,
+          };
+
+          processedTeams.forEach((team) => {
+            const doc = team.documents[docType.key];
+            if (docType.key === "weeklyStatus") {
+              if (doc.totalReports > 0) stats.submitted++;
+              if (doc.approvedReports > 0) stats.mentorApproved++;
+            } else {
+              if (doc.submitted) stats.submitted++;
+              if (doc.mentorApproved) stats.mentorApproved++;
+              if (doc.adminApproved) stats.adminApproved++;
+              if (
+                doc.status === "submitted" ||
+                doc.status === "mentor_approved"
+              ) {
+                stats.pending++;
+              }
+            }
+          });
+
+          return stats;
+        }),
+      };
+
+      res.status(200).json({
+        teams: processedTeams,
+        documentTypes: documentTypes,
+        statistics,
+        configuration: {
+          totalDocumentTypes: DocumentTypesConfig.getAll().length,
+          enabledDocumentTypes: documentTypes.length,
+          requiredForApproval:
+            DocumentTypesConfig.getRequiredForApproval().length,
+          lastUpdated: new Date().toISOString(),
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching document review status:", error);
+      res.status(500).json({
+        message: "Failed to fetch document review status",
         error: error.message,
       });
     }

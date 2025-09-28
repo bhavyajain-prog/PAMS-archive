@@ -167,6 +167,12 @@ export default function AdminPortal() {
             icon={<FormsIcon />}
             description="Access and review submitted forms for students, mentors, and projects. Manage form statuses and feedback."
           />
+          <AdminActionCard
+            to="/admin/doc-upload-status"
+            title="Document Review"
+            icon={<FormsIcon />}
+            description="Review and monitor team document submissions and approval status across all forms."
+          />
         </div>
 
         {/* Danger Zone - Flush Data Section */}

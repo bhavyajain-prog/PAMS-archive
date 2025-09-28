@@ -6,12 +6,13 @@ The server-side implementation of the Project Allocation and Management System (
 
 The backend follows a layered architecture pattern with clear separation of concerns:
 
-```
+```plaintext
 backend/
 ├── config/           # Configuration files and database setup
 ├── middleware/       # Custom middleware for authentication, authorization, and security
 ├── models/           # MongoDB schemas and data models
 ├── routes/           # API route definitions and handlers
+├── test/             # Testing utilities and scripts
 ├── uploads/          # File storage directory
 ├── index.js          # Application entry point and server setup
 └── package.json      # Dependencies and scripts
@@ -321,6 +322,7 @@ DEV_PASS=dev-password
    ```
 
 4. **Start Development Server:**
+
    ```bash
    npm run dev
    ```
@@ -447,6 +449,69 @@ The backend is designed to be testable with:
 - **Dependency Injection**: Mockable external dependencies
 - **Environment Isolation**: Test-specific configurations
 - **Error Simulation**: Comprehensive error condition testing
+
+The backend includes a comprehensive testing suite located in the `test/` directory.
+
+### Available Tests
+
+**Test Scripts:**
+
+```bash
+# Generate dummy data for testing
+npm run test:dummy
+
+# Test TTL index functionality
+npm run test:ttl
+
+# Run all tests
+npm test
+
+# Interactive test runner
+npm run test:run [command]
+```
+
+**Test Files:**
+
+- `test/dummyData.js` - Generates realistic test data for development
+- `test/test-ttl.js` - Tests TTL index for automatic project cleanup
+- `test/runTests.js` - Interactive test runner with colored output
+
+### Dummy Data Generation
+
+The `dummyData.js` script creates a complete test dataset:
+
+- **Users**: 22 total (2 admin, 15 students, 5 mentors)
+- **Teams**: 5 teams with proper relationships
+- **Projects**: 8 projects in project bank
+- **Timeline**: Complete project timelines and weekly updates
+- **Evaluations**: Mentor evaluations and progress tracking
+
+**Sample Credentials After Generation:**
+
+- Admin: `admin@dept.edu` / `admin123`
+- Dev: `dev@dept.edu` / `dev123`
+- Student: `student1@dept.edu` / `student1123`
+- Mentor: `mentor1@dept.edu` / `mentor1123`
+
+### TTL Testing
+
+The TTL test verifies automatic cleanup of rejected projects after 2 days, ensuring database efficiency and compliance with data retention policies.
+
+### Usage Examples
+
+```bash
+# Quick setup for development
+npm run test:dummy
+
+# Verify TTL functionality
+npm run test:ttl
+
+# Full test suite
+npm test
+
+# Interactive mode
+node test/runTests.js help
+```
 
 ## 🚀 Deployment
 

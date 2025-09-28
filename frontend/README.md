@@ -6,7 +6,7 @@ The client-side React application for the Project Allocation and Management Syst
 
 The frontend follows a feature-based architecture with role-based routing and comprehensive state management:
 
-```
+```plaintext
 frontend/
 ├── public/           # Static assets and HTML template
 ├── src/
@@ -167,7 +167,7 @@ Comprehensive route security:
 
 **Access Control Matrix:**
 
-```
+```plaintext
 Route Access Levels:
 ├── Public Routes (/, /login, /register, /forgot-password)
 ├── Student Routes (/home, /team/*, /forms/*)

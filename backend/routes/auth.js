@@ -45,6 +45,7 @@ router.post(
   "/login",
   asyncHandler(async (req, res) => {
     const { username, password, rememberMe } = req.body;
+    console.log("Login attempt:", { username, password, rememberMe });
 
     if (!username || !password) {
       return res
@@ -55,9 +56,13 @@ router.post(
     const user = await User.findOne({
       $or: [{ username }, { email: username }],
     }).select("+password");
+    console.log("User found: " + (user ? user._id : "none"));
+    
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: "Invalid username or password" });
     }
+    console.log("User authenticated:", user._id);
+    
 
     const expiresIn = rememberMe ? "7d" : "1d";
     const token = jwt.sign(

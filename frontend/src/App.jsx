@@ -37,6 +37,7 @@ import ManageMentors from "./features/admin/components/ManageMentors";
 import ManageStudents from "./features/admin/components/ManageStudents";
 import ManageProjects from "./features/admin/components/ManageProjects";
 import FormApproval from "./features/admin/components/FormApproval";
+import ReviewDocs from "./features/admin/components/ReviewDocs";
 
 import ProjectAbstractForm from "./features/forms/components/Form1";
 import RoleSpecificationForm from "./features/forms/components/Form2";
@@ -113,6 +114,14 @@ const AppLayout = () => {
             element={
               <RoleBasedRoute roles={["admin", "sub-admin"]}>
                 <FormApproval />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/admin/doc-upload-status"
+            element={
+              <RoleBasedRoute roles={["admin"]}>
+                <ReviewDocs />
               </RoleBasedRoute>
             }
           />

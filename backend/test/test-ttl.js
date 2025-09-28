@@ -13,7 +13,7 @@
  */
 
 const mongoose = require("mongoose");
-const ProjectBank = require("./models/ProjectBank");
+const ProjectBank = require("../models/ProjectBank");
 require("dotenv").config();
 
 async function testTTL() {
