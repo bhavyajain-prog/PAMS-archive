@@ -39,44 +39,111 @@ const DOCUMENT_TYPES_CONFIG = [
     category: "report",
     order: 3,
   },
-  // Future document types can be added here:
-  //
-  // {
-  //   key: "finalPresentation",
-  //   name: "Final Presentation",
-  //   description: "Final project presentation slides and demo video",
-  //   enabled: false, // Set to true to enable
-  //   requiredForApproval: true,
-  //   adminApprovalRequired: true,
-  //   mentorApprovalRequired: true,
-  //   formPath: "/final-presentation",
-  //   category: "presentation",
-  //   order: 4
-  // },
-  // {
-  //   key: "projectReport",
-  //   name: "Final Project Report",
-  //   description: "Comprehensive project documentation and technical report",
-  //   enabled: false,
-  //   requiredForApproval: true,
-  //   adminApprovalRequired: true,
-  //   mentorApprovalRequired: true,
-  //   formPath: "/project-report",
-  //   category: "document",
-  //   order: 5
-  // },
-  // {
-  //   key: "codeSubmission",
-  //   name: "Source Code Submission",
-  //   description: "Complete project source code with documentation",
-  //   enabled: false,
-  //   requiredForApproval: true,
-  //   adminApprovalRequired: false,
-  //   mentorApprovalRequired: true,
-  //   formPath: "/code-submission",
-  //   category: "code",
-  //   order: 6
-  // }
+  // PDF Document types - must be uploaded as PDF files
+  {
+    key: "projectPPT",
+    name: "Project Presentation (PPT)",
+    description: "Initial project presentation slides in PDF format",
+    enabled: true,
+    requiredForApproval: true,
+    adminApprovalRequired: true,
+    mentorApprovalRequired: true,
+    formPath: null, // PDF upload only
+    category: "pdf-document",
+    fileType: "pdf",
+    order: 4,
+  },
+  {
+    key: "funcReq",
+    name: "Functional Requirements",
+    description: "Detailed functional requirements document",
+    enabled: true,
+    requiredForApproval: true,
+    adminApprovalRequired: true,
+    mentorApprovalRequired: true,
+    formPath: null, // PDF upload only
+    category: "pdf-document",
+    fileType: "pdf",
+    order: 5,
+  },
+  {
+    key: "srs",
+    name: "Software Requirements Specification (SRS)",
+    description: "Complete SRS document with technical specifications",
+    enabled: true,
+    requiredForApproval: true,
+    adminApprovalRequired: true,
+    mentorApprovalRequired: true,
+    formPath: null, // PDF upload only
+    category: "pdf-document",
+    fileType: "pdf",
+    order: 6,
+  },
+  {
+    key: "projectReport",
+    name: "Project Report",
+    description: "Comprehensive project report and documentation",
+    enabled: true,
+    requiredForApproval: true,
+    adminApprovalRequired: true,
+    mentorApprovalRequired: true,
+    formPath: null, // PDF upload only
+    category: "pdf-document",
+    fileType: "pdf",
+    order: 7,
+  },
+  {
+    key: "projectManual",
+    name: "Project Manual",
+    description: "User manual and installation guide",
+    enabled: true,
+    requiredForApproval: true,
+    adminApprovalRequired: true,
+    mentorApprovalRequired: true,
+    formPath: null, // PDF upload only
+    category: "pdf-document",
+    fileType: "pdf",
+    order: 8,
+  },
+  {
+    key: "projectCode_final",
+    name: "Final Project Code Documentation",
+    description: "Code documentation or code summary in PDF format",
+    enabled: true,
+    requiredForApproval: true,
+    adminApprovalRequired: true,
+    mentorApprovalRequired: true,
+    formPath: null, // PDF upload only
+    category: "pdf-document",
+    fileType: "pdf",
+    order: 9,
+  },
+  {
+    key: "projectPPT_final",
+    name: "Final Presentation (PPT)",
+    description: "Final project presentation slides in PDF format",
+    enabled: true,
+    requiredForApproval: true,
+    adminApprovalRequired: true,
+    mentorApprovalRequired: true,
+    formPath: null, // PDF upload only
+    category: "pdf-document",
+    fileType: "pdf",
+    order: 10,
+  },
+  {
+    key: "mentorApprovalLetter",
+    name: "Mentor Approval Letter",
+    description: "Official mentor approval letter for project completion",
+    enabled: true,
+    requiredForApproval: true,
+    adminApprovalRequired: true,
+    mentorApprovalRequired: true,
+    formPath: null, // PDF upload only
+    category: "pdf-document",
+    fileType: "pdf",
+    order: 11,
+  },
 ];
 
 // Helper functions to work with the configuration

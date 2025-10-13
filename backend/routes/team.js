@@ -1586,4 +1586,338 @@ router.put(
   })
 );
 
+// ============================================
+// PDF DOCUMENT UPLOAD ROUTES (Student/Team Leader)
+// ============================================
+
+// Configure multer for PDF document uploads
+const pdfUploadsStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadPath = path.join(__dirname, "..", "uploads", "team-documents");
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: function (req, file, cb) {
+    const extension = path.extname(file.originalname);
+    cb(null, `doc_${Date.now()}_${req.user._id}${extension}`);
+  },
+});
+
+const pdfUpload = multer({
+  storage: pdfUploadsStorage,
+  fileFilter: function (req, file, cb) {
+    if (path.extname(file.originalname).toLowerCase() === ".pdf") {
+      cb(null, true);
+    } else {
+      cb(new Error("Only PDF files are allowed!"), false);
+    }
+  },
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+});
+
+// Get team's document upload status (all members can view)
+router.get(
+  "/my-team/documents",
+  authenticate,
+  authorizeRoles("student"),
+  asyncHandler(async (req, res) => {
+    try {
+      const { DocumentTypesConfig } = require("../config/documentTypes");
+
+      // Find student's team
+      const student = await User.findById(req.user._id);
+      if (!student?.studentData?.currentTeam) {
+        return res
+          .status(404)
+          .json({ message: "You are not part of any team" });
+      }
+
+      const team = await Team.findById(student.studentData.currentTeam)
+        .populate("leader", "name email")
+        .populate("members.student", "name email")
+        .lean();
+
+      if (!team) {
+        return res.status(404).json({ message: "Team not found" });
+      }
+
+      // Check if current user is the team leader
+      const isLeader = team.leader._id.toString() === req.user._id.toString();
+
+      // Get PDF document types only
+      const pdfDocTypes = DocumentTypesConfig.getEnabled().filter(
+        (doc) => doc.category === "pdf-document"
+      );
+
+      // Process PDF documents
+      const documents = {};
+      pdfDocTypes.forEach((docType) => {
+        const pdfDoc = team.pdfDocuments?.[docType.key] || {};
+        documents[docType.key] = {
+          name: docType.name,
+          description: docType.description,
+          status: pdfDoc.status || "not_submitted",
+          uploaded: Boolean(pdfDoc.uploadedAt),
+          uploadedAt: pdfDoc.uploadedAt,
+          uploadedBy: pdfDoc.uploadedBy,
+          originalName: pdfDoc.originalName,
+          filename: pdfDoc.filename,
+          size: pdfDoc.size,
+          mentorApproved: pdfDoc.mentorApproval || false,
+          adminApproved: pdfDoc.adminApproval || false,
+          rejectionReason: pdfDoc.rejectionReason,
+          requiredForApproval: docType.requiredForApproval,
+        };
+      });
+
+      res.status(200).json({
+        team: {
+          _id: team._id,
+          code: team.code,
+          leader: team.leader,
+          members: team.members,
+        },
+        isLeader,
+        documents,
+        documentTypes: pdfDocTypes,
+      });
+    } catch (error) {
+      console.error("Error fetching team documents:", error);
+      res.status(500).json({
+        message: "Failed to fetch documents",
+        error: error.message,
+      });
+    }
+  })
+);
+
+// Upload PDF document (team leader only)
+router.post(
+  "/my-team/upload-document/:documentType",
+  authenticate,
+  authorizeRoles("student"),
+  pdfUpload.single("document"),
+  asyncHandler(async (req, res) => {
+    try {
+      const { documentType } = req.params;
+      const { DocumentTypesConfig } = require("../config/documentTypes");
+
+      // Validate document type
+      const docTypeConfig = DocumentTypesConfig.getByKey(documentType);
+      if (!docTypeConfig || docTypeConfig.category !== "pdf-document") {
+        return res.status(400).json({ message: "Invalid document type" });
+      }
+
+      // Find student's team
+      const student = await User.findById(req.user._id);
+      if (!student?.studentData?.currentTeam) {
+        return res
+          .status(404)
+          .json({ message: "You are not part of any team" });
+      }
+
+      const team = await Team.findById(student.studentData.currentTeam);
+      if (!team) {
+        return res.status(404).json({ message: "Team not found" });
+      }
+
+      // Check if current user is the team leader
+      if (team.leader.toString() !== req.user._id.toString()) {
+        // Delete uploaded file if not leader
+        if (req.file) {
+          fs.unlinkSync(req.file.path);
+        }
+        return res.status(403).json({
+          message: "Only team leader can upload documents",
+        });
+      }
+
+      // Check if file was uploaded
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      // Delete old file if exists
+      if (team.pdfDocuments?.[documentType]?.path) {
+        const oldPath = team.pdfDocuments[documentType].path;
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
+      }
+
+      // Initialize pdfDocuments if not exists
+      if (!team.pdfDocuments) {
+        team.pdfDocuments = {};
+      }
+
+      // Update document info
+      team.pdfDocuments[documentType] = {
+        originalName: req.file.originalname,
+        filename: req.file.filename,
+        path: req.file.path,
+        size: req.file.size,
+        uploadedAt: new Date(),
+        uploadedBy: req.user._id,
+        status: "submitted",
+        mentorApproval: false,
+        adminApproval: false,
+      };
+
+      await team.save();
+
+      res.status(200).json({
+        message: "Document uploaded successfully",
+        document: {
+          type: documentType,
+          name: docTypeConfig.name,
+          originalName: req.file.originalname,
+          uploadedAt: team.pdfDocuments[documentType].uploadedAt,
+        },
+      });
+    } catch (error) {
+      console.error("Error uploading document:", error);
+      // Clean up uploaded file on error
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+      res.status(500).json({
+        message: "Failed to upload document",
+        error: error.message,
+      });
+    }
+  })
+);
+
+// Download/view PDF document (all team members can view)
+router.get(
+  "/my-team/download-document/:documentType",
+  authenticate,
+  authorizeRoles("student"),
+  asyncHandler(async (req, res) => {
+    try {
+      const { documentType } = req.params;
+
+      // Find student's team
+      const student = await User.findById(req.user._id);
+      if (!student?.studentData?.currentTeam) {
+        return res
+          .status(404)
+          .json({ message: "You are not part of any team" });
+      }
+
+      const team = await Team.findById(student.studentData.currentTeam);
+      if (!team) {
+        return res.status(404).json({ message: "Team not found" });
+      }
+
+      // Get document
+      const document = team.pdfDocuments?.[documentType];
+      if (!document || !document.path) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+
+      // Check if file exists
+      if (!fs.existsSync(document.path)) {
+        return res
+          .status(404)
+          .json({ message: "Document file not found on server" });
+      }
+
+      // Send file
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `inline; filename="${document.originalName}"`
+      );
+      res.sendFile(path.resolve(document.path));
+    } catch (error) {
+      console.error("Error downloading document:", error);
+      res.status(500).json({
+        message: "Failed to download document",
+        error: error.message,
+      });
+    }
+  })
+);
+
+// Delete PDF document (team leader only)
+router.delete(
+  "/my-team/delete-document/:documentType",
+  authenticate,
+  authorizeRoles("student"),
+  asyncHandler(async (req, res) => {
+    try {
+      const { documentType } = req.params;
+      const { DocumentTypesConfig } = require("../config/documentTypes");
+
+      // Validate document type
+      const docTypeConfig = DocumentTypesConfig.getByKey(documentType);
+      if (!docTypeConfig || docTypeConfig.category !== "pdf-document") {
+        return res.status(400).json({ message: "Invalid document type" });
+      }
+
+      // Find student's team
+      const student = await User.findById(req.user._id);
+      if (!student?.studentData?.currentTeam) {
+        return res
+          .status(404)
+          .json({ message: "You are not part of any team" });
+      }
+
+      const team = await Team.findById(student.studentData.currentTeam);
+      if (!team) {
+        return res.status(404).json({ message: "Team not found" });
+      }
+
+      // Check if current user is the team leader
+      if (team.leader.toString() !== req.user._id.toString()) {
+        return res.status(403).json({
+          message: "Only team leader can delete documents",
+        });
+      }
+
+      // Get document
+      const document = team.pdfDocuments?.[documentType];
+      if (!document || !document.path) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+
+      // Check if document is already approved
+      if (document.adminApproval) {
+        return res.status(403).json({
+          message: "Cannot delete an admin-approved document",
+        });
+      }
+
+      // Delete file from filesystem
+      if (fs.existsSync(document.path)) {
+        fs.unlinkSync(document.path);
+      }
+
+      // Clear document data
+      team.pdfDocuments[documentType] = {
+        status: "draft",
+        mentorApproval: false,
+        adminApproval: false,
+      };
+
+      await team.save();
+
+      res.status(200).json({
+        message: "Document deleted successfully",
+      });
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      res.status(500).json({
+        message: "Failed to delete document",
+        error: error.message,
+      });
+    }
+  })
+);
+
 module.exports = router;

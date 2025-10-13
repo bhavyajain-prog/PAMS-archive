@@ -549,4 +549,265 @@ router.post(
   })
 );
 
+// Get document review status for mentor's assigned teams
+router.get(
+  "/mentor/document-review-status",
+  authenticate,
+  authorizeRoles("mentor"),
+  asyncHandler(async (req, res) => {
+    try {
+      const { DocumentTypesConfig } = require("../config/documentTypes");
+
+      // Find teams where this mentor is assigned
+      const teams = await Team.find({ "mentor.assigned": req.user._id })
+        .select(
+          "code leader members projectAbstract roleSpecification evaluation pdfDocuments status mentor finalProject batch department createdAt"
+        )
+        .populate("leader", "name email studentData.rollNumber")
+        .populate("members.student", "name email studentData.rollNumber")
+        .populate("finalProject", "title category")
+        .lean({ virtuals: true });
+
+      // Get dynamic document types configuration
+      const documentTypes = DocumentTypesConfig.getEnabled();
+
+      // Process teams to create document review structure
+      const processedTeams = teams.map((team) => {
+        const documents = {};
+
+        documentTypes.forEach((docType) => {
+          if (docType.key === "projectAbstract") {
+            documents.projectAbstract = {
+              name: docType.name,
+              description: docType.description,
+              status: team.projectAbstract?.status || "not_submitted",
+              submitted: Boolean(team.projectAbstract?.submittedAt),
+              submittedAt: team.projectAbstract?.submittedAt,
+              submittedBy: team.projectAbstract?.submittedBy,
+              mentorApproved: team.projectAbstract?.mentorApproval || false,
+              adminApproved: team.projectAbstract?.adminApproval || false,
+              hasData: Boolean(
+                team.projectAbstract?.projectTrack ||
+                  team.projectAbstract?.githubRepo ||
+                  team.projectAbstract?.tools?.length ||
+                  team.projectAbstract?.modules?.length
+              ),
+              requiredForApproval: docType.requiredForApproval,
+            };
+          } else if (docType.key === "roleSpecification") {
+            documents.roleSpecification = {
+              name: docType.name,
+              description: docType.description,
+              status: team.roleSpecification?.status || "not_submitted",
+              submitted: Boolean(team.roleSpecification?.submittedAt),
+              submittedAt: team.roleSpecification?.submittedAt,
+              submittedBy: team.roleSpecification?.submittedBy,
+              mentorApproved: team.roleSpecification?.mentorApproval || false,
+              adminApproved: team.roleSpecification?.adminApproval || false,
+              hasData: Boolean(team.roleSpecification?.assignments?.length),
+              requiredForApproval: docType.requiredForApproval,
+            };
+          } else if (docType.key === "weeklyStatus") {
+            const weeklyReports = team.evaluation?.weeklyStatus || [];
+            documents.weeklyStatus = {
+              name: docType.name,
+              description: docType.description,
+              totalReports: weeklyReports.length,
+              submittedReports: weeklyReports.filter(
+                (w) =>
+                  w.status === "submitted" || w.status === "mentor_approved"
+              ).length,
+              approvedReports: weeklyReports.filter(
+                (w) => w.status === "mentor_approved"
+              ).length,
+              reportsWithFiles: weeklyReports.filter(
+                (w) => w.projectFile?.filename
+              ).length,
+              latestSubmission:
+                weeklyReports.length > 0
+                  ? weeklyReports[weeklyReports.length - 1].submittedAt
+                  : null,
+              requiredForApproval: docType.requiredForApproval,
+              reports: weeklyReports.map((report) => ({
+                week: report.week,
+                status: report.status,
+                submittedAt: report.submittedAt,
+                hasFile: Boolean(report.projectFile?.filename),
+                fileName: report.projectFile?.originalName,
+                mentorScore: report.mentorScore,
+                mentorComments: report.mentorComments,
+              })),
+            };
+          } else if (docType.category === "pdf-document") {
+            // Handle PDF documents
+            const pdfDoc = team.pdfDocuments?.[docType.key] || {};
+            documents[docType.key] = {
+              name: docType.name,
+              description: docType.description,
+              status: pdfDoc.status || "not_submitted",
+              submitted: Boolean(pdfDoc.uploadedAt),
+              uploadedAt: pdfDoc.uploadedAt,
+              uploadedBy: pdfDoc.uploadedBy,
+              originalName: pdfDoc.originalName,
+              filename: pdfDoc.filename,
+              size: pdfDoc.size,
+              mentorApproved: pdfDoc.mentorApproval || false,
+              adminApproved: pdfDoc.adminApproval || false,
+              requiredForApproval: docType.requiredForApproval,
+              hasData: Boolean(pdfDoc.filename),
+            };
+          }
+        });
+
+        // Calculate completion summary
+        const requiredDocs = DocumentTypesConfig.getRequiredForApproval();
+        const submittedCount = Object.values(documents).filter((doc) => {
+          if (doc.totalReports !== undefined) {
+            return doc.totalReports > 0;
+          }
+          return doc.submitted;
+        }).length;
+
+        const approvedCount = Object.values(documents)
+          .filter((doc) => {
+            if (doc.totalReports !== undefined) {
+              return doc.approvedReports > 0;
+            }
+            return doc.mentorApproved || doc.adminApproved;
+          })
+          .filter((_, index) => {
+            const docKeys = Object.keys(documents);
+            const docKey = docKeys[index];
+            const docType = DocumentTypesConfig.getByKey(docKey);
+            return docType?.requiredForApproval;
+          }).length;
+
+        return {
+          _id: team._id,
+          code: team.code,
+          teamSize: team.teamSize,
+          status: team.status,
+          batch: team.batch,
+          department: team.department,
+          createdAt: team.createdAt,
+          leader: {
+            _id: team.leader._id,
+            name: team.leader.name,
+            email: team.leader.email,
+            rollNumber: team.leader.studentData?.rollNumber,
+          },
+          members: team.members.map((member) => ({
+            _id: member.student._id,
+            name: member.student.name,
+            email: member.student.email,
+            rollNumber: member.student.studentData?.rollNumber,
+            joinedAt: member.joinedAt,
+          })),
+          finalProject: team.finalProject
+            ? {
+                _id: team.finalProject._id,
+                title: team.finalProject.title,
+                category: team.finalProject.category,
+              }
+            : null,
+          documents,
+          completionSummary: {
+            totalDocuments: requiredDocs.length,
+            submittedDocuments: submittedCount,
+            approvedDocuments: approvedCount,
+          },
+        };
+      });
+
+      // Calculate statistics
+      const requiredDocCount =
+        DocumentTypesConfig.getRequiredForApproval().length;
+      const statistics = {
+        totalTeams: processedTeams.length,
+        teamsWithDocuments: processedTeams.filter(
+          (team) => team.completionSummary.submittedDocuments > 0
+        ).length,
+        fullyApprovedTeams: processedTeams.filter(
+          (team) =>
+            team.completionSummary.approvedDocuments === requiredDocCount
+        ).length,
+        pendingReviewCount: processedTeams.reduce((acc, team) => {
+          return (
+            acc +
+            Object.values(team.documents).filter(
+              (doc) =>
+                doc.status === "submitted" || doc.status === "mentor_approved"
+            ).length
+          );
+        }, 0),
+      };
+
+      res.status(200).json({
+        teams: processedTeams,
+        documentTypes: documentTypes,
+        statistics,
+      });
+    } catch (error) {
+      console.error("Error fetching mentor document review status:", error);
+      res.status(500).json({
+        message: "Failed to fetch document review status",
+        error: error.message,
+      });
+    }
+  })
+);
+
+// Mentor: Download team document (only their assigned teams)
+router.get(
+  "/mentor/team/:teamId/document/:documentType",
+  authenticate,
+  authorizeRoles("mentor"),
+  asyncHandler(async (req, res) => {
+    try {
+      const { teamId, documentType } = req.params;
+
+      // Verify team is assigned to this mentor
+      const team = await Team.findOne({
+        _id: teamId,
+        "mentor.assigned": req.user._id,
+      });
+
+      if (!team) {
+        return res.status(404).json({
+          message: "Team not found or not assigned to you",
+        });
+      }
+
+      // Get document
+      const document = team.pdfDocuments?.[documentType];
+      if (!document || !document.path) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+
+      // Check if file exists
+      const fs = require("fs");
+      const path = require("path");
+      if (!fs.existsSync(document.path)) {
+        return res.status(404).json({
+          message: "Document file not found on server",
+        });
+      }
+
+      // Send file
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `inline; filename="${document.originalName}"`
+      );
+      res.sendFile(path.resolve(document.path));
+    } catch (error) {
+      console.error("Error downloading document:", error);
+      res.status(500).json({
+        message: "Failed to download document",
+        error: error.message,
+      });
+    }
+  })
+);
+
 module.exports = router;

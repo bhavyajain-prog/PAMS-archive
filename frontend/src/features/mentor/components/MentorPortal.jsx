@@ -98,6 +98,12 @@ export default function MentorPortal() {
             icon={<FaClipboardCheck />}
           />
           <MentorActionCard
+            to="/mentor/document-review"
+            title="PDF Documents"
+            description="View and track PDF document submissions from your assigned teams."
+            icon={<FaClipboardCheck />}
+          />
+          <MentorActionCard
             to="/mentor/progress-tracking"
             title="Progress Tracking"
             description="Monitor weekly progress reports and track team development over time."

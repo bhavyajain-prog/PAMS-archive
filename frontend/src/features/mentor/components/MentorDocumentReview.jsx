@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import axios from "../../../services/axios";
 import {
-  Search,
   CheckCircle,
   XCircle,
   Users,
@@ -9,7 +8,6 @@ import {
   FileText,
   Clock,
   RefreshCw,
-  BarChart3,
   User,
   ChevronDown,
   ChevronUp,
@@ -19,29 +17,19 @@ import {
   Download,
 } from "lucide-react";
 
-const ReviewDocs = () => {
+const MentorDocumentReview = () => {
   const [teams, setTeams] = useState([]);
-  const [filteredTeams, setFilteredTeams] = useState([]);
+  const [selectedTeam, setSelectedTeam] = useState(null);
   const [statistics, setStatistics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  // Filter and search states
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [documentFilter, setDocumentFilter] = useState("all");
-  const [batchFilter, setBatchFilter] = useState("all");
-  const [departmentFilter, setDepartmentFilter] = useState("all");
-
-  // UI states
   const [expandedTeams, setExpandedTeams] = useState(new Set());
-  const [deleteLoading, setDeleteLoading] = useState({});
 
   // Handle document download
   const handleDownload = async (teamId, documentType, originalName) => {
     try {
       const response = await axios.get(
-        `/admin/team/${teamId}/document/${documentType}`,
+        `/common/mentor/team/${teamId}/document/${documentType}`,
         {
           responseType: "blob",
         }
@@ -61,129 +49,33 @@ const ReviewDocs = () => {
     }
   };
 
-  // Handle document delete
-  const handleDelete = async (teamId, documentType, documentName) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to delete "${documentName}"? The team will be able to re-upload.`
-      )
-    ) {
-      return;
-    }
-
-    try {
-      setDeleteLoading({
-        ...deleteLoading,
-        [`${teamId}-${documentType}`]: true,
-      });
-      setError("");
-
-      await axios.delete(`/admin/team/${teamId}/document/${documentType}`);
-
-      // Refresh data
-      await fetchDocumentData();
-    } catch (err) {
-      console.error("Error deleting document:", err);
-      setError(err.response?.data?.message || "Failed to delete document");
-    } finally {
-      setDeleteLoading({
-        ...deleteLoading,
-        [`${teamId}-${documentType}`]: false,
-      });
-    }
-  };
-
   // Fetch teams and document data
   const fetchDocumentData = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
 
-      const response = await axios.get("/admin/document-review-status");
+      const response = await axios.get("/common/mentor/document-review-status");
       const { teams: teamsData, statistics: stats } = response.data;
 
       setTeams(teamsData);
-      setFilteredTeams(teamsData);
       setStatistics(stats);
+
+      // Auto-select first team if available
+      if (teamsData.length > 0 && !selectedTeam) {
+        setSelectedTeam(teamsData[0]._id);
+      }
     } catch (err) {
       console.error("Error fetching document data:", err);
       setError(err.response?.data?.message || "Failed to fetch document data");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [selectedTeam]);
 
   useEffect(() => {
     fetchDocumentData();
   }, [fetchDocumentData]);
-
-  // Filter teams based on search and filters
-  useEffect(() => {
-    let filtered = teams;
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (team) =>
-          team.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          team.leader.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          team.leader.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          team.members.some(
-            (member) =>
-              member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              member.email.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-      );
-    }
-
-    // Status filter
-    if (statusFilter !== "all") {
-      filtered = filtered.filter((team) => team.status === statusFilter);
-    }
-
-    // Document completion filter
-    if (documentFilter !== "all") {
-      filtered = filtered.filter((team) => {
-        const { submittedDocuments, approvedDocuments } =
-          team.completionSummary;
-        switch (documentFilter) {
-          case "complete":
-            return approvedDocuments === 3;
-          case "partial":
-            return submittedDocuments > 0 && approvedDocuments < 3;
-          case "none":
-            return submittedDocuments === 0;
-          default:
-            return true;
-        }
-      });
-    }
-
-    // Batch filter
-    if (batchFilter !== "all") {
-      filtered = filtered.filter((team) => team.batch === batchFilter);
-    }
-
-    // Department filter
-    if (departmentFilter !== "all") {
-      filtered = filtered.filter(
-        (team) => team.department === departmentFilter
-      );
-    }
-
-    setFilteredTeams(filtered);
-  }, [
-    teams,
-    searchTerm,
-    statusFilter,
-    documentFilter,
-    batchFilter,
-    departmentFilter,
-  ]);
-
-  // Get unique values for filters
-  const uniqueBatches = [...new Set(teams.map((team) => team.batch))];
-  const uniqueDepartments = [...new Set(teams.map((team) => team.department))];
 
   // Toggle team expansion
   const toggleTeamExpansion = (teamId) => {
@@ -236,18 +128,6 @@ const ReviewDocs = () => {
             icon: AlertCircle,
             text: "Not Submitted",
           };
-        case "approved":
-          return {
-            color: "bg-teal-100 text-teal-800 border-teal-200",
-            icon: CheckCircle,
-            text: "Approved",
-          };
-        case "pending":
-          return {
-            color: "bg-yellow-100 text-yellow-800 border-yellow-200",
-            icon: Clock,
-            text: "Pending",
-          };
         default:
           return {
             color: "bg-gray-100 text-gray-600 border-gray-200",
@@ -273,7 +153,6 @@ const ReviewDocs = () => {
   // Document card component
   const DocumentCard = ({ document, docKey, teamId }) => {
     const isWeeklyStatus = docKey === "weeklyStatus";
-    const isDeleting = deleteLoading[`${teamId}-${docKey}`];
 
     return (
       <div className="bg-gray-50 rounded-lg p-4 border">
@@ -344,52 +223,26 @@ const ReviewDocs = () => {
                   {document.hasData ? "Yes" : "No"}
                 </span>
               </div>
-              {document.submittedAt && (
+              {document.uploadedAt && (
                 <div className="col-span-2 flex justify-between">
-                  <span className="text-gray-600">Submitted At:</span>
+                  <span className="text-gray-600">Uploaded At:</span>
                   <span className="font-medium">
-                    {new Date(document.submittedAt).toLocaleDateString()}
+                    {new Date(document.uploadedAt).toLocaleDateString()}
                   </span>
                 </div>
               )}
               {document.originalName && (
-                <div className="col-span-2 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">File:</span>
-                    <span className="font-medium text-sm truncate max-w-[180px]">
-                      {document.originalName}
-                    </span>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() =>
-                        handleDownload(teamId, docKey, document.originalName)
-                      }
-                      className="flex-1 flex items-center justify-center px-3 py-1.5 bg-teal-600 text-white rounded text-xs font-medium hover:bg-teal-700 transition-colors"
-                    >
-                      <Download className="w-3 h-3 mr-1" />
-                      Download
-                    </button>
-                    <button
-                      onClick={() =>
-                        handleDelete(teamId, docKey, document.name)
-                      }
-                      disabled={isDeleting}
-                      className="flex-1 flex items-center justify-center px-3 py-1.5 bg-red-600 text-white rounded text-xs font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isDeleting ? (
-                        <>
-                          <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
-                          Deleting...
-                        </>
-                      ) : (
-                        <>
-                          <XCircle className="w-3 h-3 mr-1" />
-                          Delete
-                        </>
-                      )}
-                    </button>
-                  </div>
+                <div className="col-span-2 flex items-center justify-between">
+                  <span className="text-gray-600">File:</span>
+                  <button
+                    onClick={() =>
+                      handleDownload(teamId, docKey, document.originalName)
+                    }
+                    className="font-medium text-teal-600 hover:text-teal-800 flex items-center transition-colors"
+                  >
+                    <Download className="w-3 h-3 mr-1" />
+                    {document.originalName}
+                  </button>
                 </div>
               )}
             </div>
@@ -419,7 +272,6 @@ const ReviewDocs = () => {
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
                   <span>{team.code}</span>
-                  <StatusBadge status={team.status} />
                 </h3>
                 <p className="text-sm text-gray-600 mt-1">
                   {team.batch} • {team.department} • {team.teamSize} members
@@ -471,7 +323,7 @@ const ReviewDocs = () => {
                 {/* Leader */}
                 <div className="flex items-center space-x-3 p-3 bg-teal-50 rounded-lg border border-teal-100">
                   <div className="bg-teal-100 rounded-full p-2">
-                    <User className="w-4 h-4 text-teal-600" />
+                    <User className="w-5 h-5 text-teal-600" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-teal-900">
@@ -516,30 +368,6 @@ const ReviewDocs = () => {
                 ))}
               </div>
             </div>
-
-            {/* Mentor Information */}
-            {team.mentor && (
-              <div>
-                <h4 className="font-medium text-gray-900 mb-3 flex items-center">
-                  <User className="w-4 h-4 mr-2" />
-                  Assigned Mentor
-                </h4>
-                <div className="flex items-center space-x-3 p-3 bg-teal-50 rounded-lg border border-teal-100">
-                  <div className="bg-teal-100 rounded-full p-2">
-                    <User className="w-4 h-4 text-teal-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-teal-900">
-                      {team.mentor.name}
-                    </p>
-                    <p className="text-sm text-teal-600 flex items-center">
-                      <Mail className="w-3 h-3 mr-1" />
-                      {team.mentor.email}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Documents */}
             <div>
@@ -602,6 +430,28 @@ const ReviewDocs = () => {
     );
   }
 
+  if (teams.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center py-12">
+            <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              No Teams Assigned
+            </h2>
+            <p className="text-gray-600">
+              You don&apos;t have any teams assigned to you yet.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const displayedTeams = selectedTeam
+    ? teams.filter((t) => t._id === selectedTeam)
+    : teams;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -611,18 +461,18 @@ const ReviewDocs = () => {
             Document Review Dashboard
           </h1>
           <p className="text-lg text-gray-600">
-            Review and monitor team document submissions and approvals
+            Review and monitor your assigned teams&apos; document submissions
           </p>
         </div>
 
         {/* Statistics Cards */}
         {statistics && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">
-                    Total Teams
+                    Assigned Teams
                   </p>
                   <p className="text-2xl font-bold text-gray-900">
                     {statistics.totalTeams}
@@ -638,7 +488,7 @@ const ReviewDocs = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">
-                    Teams with Documents
+                    Teams with Submissions
                   </p>
                   <p className="text-2xl font-bold text-gray-900">
                     {statistics.teamsWithDocuments}
@@ -646,22 +496,6 @@ const ReviewDocs = () => {
                 </div>
                 <div className="bg-teal-100 rounded-lg p-3">
                   <FileText className="w-6 h-6 text-teal-600" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">
-                    Fully Approved
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {statistics.fullyApprovedTeams}
-                  </p>
-                </div>
-                <div className="bg-teal-100 rounded-lg p-3">
-                  <CheckCircle className="w-6 h-6 text-teal-600" />
                 </div>
               </div>
             </div>
@@ -684,124 +518,25 @@ const ReviewDocs = () => {
           </div>
         )}
 
-        {/* Document Type Statistics */}
-        {statistics?.documentTypeStats && (
-          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <BarChart3 className="w-5 h-5 mr-2" />
-              Document Type Statistics
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {statistics.documentTypeStats.map((stat) => (
-                <div key={stat.key} className="space-y-3">
-                  <h4 className="font-medium text-gray-800">{stat.name}</h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Submitted</span>
-                      <span className="font-medium text-teal-600">
-                        {stat.submitted}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Mentor Approved</span>
-                      <span className="font-medium text-teal-600">
-                        {stat.mentorApproved}
-                      </span>
-                    </div>
-                    {stat.key !== "weeklyStatus" && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Admin Approved</span>
-                        <span className="font-medium text-teal-600">
-                          {stat.adminApproved}
-                        </span>
-                      </div>
-                    )}
-                    {stat.pending > 0 && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Pending Review</span>
-                        <span className="font-medium text-yellow-600">
-                          {stat.pending}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Filters and Search */}
+        {/* Team Selector */}
         <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-          <div className="flex flex-col lg:flex-row gap-4">
-            {/* Search */}
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder="Search teams, members, or emails..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-
-            {/* Filters */}
-            <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <label className="text-sm font-medium text-gray-700">
+              Select Team:
+            </label>
+            <div className="flex gap-3 flex-1 max-w-md w-full">
               <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                value={selectedTeam || ""}
+                onChange={(e) => setSelectedTeam(e.target.value || null)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               >
-                <option value="all">All Status</option>
-                <option value="approved">Approved</option>
-                <option value="pending">Pending</option>
-                <option value="rejected">Rejected</option>
+                <option value="">All Teams</option>
+                {teams.map((team) => (
+                  <option key={team._id} value={team._id}>
+                    {team.code} - {team.leader.name}
+                  </option>
+                ))}
               </select>
-
-              <select
-                value={documentFilter}
-                onChange={(e) => setDocumentFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              >
-                <option value="all">All Documents</option>
-                <option value="complete">Fully Approved</option>
-                <option value="partial">Partially Complete</option>
-                <option value="none">No Documents</option>
-              </select>
-
-              {uniqueBatches.length > 0 && (
-                <select
-                  value={batchFilter}
-                  onChange={(e) => setBatchFilter(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                >
-                  <option value="all">All Batches</option>
-                  {uniqueBatches.map((batch) => (
-                    <option key={batch} value={batch}>
-                      {batch}
-                    </option>
-                  ))}
-                </select>
-              )}
-
-              {uniqueDepartments.length > 0 && (
-                <select
-                  value={departmentFilter}
-                  onChange={(e) => setDepartmentFilter(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                >
-                  <option value="all">All Departments</option>
-                  {uniqueDepartments.map((dept) => (
-                    <option key={dept} value={dept}>
-                      {dept}
-                    </option>
-                  ))}
-                </select>
-              )}
-
               <button
                 onClick={fetchDocumentData}
                 className="flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
@@ -813,46 +548,15 @@ const ReviewDocs = () => {
           </div>
         </div>
 
-        {/* Results Summary */}
-        <div className="flex items-center justify-between">
-          <p className="text-gray-600">
-            Showing {filteredTeams.length} of {teams.length} teams
-          </p>
-          {searchTerm && (
-            <button
-              onClick={() => {
-                setSearchTerm("");
-                setStatusFilter("all");
-                setDocumentFilter("all");
-                setBatchFilter("all");
-                setDepartmentFilter("all");
-              }}
-              className="text-teal-600 hover:text-teal-700 text-sm font-medium"
-            >
-              Clear all filters
-            </button>
-          )}
-        </div>
-
         {/* Teams List */}
         <div className="space-y-6">
-          {filteredTeams.length === 0 ? (
-            <div className="text-center py-12">
-              <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No teams found
-              </h3>
-              <p className="text-gray-600">
-                Try adjusting your search or filter criteria
-              </p>
-            </div>
-          ) : (
-            filteredTeams.map((team) => <TeamCard key={team._id} team={team} />)
-          )}
+          {displayedTeams.map((team) => (
+            <TeamCard key={team._id} team={team} />
+          ))}
         </div>
       </div>
     </div>
   );
 };
 
-export default ReviewDocs;
+export default MentorDocumentReview;

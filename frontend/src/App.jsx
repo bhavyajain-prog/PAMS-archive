@@ -26,9 +26,11 @@ import MyTeam from "./features/student/components/MyTeam";
 import JoinTeam from "./features/student/components/JoinTeam";
 import ProposeProject from "./features/student/components/ProposeProject";
 import TeamDetails from "./features/student/components/TeamDetails";
+import DocumentUpload from "./features/student/components/DocumentUpload";
 
 import MentorPortal from "./features/mentor/components/MentorPortal";
 import TeamSelection from "./features/mentor/components/TeamSelection";
+import MentorDocumentReview from "./features/mentor/components/MentorDocumentReview";
 
 import AdminPortal from "./features/admin/components/AdminPortal";
 import AdminUpload from "./features/admin/components/AdminUpload";
@@ -174,6 +176,14 @@ const AppLayout = () => {
               </RoleBasedRoute>
             }
           />
+          <Route
+            path="/team/documents"
+            element={
+              <RoleBasedRoute roles={["student"]}>
+                <DocumentUpload />
+              </RoleBasedRoute>
+            }
+          />
           {/* Mentor Routes */}
           <Route
             path="/mentor/home"
@@ -196,6 +206,14 @@ const AppLayout = () => {
             element={
               <RoleBasedRoute roles={["mentor", "sub-admin"]}>
                 <FormApproval />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/mentor/document-review"
+            element={
+              <RoleBasedRoute roles={["mentor"]}>
+                <MentorDocumentReview />
               </RoleBasedRoute>
             }
           />

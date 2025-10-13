@@ -130,6 +130,12 @@ export default function StudentPortal() {
                 icon={<FaFileUpload />}
               />
               <StudentActionCard
+                to="/team/documents"
+                title="Upload Documents"
+                description="Upload and manage team project documents (PDFs only). Leader can upload, all can view."
+                icon={<FaFileUpload />}
+              />
+              <StudentActionCard
                 to="/project-bank"
                 title="Project Bank"
                 description="Browse the project bank, see your proposals, or propose a new idea."

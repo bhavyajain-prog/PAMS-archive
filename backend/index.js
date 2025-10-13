@@ -69,7 +69,7 @@ const corsOptions = {
     }
     return callback(new Error("Not allowed by CORS"));
   },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
   // Let cors reflect requested headers to avoid mismatches on case/unknown headers
   // allowedHeaders intentionally omitted
   credentials: true,
