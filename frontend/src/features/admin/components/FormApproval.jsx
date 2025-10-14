@@ -163,8 +163,8 @@ const FormApproval = () => {
               {form.status === "submitted"
                 ? "AWAITING MENTOR APPROVAL"
                 : form.status === "mentor_approved"
-                ? "AWAITING ADMIN APPROVAL"
-                : form.status.replace("_", " ").toUpperCase()}
+                  ? "AWAITING ADMIN APPROVAL"
+                  : form.status.replace("_", " ").toUpperCase()}
             </span>
           </div>
         </div>
@@ -177,34 +177,31 @@ const FormApproval = () => {
             </div>
             <div className="flex items-center space-x-4 text-xs">
               <div
-                className={`flex items-center ${
-                  form.status !== "draft" ? "text-green-600" : "text-gray-400"
-                }`}
+                className={`flex items-center ${form.status !== "draft" ? "text-green-600" : "text-gray-400"
+                  }`}
               >
                 <span className="w-2 h-2 rounded-full bg-current mr-1"></span>
                 Submitted
               </div>
               <div
-                className={`flex items-center ${
-                  form.status === "mentor_approved" ||
-                  form.status === "admin_approved"
+                className={`flex items-center ${form.status === "mentor_approved" ||
+                    form.status === "admin_approved"
                     ? "text-green-600"
                     : form.status === "submitted"
-                    ? "text-blue-600"
-                    : "text-gray-400"
-                }`}
+                      ? "text-blue-600"
+                      : "text-gray-400"
+                  }`}
               >
                 <span className="w-2 h-2 rounded-full bg-current mr-1"></span>
                 Mentor Approval
               </div>
               <div
-                className={`flex items-center ${
-                  form.status === "admin_approved"
+                className={`flex items-center ${form.status === "admin_approved"
                     ? "text-green-600"
                     : form.status === "mentor_approved"
-                    ? "text-blue-600"
-                    : "text-gray-400"
-                }`}
+                      ? "text-blue-600"
+                      : "text-gray-400"
+                  }`}
               >
                 <span className="w-2 h-2 rounded-full bg-current mr-1"></span>
                 Admin Approval
@@ -446,7 +443,7 @@ const FormApproval = () => {
 
       {/* Approval Modal */}
       {showApprovalModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">
               {approvalData.action === "approve" ? "Approve" : "Reject"} Form
@@ -492,11 +489,10 @@ const FormApproval = () => {
               <button
                 onClick={handleFormAction}
                 disabled={actionLoading}
-                className={`flex items-center px-4 py-2 text-white rounded transition-colors disabled:opacity-50 ${
-                  approvalData.action === "approve"
+                className={`flex items-center px-4 py-2 text-white rounded transition-colors disabled:opacity-50 ${approvalData.action === "approve"
                     ? "bg-green-600 hover:bg-green-700"
                     : "bg-red-600 hover:bg-red-700"
-                }`}
+                  }`}
               >
                 {actionLoading && <FaSpinner className="animate-spin mr-2" />}
                 {approvalData.action === "approve" ? "Approve" : "Reject"}

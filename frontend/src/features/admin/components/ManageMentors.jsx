@@ -10,14 +10,15 @@ import {
   FaSearch,
   FaUserShield,
   FaUserGraduate,
+  FaEye,
 } from "react-icons/fa";
 
 // Placeholder for a more sophisticated Modal component if needed later
 const Modal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
-      <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center p-4">
+      <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto scrollbar-hide">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
           <button
@@ -29,6 +30,15 @@ const Modal = ({ isOpen, onClose, title, children }) => {
         </div>
         {children}
       </div>
+      <style jsx>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </div>
   );
 };
@@ -46,134 +56,56 @@ const MentorCard = ({
   };
 
   return (
-    <div className="bg-white shadow-lg rounded-lg p-6 transition-all duration-300 ease-in-out">
+    <div className="bg-white shadow-lg rounded-lg p-6 transition-all duration-300 ease-in-out flex flex-col h-full">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
-        <div>
-          <h2 className="text-2xl font-bold text-teal-700">{mentor.name}</h2>
-          <p className="text-sm text-gray-600">{mentor.email}</p>
+        <div className="flex-1 min-w-0">
+          <h2 className="text-2xl font-bold text-teal-700 truncate">{mentor.name}</h2>
+          <p className="text-sm text-gray-600 truncate">{mentor.email}</p>
         </div>
         <span
           className={`px-3 py-1 text-sm font-semibold rounded-full ${getRoleClass(
             mentor.role
-          )} mt-2 sm:mt-0`}
+          )} mt-2 sm:mt-0 sm:ml-2 whitespace-nowrap`}
         >
           {mentor.role}
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 text-sm">
-        <p>
-          <strong className="text-gray-700">Department:</strong>{" "}
-          {mentor.mentorData?.department || "N/A"}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 text-sm flex-grow">
+        <p className="flex items-start">
+          <span className="text-gray-700 font-semibold min-w-fit">Department:</span>
+          <span className="ml-1 text-gray-900">{mentor.mentorData?.department || "N/A"}</span>
         </p>
-        <p>
-          <strong className="text-gray-700">Designation:</strong>{" "}
-          {mentor.mentorData?.designation || "N/A"}
+        <p className="flex items-start">
+          <span className="text-gray-700 font-semibold min-w-fit">Designation:</span>
+          <span className="ml-1 text-gray-900">{mentor.mentorData?.designation || "N/A"}</span>
         </p>
-        <p>
-          <FaUsers className="inline mr-2 text-teal-600" />
-          Max Teams:{" "}
-          {mentor.mentorData?.maxTeams === undefined ||
-          mentor.mentorData?.maxTeams === null
-            ? "N/A"
-            : mentor.mentorData.maxTeams}
+        <p className="flex items-center">
+          <FaUsers className="inline mr-2 text-teal-600 flex-shrink-0" />
+          <span className="text-gray-700">Max Teams:</span>
+          <span className="ml-1 text-gray-900">
+            {mentor.mentorData?.maxTeams === undefined ||
+              mentor.mentorData?.maxTeams === null
+              ? "N/A"
+              : mentor.mentorData.maxTeams}
+          </span>
         </p>
-        <p>
-          <FaUsers className="inline mr-2 text-teal-600" />
-          Assigned Teams: {mentor.mentorData?.assignedTeams?.length || 0}
+        <p className="flex items-center">
+          <FaUsers className="inline mr-2 text-teal-600 flex-shrink-0" />
+          <span className="text-gray-700">Assigned Teams:</span>
+          <span className="ml-1 text-gray-900">{mentor.mentorData?.assignedTeams?.length || 0}</span>
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-2 mt-4">
+      <div className="mt-auto pt-4">
         <button
           onClick={() => onToggleExpand(mentor._id)}
-          className="text-sm bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-md flex items-center transition-colors"
+          className="w-full text-sm bg-teal-600 hover:bg-teal-700 text-white px-6 py-2.5 rounded-md font-medium transition-colors shadow-sm flex items-center justify-center"
         >
-          {isExpanded ? (
-            <FaChevronUp className="mr-2" />
-          ) : (
-            <FaChevronDown className="mr-2" />
-          )}
-          Details
+          <FaEye className="mr-2" />
+          View Details
         </button>
-        <button
-          onClick={() => onOpenActionModal(mentor, "edit")}
-          className="text-sm bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center transition-colors"
-        >
-          <FaEdit className="mr-2" /> Edit
-        </button>
-        <button
-          onClick={() => onOpenActionModal(mentor, "remove")}
-          className="text-sm bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md flex items-center transition-colors"
-        >
-          <FaTrash className="mr-2" /> Remove
-        </button>
-        {mentor.role === "mentor" && (
-          <button
-            onClick={() => onOpenActionModal(mentor, "promote")}
-            className="text-sm bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md flex items-center transition-colors"
-          >
-            <FaUserShield className="mr-2" /> Promote to Sub-Admin
-          </button>
-        )}
-        {mentor.role === "sub-admin" && (
-          <button
-            onClick={() => onOpenActionModal(mentor, "demote")}
-            className="text-sm bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md flex items-center transition-colors"
-          >
-            <FaUserGraduate className="mr-2" /> Demote to Mentor
-          </button>
-        )}
       </div>
-
-      {isExpanded && (
-        <div className="mt-6 border-t pt-4">
-          <h4 className="text-md font-semibold text-gray-700 mb-3">
-            Full Details:
-          </h4>
-          <div className="text-sm text-gray-700 space-y-2">
-            <p>
-              <strong>Emp No.:</strong> {mentor.mentorData?.empNo || "N/A"}
-            </p>
-            <p>
-              <strong>Username:</strong> {mentor.username}
-            </p>
-            <p>
-              <strong>Phone:</strong> {mentor.phone || "N/A"}
-            </p>
-            <p>
-              <strong>First Login:</strong>{" "}
-              {mentor.firstLogin ? "Yes (Password needs reset)" : "No"}
-            </p>
-            <p>
-              <strong>Qualifications:</strong>{" "}
-              {mentor.mentorData?.qualifications?.join(", ") || "N/A"}
-            </p>
-            <div>
-              <strong>Assigned Teams:</strong>
-              {mentor.mentorData?.assignedTeams?.length > 0 ? (
-                <ul className="list-disc list-inside ml-4">
-                  {mentor.mentorData.assignedTeams.map((team) => (
-                    <li key={team._id}>
-                      {team.code || team.name || "Unknown Team"}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <span className="italic">None</span>
-              )}
-            </div>
-            <p>
-              <strong>Created At:</strong>{" "}
-              {new Date(mentor.createdAt).toLocaleString()}
-            </p>
-            <p>
-              <strong>Updated At:</strong>{" "}
-              {new Date(mentor.updatedAt).toLocaleString()}
-            </p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
@@ -186,7 +118,7 @@ export default function ManageMentors() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
   const [selectedMentorForAction, setSelectedMentorForAction] = useState(null);
-  const [actionType, setActionType] = useState(""); // 'add', 'edit', 'remove', 'promote', 'demote'
+  const [actionType, setActionType] = useState(""); // 'add', 'edit', 'remove', 'promote', 'demote', 'details'
   const [actionLoading, setActionLoading] = useState(false);
   const [actionMessage, setActionMessage] = useState({ text: "", type: "" }); // type: 'success' or 'error'
 
@@ -209,7 +141,15 @@ export default function ManageMentors() {
     setError(null);
     try {
       const response = await axiosInstance.get("/admin/mentors");
-      setMentors(response.data.mentors || []);
+      const mentorsData = response.data.mentors || [];
+
+      // Debug: Check for mentors without mentorData
+      const mentorsWithoutData = mentorsData.filter(m => !m.mentorData);
+      if (mentorsWithoutData.length > 0) {
+        console.warn('Mentors missing mentorData:', mentorsWithoutData);
+      }
+
+      setMentors(mentorsData);
     } catch (err) {
       setError(
         err.response?.data?.message || err.message || "Failed to fetch mentors."
@@ -238,7 +178,16 @@ export default function ManageMentors() {
   );
 
   const handleToggleExpand = (mentorId) => {
-    setExpandedMentorId(expandedMentorId === mentorId ? null : mentorId);
+    // Find mentor and show in modal
+    const mentor = mentors.find(m => m._id === mentorId);
+    if (mentor) {
+      if (!mentor.mentorData) {
+        console.warn('Mentor missing mentorData:', mentor);
+      }
+      setSelectedMentorForAction(mentor);
+      setActionType('details');
+      setIsActionModalOpen(true);
+    }
   };
 
   const handleOpenActionModal = (mentor, type) => {
@@ -258,7 +207,7 @@ export default function ManageMentors() {
         qualifications: mentor.mentorData?.qualifications || "",
         maxTeams:
           mentor.mentorData?.maxTeams === undefined ||
-          mentor.mentorData?.maxTeams === null
+            mentor.mentorData?.maxTeams === null
             ? 3
             : mentor.mentorData.maxTeams,
       });
@@ -310,8 +259,8 @@ export default function ManageMentors() {
         type === "checkbox"
           ? checked
           : type === "number"
-          ? parseInt(value, 10)
-          : value,
+            ? parseInt(value, 10)
+            : value,
     }));
   };
 
@@ -694,11 +643,10 @@ export default function ManageMentors() {
 
             {actionMessage.text && (
               <p
-                className={`text-sm ${
-                  actionMessage.type === "success"
-                    ? "text-green-600"
-                    : "text-red-600"
-                }`}
+                className={`text-sm ${actionMessage.type === "success"
+                  ? "text-green-600"
+                  : "text-red-600"
+                  }`}
               >
                 {actionMessage.text}
               </p>
@@ -719,8 +667,8 @@ export default function ManageMentors() {
                 {actionLoading
                   ? "Saving..."
                   : actionType === "add"
-                  ? "Add Mentor"
-                  : "Save Changes"}
+                    ? "Add Mentor"
+                    : "Save Changes"}
               </button>
             </div>
           </form>
@@ -746,11 +694,10 @@ export default function ManageMentors() {
           </p>
           {actionMessage.text && (
             <p
-              className={`text-sm mb-2 ${
-                actionMessage.type === "success"
-                  ? "text-green-600"
-                  : "text-red-600"
-              }`}
+              className={`text-sm mb-2 ${actionMessage.type === "success"
+                ? "text-green-600"
+                : "text-red-600"
+                }`}
             >
               {actionMessage.text}
             </p>
@@ -794,11 +741,10 @@ export default function ManageMentors() {
             </p>
             {actionMessage.text && (
               <p
-                className={`text-sm mb-2 ${
-                  actionMessage.type === "success"
-                    ? "text-green-600"
-                    : "text-red-600"
-                }`}
+                className={`text-sm mb-2 ${actionMessage.type === "success"
+                  ? "text-green-600"
+                  : "text-red-600"
+                  }`}
               >
                 {actionMessage.text}
               </p>
@@ -817,21 +763,212 @@ export default function ManageMentors() {
                   )
                 }
                 disabled={actionLoading}
-                className={`px-4 py-2 text-sm font-medium text-white rounded-md disabled:opacity-50 ${
-                  actionType === "promote"
-                    ? "bg-green-600 hover:bg-green-700"
-                    : "bg-yellow-500 hover:bg-yellow-600"
-                }`}
+                className={`px-4 py-2 text-sm font-medium text-white rounded-md disabled:opacity-50 ${actionType === "promote"
+                  ? "bg-green-600 hover:bg-green-700"
+                  : "bg-yellow-500 hover:bg-yellow-600"
+                  }`}
               >
                 {actionLoading
                   ? "Processing..."
                   : actionType === "promote"
-                  ? "Promote"
-                  : "Demote"}
+                    ? "Promote"
+                    : "Demote"}
               </button>
             </div>
           </Modal>
         )}
+
+      {/* Mentor Details Modal */}
+      {actionType === "details" && selectedMentorForAction && (
+        <Modal
+          isOpen={isActionModalOpen}
+          onClose={handleCloseActionModal}
+          title="Mentor Details"
+        >
+          <div className="space-y-4">
+            {!selectedMentorForAction.mentorData ? (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800">
+                <p className="font-semibold flex items-center">
+                  <span className="text-xl mr-2">⚠️</span>
+                  Incomplete Mentor Data
+                </p>
+                <p className="mt-2">
+                  This mentor profile is missing mentor-specific data. Please edit the mentor to add required information.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-4 pb-3 border-b border-gray-200">
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</p>
+                    <p className="text-sm text-gray-900 font-medium mt-1">{selectedMentorForAction.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Role</p>
+                    <p className="text-sm text-gray-900 font-medium mt-1">
+                      <span className={`px-2 py-1 rounded-full text-xs ${selectedMentorForAction.role === "sub-admin"
+                        ? "bg-sky-100 text-sky-700"
+                        : "bg-indigo-100 text-indigo-700"
+                        }`}>
+                        {selectedMentorForAction.role}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-3 border-b border-gray-200">
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</p>
+                    <p className="text-sm text-gray-900 mt-1 break-all">{selectedMentorForAction.email}</p>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Username</p>
+                    <p className="text-sm text-gray-900 mt-1 break-words">{selectedMentorForAction.username || "N/A"}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 pb-3 border-b border-gray-200">
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Employee No.</p>
+                    <p className="text-sm text-gray-900 mt-1">{selectedMentorForAction.mentorData?.empNo || "N/A"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Phone</p>
+                    <p className="text-sm text-gray-900 mt-1">{selectedMentorForAction.phone || "N/A"}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 pb-3 border-b border-gray-200">
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Department</p>
+                    <p className="text-sm text-gray-900 mt-1">{selectedMentorForAction.mentorData?.department || "N/A"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Designation</p>
+                    <p className="text-sm text-gray-900 mt-1">{selectedMentorForAction.mentorData?.designation || "N/A"}</p>
+                  </div>
+                </div>
+
+                <div className="pb-3 border-b border-gray-200">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Qualifications</p>
+                  <p className="text-sm text-gray-900 mt-1">{selectedMentorForAction.mentorData?.qualifications || "N/A"}</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 pb-3 border-b border-gray-200">
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Max Teams</p>
+                    <p className="text-sm text-gray-900 mt-1">
+                      {selectedMentorForAction.mentorData?.maxTeams === undefined ||
+                        selectedMentorForAction.mentorData?.maxTeams === null
+                        ? "N/A"
+                        : selectedMentorForAction.mentorData.maxTeams}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">First Login Required</p>
+                    <p className="text-sm text-gray-900 mt-1">
+                      <span className={`px-2 py-1 rounded-full text-xs ${selectedMentorForAction.firstLogin
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-green-100 text-green-700"
+                        }`}>
+                        {selectedMentorForAction.firstLogin ? "Yes" : "No"}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pb-3 border-b border-gray-200">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Assigned Teams</p>
+                  {selectedMentorForAction.mentorData?.assignedTeams &&
+                    Array.isArray(selectedMentorForAction.mentorData.assignedTeams) &&
+                    selectedMentorForAction.mentorData.assignedTeams.length > 0 ? (
+                    <ul className="space-y-1">
+                      {selectedMentorForAction.mentorData.assignedTeams.map((team, index) => (
+                        <li key={team?._id || `team-${index}`} className="text-sm text-gray-900 flex items-center">
+                          <span className="w-2 h-2 bg-teal-500 rounded-full mr-2"></span>
+                          {team?.code || team?.name || (typeof team === 'string' ? `Team ID: ${team}` : "Unknown Team")}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-gray-500 italic">No teams assigned</p>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Created At</p>
+                    <p className="text-sm text-gray-900 mt-1">
+                      {selectedMentorForAction.createdAt
+                        ? new Date(selectedMentorForAction.createdAt).toLocaleString()
+                        : "N/A"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Updated At</p>
+                    <p className="text-sm text-gray-900 mt-1">
+                      {selectedMentorForAction.updatedAt
+                        ? new Date(selectedMentorForAction.updatedAt).toLocaleString()
+                        : "N/A"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="flex flex-wrap justify-between items-center gap-3 pt-4 border-t border-gray-200">
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => {
+                    handleCloseActionModal();
+                    setTimeout(() => handleOpenActionModal(selectedMentorForAction, "edit"), 100);
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 rounded-md flex items-center transition-colors"
+                >
+                  <FaEdit className="mr-2" /> Edit
+                </button>
+                <button
+                  onClick={() => {
+                    handleCloseActionModal();
+                    setTimeout(() => handleOpenActionModal(selectedMentorForAction, "remove"), 100);
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-md flex items-center transition-colors"
+                >
+                  <FaTrash className="mr-2" /> Delete
+                </button>
+                {selectedMentorForAction.role === "mentor" && (
+                  <button
+                    onClick={() => {
+                      handleCloseActionModal();
+                      setTimeout(() => handleOpenActionModal(selectedMentorForAction, "promote"), 100);
+                    }}
+                    className="px-4 py-2 text-sm font-medium text-white bg-green-500 hover:bg-green-600 rounded-md flex items-center transition-colors"
+                  >
+                    <FaUserShield className="mr-2" /> Promote
+                  </button>
+                )}
+                {selectedMentorForAction.role === "sub-admin" && (
+                  <button
+                    onClick={() => {
+                      handleCloseActionModal();
+                      setTimeout(() => handleOpenActionModal(selectedMentorForAction, "demote"), 100);
+                    }}
+                    className="px-4 py-2 text-sm font-medium text-white bg-yellow-500 hover:bg-yellow-600 rounded-md flex items-center transition-colors"
+                  >
+                    <FaUserGraduate className="mr-2" /> Demote
+                  </button>
+                )}
+              </div>
+              <button
+                onClick={handleCloseActionModal}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

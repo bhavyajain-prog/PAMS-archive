@@ -82,7 +82,7 @@ const Header = () => {
           // Only logo centered
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
             <a
-              href="https://erp.skit.ac.in"
+              href="https://www.skit.ac.in"
               target="_blank"
               rel="noopener noreferrer"
               className="block relative"
@@ -129,7 +129,7 @@ const Header = () => {
             {/* Center - Logo */}
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
               <a
-                href="https://erp.skit.ac.in"
+                href="https://www.skit.ac.in"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block relative"

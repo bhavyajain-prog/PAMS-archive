@@ -510,15 +510,16 @@ router.post(
         { session }
       );
       await project.save({ session });
-      session.commitTransaction();
-      session.endSession();
+      await session.commitTransaction();
+      await session.endSession();
       res.status(200).json({ message: "Team accepted successfully." });
     } catch (err) {
       await session.abortTransaction();
-      session.endSession();
+      await session.endSession();
+      console.error("Error accepting team:", err);
       res
         .status(500)
-        .json({ message: "Failed to accept team. Please try again later." });
+        .json({ message: "Failed to accept team. Please try again later.", error: err.message });
     }
   })
 );

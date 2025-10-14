@@ -80,9 +80,8 @@ const TimelineManagement = ({ onRefresh }) => {
 
       setMessage({
         type: "success",
-        text: `Timeline settings updated successfully. ${
-          response.data.autoAssignResults?.length || 0
-        } teams auto-assigned.`,
+        text: `Timeline settings updated successfully. ${response.data.autoAssignResults?.length || 0
+          } teams auto-assigned.`,
       });
 
       await fetchSettings();
@@ -150,11 +149,10 @@ const TimelineManagement = ({ onRefresh }) => {
 
       {message.text && (
         <div
-          className={`p-3 rounded-lg mb-4 ${
-            message.type === "success"
+          className={`p-3 rounded-lg mb-4 ${message.type === "success"
               ? "bg-green-50 border border-green-200 text-green-800"
               : "bg-red-50 border border-red-200 text-red-800"
-          }`}
+            }`}
         >
           {message.text}
         </div>
@@ -299,7 +297,7 @@ const TimelineManagement = ({ onRefresh }) => {
 const Modal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center p-4">
       <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
@@ -355,8 +353,8 @@ const ProjectCard = ({ project, onAction }) => {
           {project.isApproved
             ? "Approved"
             : project.rejectedAt
-            ? "Rejected"
-            : "Pending"}
+              ? "Rejected"
+              : "Pending"}
         </span>
       </div>
 
@@ -738,8 +736,8 @@ export default function ManageProjects() {
       (approvalFilter === "rejected"
         ? p.rejectedAt
         : approvalFilter === "approved"
-        ? p.isApproved && !p.rejectedAt
-        : !p.isApproved && !p.rejectedAt);
+          ? p.isApproved && !p.rejectedAt
+          : !p.isApproved && !p.rejectedAt);
 
     const matchesProposer =
       proposerFilter === "all" || p.proposedBy?.role === proposerFilter;
@@ -940,11 +938,10 @@ export default function ManageProjects() {
             </div>
             {actionMessage && (
               <p
-                className={`text-sm ${
-                  actionMessage.includes("successfully")
+                className={`text-sm ${actionMessage.includes("successfully")
                     ? "text-green-600"
                     : "text-red-600"
-                }`}
+                  }`}
               >
                 {actionMessage}
               </p>
@@ -982,11 +979,10 @@ export default function ManageProjects() {
             </p>
             {actionMessage && (
               <p
-                className={`text-sm mt-2 ${
-                  actionMessage.includes("successfully")
+                className={`text-sm mt-2 ${actionMessage.includes("successfully")
                     ? "text-green-600"
                     : "text-red-600"
-                }`}
+                  }`}
               >
                 {actionMessage}
               </p>
@@ -1023,18 +1019,16 @@ export default function ManageProjects() {
             <textarea
               name="feedback"
               onChange={handleFormChange}
-              placeholder={`Feedback (${
-                modalType === "reject" ? "required" : "optional"
-              })`}
+              placeholder={`Feedback (${modalType === "reject" ? "required" : "optional"
+                })`}
               className="w-full p-2 border rounded mt-2 h-20"
             />
             {actionMessage && (
               <p
-                className={`text-sm mt-2 ${
-                  actionMessage.includes("successfully")
+                className={`text-sm mt-2 ${actionMessage.includes("successfully")
                     ? "text-green-600"
                     : "text-red-600"
-                }`}
+                  }`}
               >
                 {actionMessage}
               </p>
@@ -1049,9 +1043,8 @@ export default function ManageProjects() {
               <button
                 onClick={handleConfirmAction}
                 disabled={actionLoading}
-                className={`px-4 py-2 text-white rounded disabled:bg-gray-400 ${
-                  modalType === "approve" ? "bg-green-600" : "bg-red-600"
-                }`}
+                className={`px-4 py-2 text-white rounded disabled:bg-gray-400 ${modalType === "approve" ? "bg-green-600" : "bg-red-600"
+                  }`}
               >
                 {actionLoading ? (
                   <FaSpinner className="animate-spin" />
@@ -1089,11 +1082,10 @@ export default function ManageProjects() {
             </div>
             {actionMessage && (
               <p
-                className={`text-sm mt-3 ${
-                  actionMessage.includes("successfully")
+                className={`text-sm mt-3 ${actionMessage.includes("successfully")
                     ? "text-green-600"
                     : "text-red-600"
-                }`}
+                  }`}
               >
                 {actionMessage}
               </p>

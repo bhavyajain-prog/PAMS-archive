@@ -16,7 +16,7 @@ import {
 const Modal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center p-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center p-4">
       <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-2xl font-semibold text-gray-800">{title}</h3>
@@ -137,7 +137,7 @@ const MyProposalCard = ({ project, onWithdraw, onEdit }) => {
           </button>
         </div>
       )}
-      
+
       {project.isApproved && (
         <div className="text-right mt-4">
           <span className="text-sm text-green-600 font-semibold">
@@ -145,7 +145,7 @@ const MyProposalCard = ({ project, onWithdraw, onEdit }) => {
           </span>
         </div>
       )}
-      
+
       {project.rejectedAt && (
         <div className="text-right mt-4">
           <span className="text-sm text-red-600 font-semibold">
@@ -182,9 +182,9 @@ export default function ProposeProject() {
     try {
       const bankPromise = axios.get("/common/project-bank").catch(() => ({ data: [] }));
       const proposalsPromise = axios.get("/common/my-proposed-projects").catch(() => ({ data: [] }));
-      
+
       const [bankRes, proposalsRes] = await Promise.all([bankPromise, proposalsPromise]);
-      
+
       setProjectBank(bankRes.data || []);
       setMyProposals(proposalsRes.data || []);
     } catch (err) {
@@ -331,15 +331,14 @@ export default function ProposeProject() {
       <div className="max-w-7xl mx-auto">
         {/* Global message display */}
         {actionMessage.text && (
-          <div className={`mb-6 p-4 rounded-lg ${
-            actionMessage.type === "error" 
-              ? "bg-red-100 border border-red-300 text-red-700" 
+          <div className={`mb-6 p-4 rounded-lg ${actionMessage.type === "error"
+              ? "bg-red-100 border border-red-300 text-red-700"
               : "bg-green-100 border border-green-300 text-green-700"
-          }`}>
+            }`}>
             {actionMessage.text}
           </div>
         )}
-        
+
         <header className="flex flex-col sm:flex-row justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-4 sm:mb-0">
             Project Bank
@@ -357,21 +356,19 @@ export default function ProposeProject() {
           <nav className="-mb-px flex space-x-6">
             <button
               onClick={() => setView("bank")}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg ${
-                view === "bank"
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg ${view === "bank"
                   ? "border-teal-500 text-teal-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
+                }`}
             >
               <FaBook className="inline mr-2" /> Project Bank
             </button>
             <button
               onClick={() => setView("myProposals")}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg ${
-                view === "myProposals"
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg ${view === "myProposals"
                   ? "border-teal-500 text-teal-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
+                }`}
             >
               <FaLightbulb className="inline mr-2" /> My Proposals
             </button>
@@ -468,11 +465,10 @@ export default function ProposeProject() {
 
           {actionMessage.text && (
             <p
-              className={`text-sm ${
-                actionMessage.type === "error"
+              className={`text-sm ${actionMessage.type === "error"
                   ? "text-red-600"
                   : "text-green-600"
-              }`}
+                }`}
             >
               {actionMessage.text}
             </p>

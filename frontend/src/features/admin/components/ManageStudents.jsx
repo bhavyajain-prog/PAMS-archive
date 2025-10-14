@@ -19,7 +19,7 @@ import {
 const Modal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center p-4">
       <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
@@ -139,8 +139,8 @@ export default function ManageStudents() {
     } catch (err) {
       setError(
         err.response?.data?.message ||
-          err.message ||
-          "Failed to fetch students."
+        err.message ||
+        "Failed to fetch students."
       );
       setStudents([]);
     } finally {
@@ -491,11 +491,10 @@ export default function ManageStudents() {
 
             {actionMessage.text && (
               <p
-                className={`text-sm ${
-                  actionMessage.type === "success"
+                className={`text-sm ${actionMessage.type === "success"
                     ? "text-green-600"
                     : "text-red-600"
-                }`}
+                  }`}
               >
                 {actionMessage.text}
               </p>
@@ -516,8 +515,8 @@ export default function ManageStudents() {
                 {actionLoading
                   ? "Saving..."
                   : actionType === "add"
-                  ? "Add Student"
-                  : "Save Changes"}
+                    ? "Add Student"
+                    : "Save Changes"}
               </button>
             </div>
           </form>
@@ -543,11 +542,10 @@ export default function ManageStudents() {
           </p>
           {actionMessage.text && (
             <p
-              className={`text-sm mb-2 ${
-                actionMessage.type === "success"
+              className={`text-sm mb-2 ${actionMessage.type === "success"
                   ? "text-green-600"
                   : "text-red-600"
-              }`}
+                }`}
             >
               {actionMessage.text}
             </p>

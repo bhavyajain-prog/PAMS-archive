@@ -160,7 +160,7 @@ export default function AdminPortal() {
       {/* Added relative positioning */}
       {/* Loading Overlay for Flushing - covers the whole page content area */}
       {isFlushing && (
-        <div className="absolute inset-0 bg-black bg-opacity-60 flex flex-col items-center justify-center z-50 rounded-md">
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center z-50 rounded-md">
           {" "}
           {/* Added rounded-md to match parent if needed */}
           <FaSpinner className="animate-spin text-white text-6xl mb-4" />
@@ -312,7 +312,7 @@ export default function AdminPortal() {
 
           {/* Confirmation Dialog for Individual Flush */}
           {showConfirmFlushType && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4">
               <div className="bg-white rounded-lg shadow-2xl max-w-lg w-full p-6">
                 <h4 className="text-xl font-bold text-red-800 mb-3 flex items-center">
                   <FaExclamationTriangle className="mr-2" />

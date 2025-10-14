@@ -28,7 +28,7 @@ const Modal = ({ isOpen, onClose, title, children, size = "md" }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div
         className={`bg-white rounded-xl shadow-2xl w-full ${sizeClasses[size]} max-h-[90vh] overflow-hidden border border-gray-100`}
       >
@@ -115,13 +115,12 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                 <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-100">
                   <strong className="text-gray-600">Status:</strong>
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-bold ${
-                      team.status === "approved"
+                    className={`px-3 py-1 rounded-full text-xs font-bold ${team.status === "approved"
                         ? "bg-green-100 text-green-800 border border-green-200"
                         : team.status === "rejected"
-                        ? "bg-red-100 text-red-800 border border-red-200"
-                        : "bg-yellow-100 text-yellow-800 border border-yellow-200"
-                    }`}
+                          ? "bg-red-100 text-red-800 border border-red-200"
+                          : "bg-yellow-100 text-yellow-800 border border-yellow-200"
+                      }`}
                   >
                     {team.status.toUpperCase()}
                   </span>
@@ -207,19 +206,19 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                         s.mentorScore !== null && s.mentorScore !== undefined
                     ).length > 0
                       ? (
-                          team.evaluation.weeklyStatus
-                            .filter(
-                              (s) =>
-                                s.mentorScore !== null &&
-                                s.mentorScore !== undefined
-                            )
-                            .reduce((sum, s) => sum + s.mentorScore, 0) /
-                          team.evaluation.weeklyStatus.filter(
+                        team.evaluation.weeklyStatus
+                          .filter(
                             (s) =>
                               s.mentorScore !== null &&
                               s.mentorScore !== undefined
-                          ).length
-                        ).toFixed(1)
+                          )
+                          .reduce((sum, s) => sum + s.mentorScore, 0) /
+                        team.evaluation.weeklyStatus.filter(
+                          (s) =>
+                            s.mentorScore !== null &&
+                            s.mentorScore !== undefined
+                        ).length
+                      ).toFixed(1)
                       : "N/A"}
                   </div>
                   <div className="text-xs text-blue-600">Avg Score</div>
@@ -274,7 +273,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
             )
           </h4>
           {team.members?.filter((m) => m.student?._id !== leader?._id).length >
-          0 ? (
+            0 ? (
             <div className="space-y-3">
               {team.members
                 .filter((m) => m.student?._id !== leader?._id)
@@ -436,7 +435,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
             </h4>
 
             {team.evaluation.weeklyStatus &&
-            team.evaluation.weeklyStatus.length > 0 ? (
+              team.evaluation.weeklyStatus.length > 0 ? (
               <div className="space-y-4">
                 {/* Summary Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -466,19 +465,19 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                               s.mentorScore !== undefined
                           ).length > 0
                             ? (
-                                team.evaluation.weeklyStatus
-                                  .filter(
-                                    (s) =>
-                                      s.mentorScore !== null &&
-                                      s.mentorScore !== undefined
-                                  )
-                                  .reduce((sum, s) => sum + s.mentorScore, 0) /
-                                team.evaluation.weeklyStatus.filter(
+                              team.evaluation.weeklyStatus
+                                .filter(
                                   (s) =>
                                     s.mentorScore !== null &&
                                     s.mentorScore !== undefined
-                                ).length
-                              ).toFixed(1)
+                                )
+                                .reduce((sum, s) => sum + s.mentorScore, 0) /
+                              team.evaluation.weeklyStatus.filter(
+                                (s) =>
+                                  s.mentorScore !== null &&
+                                  s.mentorScore !== undefined
+                              ).length
+                            ).toFixed(1)
                             : "N/A"}
                         </p>
                       </div>
@@ -553,19 +552,18 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                           <div className="flex items-center gap-2">
                             {/* Status Badge */}
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                submission.status === "mentor_reviewed"
+                              className={`px-3 py-1 rounded-full text-xs font-medium ${submission.status === "mentor_reviewed"
                                   ? "bg-green-100 text-green-800 border border-green-200"
                                   : submission.status === "submitted"
-                                  ? "bg-yellow-100 text-yellow-800 border border-yellow-200"
-                                  : "bg-gray-100 text-gray-800 border border-gray-200"
-                              }`}
+                                    ? "bg-yellow-100 text-yellow-800 border border-yellow-200"
+                                    : "bg-gray-100 text-gray-800 border border-gray-200"
+                                }`}
                             >
                               {submission.status === "mentor_reviewed"
                                 ? "Reviewed"
                                 : submission.status === "submitted"
-                                ? "Pending"
-                                : submission.status || "Unknown"}
+                                  ? "Pending"
+                                  : submission.status || "Unknown"}
                             </span>
 
                             {/* Mentor Score */}
@@ -751,15 +749,14 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
               Project Abstract
               {team.projectAbstract.status && (
                 <span
-                  className={`ml-3 px-3 py-1 text-xs font-medium rounded-full ${
-                    team.projectAbstract.status === "submitted" ||
-                    team.projectAbstract.status === "admin_approved" ||
-                    team.projectAbstract.status === "mentor_approved"
+                  className={`ml-3 px-3 py-1 text-xs font-medium rounded-full ${team.projectAbstract.status === "submitted" ||
+                      team.projectAbstract.status === "admin_approved" ||
+                      team.projectAbstract.status === "mentor_approved"
                       ? "bg-green-100 text-green-800"
                       : team.projectAbstract.status === "rejected"
-                      ? "bg-red-100 text-red-800"
-                      : "bg-yellow-100 text-yellow-800"
-                  }`}
+                        ? "bg-red-100 text-red-800"
+                        : "bg-yellow-100 text-yellow-800"
+                    }`}
                 >
                   {team.projectAbstract.status.replace("_", " ").toUpperCase()}
                 </span>
@@ -879,15 +876,14 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
               Role Specification
               {team.roleSpecification.status && (
                 <span
-                  className={`ml-3 px-3 py-1 text-xs font-medium rounded-full ${
-                    team.roleSpecification.status === "submitted" ||
-                    team.roleSpecification.status === "admin_approved" ||
-                    team.roleSpecification.status === "mentor_approved"
+                  className={`ml-3 px-3 py-1 text-xs font-medium rounded-full ${team.roleSpecification.status === "submitted" ||
+                      team.roleSpecification.status === "admin_approved" ||
+                      team.roleSpecification.status === "mentor_approved"
                       ? "bg-green-100 text-green-800"
                       : team.roleSpecification.status === "rejected"
-                      ? "bg-red-100 text-red-800"
-                      : "bg-yellow-100 text-yellow-800"
-                  }`}
+                        ? "bg-red-100 text-red-800"
+                        : "bg-yellow-100 text-yellow-800"
+                    }`}
                 >
                   {team.roleSpecification.status
                     .replace("_", " ")
@@ -897,7 +893,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
             </h4>
 
             {team.roleSpecification.assignments &&
-            team.roleSpecification.assignments.length > 0 ? (
+              team.roleSpecification.assignments.length > 0 ? (
               <div className="space-y-4">
                 {team.roleSpecification.assignments.map((assignment, index) => (
                   <div
@@ -1086,13 +1082,12 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                           <td className="px-4 py-3 text-sm border-b border-gray-200">
                             {week.mentorScore !== undefined ? (
                               <span
-                                className={`px-2 py-1 rounded text-xs font-medium ${
-                                  week.mentorScore >= 8
+                                className={`px-2 py-1 rounded text-xs font-medium ${week.mentorScore >= 8
                                     ? "bg-green-100 text-green-800"
                                     : week.mentorScore >= 6
-                                    ? "bg-yellow-100 text-yellow-800"
-                                    : "bg-red-100 text-red-800"
-                                }`}
+                                      ? "bg-yellow-100 text-yellow-800"
+                                      : "bg-red-100 text-red-800"
+                                  }`}
                               >
                                 {week.mentorScore}/10
                               </span>
@@ -1125,13 +1120,13 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                     <div className="font-semibold text-indigo-700">
                       {team.evaluation.weeklyStatus.length > 0
                         ? (
-                            team.evaluation.weeklyStatus
-                              .filter((w) => w.mentorScore !== undefined)
-                              .reduce((acc, w) => acc + w.mentorScore, 0) /
-                            team.evaluation.weeklyStatus.filter(
-                              (w) => w.mentorScore !== undefined
-                            ).length
-                          ).toFixed(1)
+                          team.evaluation.weeklyStatus
+                            .filter((w) => w.mentorScore !== undefined)
+                            .reduce((acc, w) => acc + w.mentorScore, 0) /
+                          team.evaluation.weeklyStatus.filter(
+                            (w) => w.mentorScore !== undefined
+                          ).length
+                        ).toFixed(1)
                         : "N/A"}
                     </div>
                   </div>
@@ -1142,12 +1137,12 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                     <div className="font-semibold text-indigo-700">
                       {team.evaluation.weeklyStatus.length > 0
                         ? new Date(
-                            Math.max(
-                              ...team.evaluation.weeklyStatus.map(
-                                (w) => new Date(w.submittedAt)
-                              )
+                          Math.max(
+                            ...team.evaluation.weeklyStatus.map(
+                              (w) => new Date(w.submittedAt)
                             )
-                          ).toLocaleDateString()
+                          )
+                        ).toLocaleDateString()
                         : "N/A"}
                     </div>
                   </div>
@@ -1422,8 +1417,7 @@ const ActionModal = ({
       }
 
       alert(
-        `Team ${
-          action === "approveReject" ? status : "mentor allocation"
+        `Team ${action === "approveReject" ? status : "mentor allocation"
         } successful!`
       );
       onRefresh();
@@ -1581,7 +1575,7 @@ export default function ManageTeams() {
       console.error("Error fetching teams:", error);
       alert(
         "Error fetching teams: " +
-          (error.response?.data?.message || error.message)
+        (error.response?.data?.message || error.message)
       );
     } finally {
       setLoading(false);
@@ -1698,11 +1692,10 @@ export default function ManageTeams() {
               {/* Filter Toggle */}
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`px-6 py-3 rounded-md font-medium transition-colors flex items-center ${
-                  showFilters
+                className={`px-6 py-3 rounded-md font-medium transition-colors flex items-center ${showFilters
                     ? "bg-teal-700 text-white"
                     : "bg-teal-600 hover:bg-teal-700 text-white"
-                }`}
+                  }`}
               >
                 <FaFilter className="mr-2" />
                 Filters {showFilters ? "▼" : "▶"}

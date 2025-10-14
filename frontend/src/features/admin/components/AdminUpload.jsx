@@ -6,9 +6,8 @@ import { FaUpload, FaSpinner } from "react-icons/fa"; // Added FaSpinner
 const FileInput = ({ id, onChange, accept, fileSelected, inputRef }) => (
   <label
     htmlFor={id}
-    className={`w-full max-w-sm flex flex-col items-center px-4 py-5 bg-white text-teal-600 rounded-lg shadow-md tracking-wide border border-teal-300 cursor-pointer hover:bg-teal-500 hover:text-white transition-all duration-150 ease-linear ${
-      fileSelected ? "bg-teal-50 border-teal-500" : ""
-    }`}
+    className={`w-full max-w-sm flex flex-col items-center px-4 py-5 bg-white text-teal-600 rounded-lg shadow-md tracking-wide border border-teal-300 cursor-pointer hover:bg-teal-500 hover:text-white transition-all duration-150 ease-linear ${fileSelected ? "bg-teal-50 border-teal-500" : ""
+      }`}
   >
     <FaUpload className={"w-6 h-6 mb-2 text-teal-600"} />
     <span
@@ -103,8 +102,8 @@ export default function AdminUpload() {
       console.error(`Error uploading ${type} data:`, err);
       setError(
         err.response?.data?.message ||
-          err.response?.data?.error ||
-          `Failed to upload ${type} data. Please try again.`
+        err.response?.data?.error ||
+        `Failed to upload ${type} data. Please try again.`
       );
     } finally {
       setIsUploading(false);
@@ -156,7 +155,7 @@ export default function AdminUpload() {
     <div className="bg-gradient-to-br from-slate-100 to-sky-100 min-h-screen py-12 px-4 sm:px-6 lg:px-8 relative">
       {/* Loading Overlay - covers the whole page content area */}
       {isUploading && (
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center z-50">
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center z-50">
           <FaSpinner className="animate-spin text-white text-6xl mb-4" />
           <p className="text-white text-2xl">
             Uploading {uploadingType} data...

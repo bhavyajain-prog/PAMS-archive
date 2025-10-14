@@ -23,7 +23,7 @@ const Modal = ({ isOpen, onClose, title, children, size = "md" }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div
         className={`bg-white rounded-xl shadow-2xl w-full ${sizeClasses[size]} max-h-[90vh] overflow-hidden border border-gray-100`}
       >
@@ -459,7 +459,7 @@ export default function TeamSelection() {
       } else {
         alert(
           "Error fetching teams: " +
-            (error.response?.data?.message || error.message)
+          (error.response?.data?.message || error.message)
         );
       }
     } finally {
@@ -483,7 +483,7 @@ export default function TeamSelection() {
       console.error("Error accepting team:", error);
       alert(
         "Error accepting team: " +
-          (error.response?.data?.message || error.message)
+        (error.response?.data?.message || error.message)
       );
     }
   };
@@ -501,7 +501,7 @@ export default function TeamSelection() {
       console.error("Error rejecting team:", error);
       alert(
         "Error rejecting team: " +
-          (error.response?.data?.message || error.message)
+        (error.response?.data?.message || error.message)
       );
     }
   };
