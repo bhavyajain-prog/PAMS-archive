@@ -253,9 +253,8 @@ router.post(
           from: process.env.EMAIL_USER,
           to: proposer.email,
           subject: `Project Approved: ${project.title}`,
-          text: `Dear ${proposer.name || "User"},\n\nYour project "${
-            project.title
-          }" has been approved by the admin team.\n\nBest regards,\nAdmin Team`,
+          text: `Dear ${proposer.name || "User"},\n\nYour project "${project.title
+            }" has been approved by the admin team.\n\nBest regards,\nAdmin Team`,
         };
 
         transporter.sendMail(mailOptions, (error, info) => {
@@ -320,9 +319,8 @@ router.post(
           from: process.env.EMAIL_USER,
           to: proposer.email,
           subject: `Project Approved: ${project.title}`,
-          text: `Dear ${proposer.name || "User"},\n\nYour project "${
-            project.title
-          }" has been rejected by the admin team.\n\nBest regards,\nAdmin Team`,
+          text: `Dear ${proposer.name || "User"},\n\nYour project "${project.title
+            }" has been rejected by the admin team.\n\nBest regards,\nAdmin Team`,
         };
 
         transporter.sendMail(mailOptions, (error, info) => {
@@ -383,9 +381,8 @@ router.post(
           from: process.env.EMAIL_USER,
           to: proposer.email,
           subject: `Project Discussion Scheduled: ${project.title}`,
-          text: `Dear ${proposer.name || "User"},\n\nYour project "${
-            project.title
-          }" has a discussion scheduled for ${meetingTime.toLocaleString()}.\n\nBest regards,\nAdmin Team`,
+          text: `Dear ${proposer.name || "User"},\n\nYour project "${project.title
+            }" has a discussion scheduled for ${meetingTime.toLocaleString()}.\n\nBest regards,\nAdmin Team`,
         };
 
         transporter.sendMail(mailOptions, (error, info) => {
@@ -397,9 +394,8 @@ router.post(
     }
 
     res.status(200).json({
-      message: `Meeting for project '${
-        project.title
-      }' scheduled for ${meetingTime.toLocaleString()}.`,
+      message: `Meeting for project '${project.title
+        }' scheduled for ${meetingTime.toLocaleString()}.`,
     });
   })
 );
@@ -1107,7 +1103,7 @@ router.get(
             rejectedAt: p.rejectedAt,
             daysAgo: Math.floor(
               (Date.now() - new Date(p.rejectedAt).getTime()) /
-                (1000 * 60 * 60 * 24)
+              (1000 * 60 * 60 * 24)
             ),
           })),
         },
@@ -1122,7 +1118,7 @@ router.get(
           rejectedAt: p.rejectedAt,
           daysAgo: Math.floor(
             (Date.now() - new Date(p.rejectedAt).getTime()) /
-              (1000 * 60 * 60 * 24)
+            (1000 * 60 * 60 * 24)
           ),
         })),
       });
@@ -1173,9 +1169,9 @@ router.get(
               adminApproved: team.projectAbstract?.adminApproval || false,
               hasData: Boolean(
                 team.projectAbstract?.projectTrack ||
-                  team.projectAbstract?.githubRepo ||
-                  team.projectAbstract?.tools?.length ||
-                  team.projectAbstract?.modules?.length
+                team.projectAbstract?.githubRepo ||
+                team.projectAbstract?.tools?.length ||
+                team.projectAbstract?.modules?.length
               ),
               requiredForApproval: docType.requiredForApproval,
             };
@@ -1291,17 +1287,17 @@ router.get(
           })),
           mentor: team.mentor?.assigned
             ? {
-                _id: team.mentor.assigned._id,
-                name: team.mentor.assigned.name,
-                email: team.mentor.assigned.email,
-              }
+              _id: team.mentor.assigned._id,
+              name: team.mentor.assigned.name,
+              email: team.mentor.assigned.email,
+            }
             : null,
           finalProject: team.finalProject
             ? {
-                _id: team.finalProject._id,
-                title: team.finalProject.title,
-                category: team.finalProject.category,
-              }
+              _id: team.finalProject._id,
+              title: team.finalProject.title,
+              category: team.finalProject.category,
+            }
             : null,
           documents,
           completionSummary: {
@@ -1484,6 +1480,149 @@ router.delete(
         error: error.message,
       });
     }
+  })
+);
+
+router.delete(
+  "/flush/:type",
+  authenticate,
+  authorizeRoles("admin"),
+  asyncHandler(async (req, res) => {
+    const { type } = req.params;
+    const allowedTypes = ["teams", "projects", "students", "mentors"];
+
+    if (!allowedTypes.includes(type)) {
+      return res.status(400).json({ message: "Invalid type" });
+    }
+
+    let deletedCount = { main: 0, related: 0 };
+    let updatedCount = { projects: 0, teams: 0, students: 0, mentors: 0 };
+
+    switch (type) {
+      case "teams":
+        // Get all team IDs before deletion
+        const teamsToDelete = await Team.find({}).select("_id");
+        const teamIds = teamsToDelete.map((t) => t._id);
+
+        // Delete all teams
+        const teamResult = await Team.deleteMany({});
+        deletedCount.main = teamResult.deletedCount;
+
+        // Update projects: remove deleted teams from assignedTeams array
+        const projectUpdateResult = await Project.updateMany(
+          { assignedTeams: { $in: teamIds } },
+          { $pull: { assignedTeams: { $in: teamIds } } }
+        );
+        updatedCount.projects = projectUpdateResult.modifiedCount;
+
+        // Update students: clear currentTeam reference
+        const studentUpdateResult = await User.updateMany(
+          { role: "student", "studentData.currentTeam": { $in: teamIds } },
+          { $set: { "studentData.currentTeam": null } }
+        );
+        updatedCount.students = studentUpdateResult.modifiedCount;
+
+        // Update mentors: clear assignedTeams array
+        const mentorUpdateResult = await User.updateMany(
+          { role: "mentor", "mentorData.assignedTeams": { $in: teamIds } },
+          { $pull: { "mentorData.assignedTeams": { $in: teamIds } } }
+        );
+        updatedCount.mentors = mentorUpdateResult.modifiedCount;
+        break;
+
+      case "projects":
+        // Get all project IDs before deletion
+        const projectsToDelete = await Project.find({}).select("_id");
+        const projectIds = projectsToDelete.map((p) => p._id);
+
+        // Delete all projects
+        const projectResult = await Project.deleteMany({});
+        deletedCount.main = projectResult.deletedCount;
+
+        // Update teams: clear projectChoices and finalProject references
+        const teamProjectUpdateResult = await Team.updateMany(
+          {
+            $or: [
+              { projectChoices: { $in: projectIds } },
+              { finalProject: { $in: projectIds } },
+            ],
+          },
+          {
+            $pull: { projectChoices: { $in: projectIds } },
+            $unset: { finalProject: "" },
+          }
+        );
+        updatedCount.teams = teamProjectUpdateResult.modifiedCount;
+        break;
+
+      case "mentors":
+        // Get all mentor IDs before deletion
+        const mentorsToDelete = await User.find({ role: "mentor" }).select(
+          "_id"
+        );
+        const mentorIds = mentorsToDelete.map((m) => m._id);
+
+        // Delete all mentors
+        const mentorResult = await User.deleteMany({ role: "mentor" });
+        deletedCount.main = mentorResult.deletedCount;
+
+        // Update teams: clear mentor.assigned and mentor.preferences
+        const teamMentorUpdateResult = await Team.updateMany(
+          {
+            $or: [
+              { "mentor.assigned": { $in: mentorIds } },
+              { "mentor.preferences": { $in: mentorIds } },
+            ],
+          },
+          {
+            $unset: { "mentor.assigned": "" },
+            $pull: { "mentor.preferences": { $in: mentorIds } },
+            $set: { "mentor.currentPreference": 0 },
+          }
+        );
+        updatedCount.teams = teamMentorUpdateResult.modifiedCount;
+        break;
+
+      case "students":
+        // Get all student IDs before deletion
+        const students = await User.find({ role: "student" }).select("_id");
+        const studentIds = students.map((s) => s._id);
+
+        // Delete all students
+        const studentResult = await User.deleteMany({ role: "student" });
+        deletedCount.main = studentResult.deletedCount;
+
+        // Delete all teams (since students are gone, teams are invalid)
+        const teamDeleteResult = await Team.deleteMany({});
+        deletedCount.related = teamDeleteResult.deletedCount;
+
+        // Update projects: remove all team references and clear assignedTeams
+        const projUpdateResult = await Project.updateMany(
+          {},
+          { $set: { assignedTeams: [] } }
+        );
+        updatedCount.projects = projUpdateResult.modifiedCount;
+
+        // Delete all projects proposed by students
+        const projectDeleteResult = await Project.deleteMany({
+          proposedBy: { $in: studentIds },
+        });
+        deletedCount.relatedProjects = projectDeleteResult.deletedCount;
+
+        // Update mentors: clear assignedTeams
+        const mentorClearResult = await User.updateMany(
+          { role: "mentor" },
+          { $set: { "mentorData.assignedTeams": [] } }
+        );
+        updatedCount.mentors = mentorClearResult.modifiedCount;
+        break;
+    }
+
+    res.status(200).json({
+      message: `${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully`,
+      deleted: deletedCount,
+      updated: updatedCount,
+    });
   })
 );
 

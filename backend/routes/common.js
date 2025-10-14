@@ -101,7 +101,7 @@ function isCurrentMentor(team, userId) {
   return (
     team.mentor.preferences &&
     team.mentor.preferences[team.mentor.currentPreference]?.toString() ===
-      userId.toString()
+    userId.toString()
   );
 }
 
@@ -383,6 +383,22 @@ router.post(
 
       // If no members left, delete the whole team
       if (team.members.length === 0) {
+        const project = await Project.findById(team.finalProject);
+        if (project) {
+          // Remove team from project's assignedTeams
+          project.assignedTeams = project.assignedTeams.filter(
+            (id) => id.toString() !== teamId.toString()
+          );
+          await project.save();
+        }
+        const mentor = await User.findById(team.mentor.assigned);
+        if (mentor) {
+          // Remove team from mentor's mentorData.assignedTeams
+          mentor.mentorData.assignedTeams = mentor.mentorData.assignedTeams.filter(
+            (id) => id.toString() !== teamId.toString()
+          );
+          await mentor.save();
+        }
         await Team.deleteOne({ _id: teamId });
         return res.status(200).json({
           message: "Team has been deleted as no members remain.",
@@ -588,9 +604,9 @@ router.get(
               adminApproved: team.projectAbstract?.adminApproval || false,
               hasData: Boolean(
                 team.projectAbstract?.projectTrack ||
-                  team.projectAbstract?.githubRepo ||
-                  team.projectAbstract?.tools?.length ||
-                  team.projectAbstract?.modules?.length
+                team.projectAbstract?.githubRepo ||
+                team.projectAbstract?.tools?.length ||
+                team.projectAbstract?.modules?.length
               ),
               requiredForApproval: docType.requiredForApproval,
             };
@@ -705,10 +721,10 @@ router.get(
           })),
           finalProject: team.finalProject
             ? {
-                _id: team.finalProject._id,
-                title: team.finalProject.title,
-                category: team.finalProject.category,
-              }
+              _id: team.finalProject._id,
+              title: team.finalProject.title,
+              category: team.finalProject.category,
+            }
             : null,
           documents,
           completionSummary: {

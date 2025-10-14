@@ -85,34 +85,46 @@ const AboutUs = () => {
   const features = [
     {
       title: "Multi-role Authentication",
-      desc: "Secure JWT-based auth with 5 user roles",
+      desc: "Secure JWT-based auth with role-based access control",
       icon: Shield,
       accent: "text-red-400",
     },
     {
-      title: "Project Management",
-      desc: "Complete project lifecycle management",
+      title: "Complete Project Lifecycle",
+      desc: "From proposal to completion with comprehensive tracking",
       icon: Target,
       accent: "text-blue-400",
     },
     {
       title: "Team Collaboration",
-      desc: "Advanced team formation tools",
+      desc: "Advanced team formation and management tools",
       icon: Users,
       accent: "text-green-400",
     },
     {
-      title: "Real-time Updates",
-      desc: "Live progress tracking & notifications",
+      title: "Document Management",
+      desc: "Multi-tier approval workflow with dynamic document types",
+      icon: Layers,
+      accent: "text-purple-400",
+    },
+    {
+      title: "Progress Tracking",
+      desc: "Weekly status reports with mentor scoring and feedback",
       icon: Zap,
       accent: "text-yellow-400",
+    },
+    {
+      title: "Analytics Dashboard",
+      desc: "Real-time insights and comprehensive system statistics",
+      icon: MessageCircle,
+      accent: "text-cyan-400",
     },
   ];
 
   const stats = [
-    { label: "Lines of Code", value: "15K+", icon: Code },
-    { label: "Components", value: "50+", icon: Layers },
-    { label: "API Endpoints", value: "30+", icon: Server },
+    { label: "Lines of Code", value: "20K+", icon: Code },
+    { label: "Components", value: "80+", icon: Layers },
+    { label: "API Endpoints", value: "50+", icon: Server },
     { label: "User Roles", value: "5", icon: Users },
   ];
 
@@ -138,8 +150,9 @@ const AboutUs = () => {
             </p>
 
             <p className="text-lg text-gray-500 max-w-3xl mx-auto leading-relaxed mb-8">
-              A web application for academic project management with modern
-              technologies and secure authentication.
+              A comprehensive full-stack web application for academic project management featuring 
+              secure authentication, role-based access control, document management with approval workflows,
+              weekly progress tracking, mentor evaluation system, and real-time analytics dashboards.
             </p>
 
             {/* Stats Grid */}
@@ -314,7 +327,7 @@ const AboutUs = () => {
         {/* Footer */}
         <footer className="text-center border-t border-gray-800 pt-12">
           <div className="flex items-center justify-center space-x-2 text-gray-400 mb-4">
-            <span>&copy; 2024 PAMS</span>
+            <span>&copy; 2025 PAMS</span>
             <span>•</span>
             <span>Developed with</span>
             <span className="text-red-400 animate-pulse">♥</span>

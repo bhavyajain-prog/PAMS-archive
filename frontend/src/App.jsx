@@ -44,6 +44,7 @@ import ReviewDocs from "./features/admin/components/ReviewDocs";
 import ProjectAbstractForm from "./features/forms/components/Form1";
 import RoleSpecificationForm from "./features/forms/components/Form2";
 import WeeklyStatusMatrix from "./features/forms/components/Form3";
+import MentorDashboard from "./features/mentor/components/MentorDashboard";
 
 const AppLayout = () => {
   const location = useLocation();
@@ -190,6 +191,14 @@ const AppLayout = () => {
             element={
               <RoleBasedRoute roles={["mentor"]}>
                 <MentorPortal />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/mentor/dashboard"
+            element={
+              <RoleBasedRoute roles={["mentor"]}>
+                <MentorDashboard/>
               </RoleBasedRoute>
             }
           />

@@ -74,6 +74,7 @@ const AdminActionCard = ({ to, title, icon, description }) => (
 
 export default function AdminPortal() {
   const [showConfirmFlush, setShowConfirmFlush] = useState(false);
+  const [showConfirmFlushType, setShowConfirmFlushType] = useState(null); // 'students', 'mentors', 'projects'
   const [isFlushing, setIsFlushing] = useState(false);
   const [flushMessage, setFlushMessage] = useState("");
   const [flushError, setFlushError] = useState("");
@@ -82,6 +83,12 @@ export default function AdminPortal() {
     setFlushError("");
     setFlushMessage("");
     setShowConfirmFlush(true);
+  };
+
+  const handleFlushTypeInitiate = (type) => {
+    setFlushError("");
+    setFlushMessage("");
+    setShowConfirmFlushType(type);
   };
 
   const handleFlushConfirm = async () => {
@@ -103,6 +110,47 @@ export default function AdminPortal() {
     } finally {
       setIsFlushing(false);
       setShowConfirmFlush(false);
+    }
+  };
+
+  const handleFlushTypeConfirm = async () => {
+    setIsFlushing(true);
+    setFlushError("");
+    setFlushMessage("");
+    try {
+      const response = await axios.delete(`/admin/flush/${showConfirmFlushType}`);
+
+      // Format detailed message with deletion and update counts
+      let detailedMessage = response.data.message || `${showConfirmFlushType} data flushed successfully!`;
+
+      if (response.data.deleted) {
+        const { main, related, relatedProjects } = response.data.deleted;
+        detailedMessage += `\n\nDeleted: ${main} ${showConfirmFlushType}`;
+        if (related) detailedMessage += `, ${related} teams`;
+        if (relatedProjects) detailedMessage += `, ${relatedProjects} student-proposed projects`;
+      }
+
+      if (response.data.updated) {
+        const { projects, teams, students, mentors } = response.data.updated;
+        const updates = [];
+        if (projects > 0) updates.push(`${projects} projects`);
+        if (teams > 0) updates.push(`${teams} teams`);
+        if (students > 0) updates.push(`${students} students`);
+        if (mentors > 0) updates.push(`${mentors} mentors`);
+
+        if (updates.length > 0) {
+          detailedMessage += `\n\nUpdated: ${updates.join(', ')}`;
+        }
+      }
+
+      setFlushMessage(detailedMessage);
+    } catch (err) {
+      setFlushError(
+        err.response?.data?.message || `Failed to flush ${showConfirmFlushType} data. Please try again.`
+      );
+    } finally {
+      setIsFlushing(false);
+      setShowConfirmFlushType(null);
     }
   };
 
@@ -187,6 +235,171 @@ export default function AdminPortal() {
             </p>
           </header>
 
+          {/* Individual Flush Buttons Section */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-8">
+            {/* Flush Students Data */}
+            <div className="bg-white p-6 rounded-xl shadow-lg text-center">
+              <div className="mb-4">
+                <FaUserGraduate className="text-4xl text-red-500 mx-auto" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                Flush Students Data
+              </h3>
+              <p className="text-xs text-gray-600 mb-4">
+                Deletes all student accounts, their teams, and student-proposed projects.
+              </p>
+              <button
+                onClick={() => handleFlushTypeInitiate('students')}
+                disabled={isFlushing}
+                className="w-full px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              >
+                <FaTrash className="inline mr-2" /> Flush Students
+              </button>
+            </div>
+
+            {/* Flush Mentors Data */}
+            <div className="bg-white p-6 rounded-xl shadow-lg text-center">
+              <div className="mb-4">
+                <FaChalkboardTeacher className="text-4xl text-red-500 mx-auto" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                Flush Mentors Data
+              </h3>
+              <p className="text-xs text-gray-600 mb-4">
+                Deletes all mentor accounts from the system.
+              </p>
+              <button
+                onClick={() => handleFlushTypeInitiate('mentors')}
+                disabled={isFlushing}
+                className="w-full px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              >
+                <FaTrash className="inline mr-2" /> Flush Mentors
+              </button>
+            </div>
+
+            {/* Flush Projects Data */}
+            <div className="bg-white p-6 rounded-xl shadow-lg text-center">
+              <div className="mb-4">
+                <FaProjectDiagram className="text-4xl text-red-500 mx-auto" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                Flush Projects Data
+              </h3>
+              <p className="text-xs text-gray-600 mb-4">
+                Deletes all projects from the project bank.
+              </p>
+              <button
+                onClick={() => handleFlushTypeInitiate('projects')}
+                disabled={isFlushing}
+                className="w-full px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              >
+                <FaTrash className="inline mr-2" /> Flush Projects
+              </button>
+            </div>
+          </div>
+
+          {/* Global Flush Messages */}
+          {flushMessage && (
+            <div className="mb-6 p-4 bg-green-100 text-green-700 border border-green-300 rounded-lg text-sm max-w-2xl mx-auto">
+              <div className="whitespace-pre-line">{flushMessage}</div>
+            </div>
+          )}
+          {flushError && (
+            <div className="mb-6 p-4 bg-red-100 text-red-700 border border-red-300 rounded-lg text-sm max-w-2xl mx-auto">
+              <div className="whitespace-pre-line">{flushError}</div>
+            </div>
+          )}
+
+          {/* Confirmation Dialog for Individual Flush */}
+          {showConfirmFlushType && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+              <div className="bg-white rounded-lg shadow-2xl max-w-lg w-full p-6">
+                <h4 className="text-xl font-bold text-red-800 mb-3 flex items-center">
+                  <FaExclamationTriangle className="mr-2" />
+                  Confirm {showConfirmFlushType.charAt(0).toUpperCase() + showConfirmFlushType.slice(1)} Deletion
+                </h4>
+                <div className="text-sm text-gray-700 mb-4 space-y-2">
+                  <p className="font-semibold">
+                    Are you sure you want to delete all <strong className="text-red-600">{showConfirmFlushType}</strong> data?
+                  </p>
+
+                  {showConfirmFlushType === 'students' && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded p-3 text-xs">
+                      <p className="font-semibold mb-1">This will:</p>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>Delete all student accounts</li>
+                        <li>Delete all teams</li>
+                        <li>Delete student-proposed projects</li>
+                        <li>Clear team references in projects</li>
+                        <li>Clear assigned teams in mentor accounts</li>
+                      </ul>
+                    </div>
+                  )}
+
+                  {showConfirmFlushType === 'teams' && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded p-3 text-xs">
+                      <p className="font-semibold mb-1">This will:</p>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>Delete all teams</li>
+                        <li>Clear team references in projects</li>
+                        <li>Clear team references in student accounts</li>
+                        <li>Clear assigned teams in mentor accounts</li>
+                      </ul>
+                    </div>
+                  )}
+
+                  {showConfirmFlushType === 'mentors' && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded p-3 text-xs">
+                      <p className="font-semibold mb-1">This will:</p>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>Delete all mentor accounts</li>
+                        <li>Clear mentor assignments in teams</li>
+                        <li>Clear mentor preferences in teams</li>
+                      </ul>
+                    </div>
+                  )}
+
+                  {showConfirmFlushType === 'projects' && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded p-3 text-xs">
+                      <p className="font-semibold mb-1">This will:</p>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>Delete all projects</li>
+                        <li>Clear project choices in teams</li>
+                        <li>Clear final project assignments in teams</li>
+                      </ul>
+                    </div>
+                  )}
+
+                  <p className="text-red-600 font-semibold mt-2">This action cannot be undone!</p>
+                </div>
+                <div className="flex justify-end space-x-3">
+                  <button
+                    onClick={() => setShowConfirmFlushType(null)}
+                    disabled={isFlushing}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleFlushTypeConfirm}
+                    disabled={isFlushing}
+                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 disabled:bg-red-400 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {isFlushing ? (
+                      <>
+                        <FaSpinner className="animate-spin inline mr-2 h-4 w-4" />
+                        Processing...
+                      </>
+                    ) : (
+                      `Yes, Delete ${showConfirmFlushType.charAt(0).toUpperCase() + showConfirmFlushType.slice(1)}`
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Flush All Data Section */}
           <div className="bg-white p-6 sm:p-8 rounded-xl shadow-xl max-w-lg mx-auto text-center">
             <h3 className="text-xl font-semibold text-gray-800 mb-3">
               Flush All Application Data
@@ -196,17 +409,6 @@ export default function AdminPortal() {
               team formations, project data, and other non-essential application
               data. Admin accounts will remain. This action cannot be undone.
             </p>
-
-            {flushMessage && (
-              <div className="mb-4 p-3 bg-green-100 text-green-700 border border-green-300 rounded text-sm">
-                {flushMessage}
-              </div>
-            )}
-            {flushError && (
-              <div className="mb-4 p-3 bg-red-100 text-red-700 border border-red-300 rounded text-sm">
-                {flushError}
-              </div>
-            )}
 
             {!showConfirmFlush && (
               <button
