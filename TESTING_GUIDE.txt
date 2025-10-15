@@ -1,0 +1,1240 @@
+================================================================================
+          PAMS - PROJECT ALLOCATION AND MANAGEMENT SYSTEM
+                      COMPREHENSIVE TESTING GUIDE
+================================================================================
+
+Last Updated: October 15, 2025
+Version: 2.2.0
+
+This document provides a complete testing strategy for the PAMS application,
+covering both frontend and backend components. Use this guide to ensure all
+features are working correctly before deployment.
+
+================================================================================
+TABLE OF CONTENTS
+================================================================================
+
+1. TESTING SETUP & PREREQUISITES
+2. BACKEND API TESTING
+3. FRONTEND UI TESTING
+4. INTEGRATION TESTING
+5. AUTHENTICATION & SECURITY TESTING
+6. ROLE-BASED ACCESS TESTING
+7. DATABASE TESTING
+8. FILE UPLOAD TESTING
+9. EMAIL FUNCTIONALITY TESTING
+10. PERFORMANCE TESTING
+11. ERROR HANDLING TESTING
+12. REGRESSION TESTING CHECKLIST
+
+================================================================================
+1. TESTING SETUP & PREREQUISITES
+================================================================================
+
+BACKEND SETUP:
+--------------
+1. Ensure MongoDB is running (local or cloud)
+2. Set up .env file with:
+   - MONGODB_URI
+   - JWT_SECRET
+   - EMAIL_USER & EMAIL_PASS (for Nodemailer)
+   - PORT (default: 5000)
+   - NODE_ENV=development
+
+3. Install dependencies:
+   cd backend
+   npm install
+
+4. Start backend server:
+   npm run dev
+
+FRONTEND SETUP:
+---------------
+1. Install dependencies:
+   cd frontend
+   npm install
+
+2. Configure axios baseURL in frontend/src/services/axios.js
+
+3. Start frontend server:
+   npm run dev
+
+TESTING TOOLS RECOMMENDED:
+--------------------------
+- Postman or Insomnia (API testing)
+- Browser DevTools (Network tab, Console)
+- MongoDB Compass (Database inspection)
+- Chrome/Firefox (Cross-browser testing)
+
+================================================================================
+2. BACKEND API TESTING
+================================================================================
+
+2.1 AUTHENTICATION ROUTES (/auth)
+----------------------------------
+
+TEST CASE 1: User Login
+- Endpoint: POST /auth/login
+- Body: { "username": "admin", "password": "admin123", "rememberMe": true }
+- Expected: 200 OK, JWT token in cookie, user object in response
+- Check: firstLogin flag, role, user details
+
+TEST CASE 2: Get Current User
+- Endpoint: GET /auth/me
+- Headers: Cookie with JWT token
+- Expected: 200 OK, user profile with role-specific data
+- For students: currentTeam should be populated
+- For mentors: assignedTeams should be populated
+
+TEST CASE 3: Logout
+- Endpoint: POST /auth/logout
+- Expected: 200 OK, token cookie cleared
+
+TEST CASE 4: Change Password (First Login)
+- Endpoint: PUT /auth/me/password
+- Body: { "newPassword": "newPass123" }
+- Expected: 200 OK, firstLogin set to false
+
+TEST CASE 5: Forgot Password
+- Endpoint: POST /auth/forgot-password
+- Body: { "email": "user@example.com" }
+- Expected: 200 OK, email sent with reset code
+
+TEST CASE 6: Reset Password
+- Endpoint: POST /auth/reset-password
+- Body: { "email": "user@example.com", "code": "123456", "newPassword": "new123" }
+- Expected: 200 OK, password updated
+
+NEGATIVE TESTS:
+- Login with wrong password → 401
+- Login without username/password → 400
+- Access /auth/me without token → 401
+- Invalid reset code → 400
+
+
+2.2 ADMIN ROUTES (/admin)
+--------------------------
+
+TEST CASE 7: Get All Students
+- Endpoint: GET /admin/students
+- Auth: Admin role required
+- Expected: 200 OK, array of students with populated currentTeam
+
+TEST CASE 8: Get All Mentors
+- Endpoint: GET /admin/mentors
+- Auth: Admin/Sub-admin
+- Expected: 200 OK, mentors with assignedTeams populated
+
+TEST CASE 9: Get All Teams
+- Endpoint: GET /admin/teams
+- Auth: Admin/Sub-admin
+- Expected: 200 OK, teams with leader, members, mentor, projects populated
+
+TEST CASE 10: Get All Projects
+- Endpoint: GET /admin/projects
+- Auth: Admin/Sub-admin
+- Expected: 200 OK, projects with proposedBy, approvedBy populated
+
+TEST CASE 11: Register New User
+- Endpoint: POST /admin/register
+- Body: {
+    "name": "Test Student",
+    "username": "teststudent",
+    "email": "test@example.com",
+    "phone": "1234567890",
+    "role": "student",
+    "studentData": {
+      "rollNumber": "21CS001",
+      "batch": "2021-25",
+      "department": "Computer Science"
+    }
+  }
+- Expected: 200 OK, user created with auto-generated password
+
+TEST CASE 12: Update User
+- Endpoint: PUT /admin/user/:id
+- Body: Updated user data
+- Expected: 200 OK, user updated
+
+TEST CASE 13: Delete User
+- Endpoint: DELETE /admin/user/:id
+- Expected: 200 OK, user deleted, team references updated
+
+TEST CASE 14: Upload Users (Bulk)
+- Endpoint: POST /admin/upload-users
+- Body: Multipart form with Excel/CSV file
+- Expected: 200 OK, summary of created/failed users
+
+TEST CASE 15: Upload Projects (Bulk)
+- Endpoint: POST /admin/upload-projects
+- Body: Multipart form with Excel/CSV file
+- Expected: 200 OK, projects created
+
+TEST CASE 16: Approve Team
+- Endpoint: POST /admin/approve/:teamId
+- Body: { "feedback": "Approved!" }
+- Expected: 200 OK, team status = "approved"
+
+TEST CASE 17: Reject Team
+- Endpoint: POST /admin/reject/:teamId
+- Body: { "feedback": "Rejected due to..." }
+- Expected: 200 OK, team status = "rejected"
+
+TEST CASE 18: Allocate Mentor
+- Endpoint: POST /admin/allocate/:team_id/:mentor_id
+- Body: { "finalProject": "project_id" }
+- Expected: 200 OK, mentor assigned, finalProject set
+
+TEST CASE 19: Approve/Reject Project
+- Endpoint: POST /admin/approve-project/:id or /admin/reject-project/:id
+- Body: { "feedback": "..." }
+- Expected: 200 OK, isApproved updated
+
+TEST CASE 20: Flush All Data
+- Endpoint: DELETE /admin/flush-all
+- Auth: Admin only
+- Expected: 200 OK, all non-admin data deleted
+
+TEST CASE 21: TTL Status
+- Endpoint: GET /admin/ttl-status
+- Expected: 200 OK, TTL configuration and stats
+
+NEGATIVE TESTS:
+- Non-admin accessing admin routes → 403
+- Invalid user ID → 404
+- Duplicate username/email → 400
+- Upload invalid file format → 400
+
+
+2.3 COMMON ROUTES (/common)
+----------------------------
+
+TEST CASE 22: Get Project Bank
+- Endpoint: GET /common/project-bank
+- Auth: Any authenticated user
+- Expected: 200 OK, only approved & available projects
+
+TEST CASE 23: Get My Proposed Projects
+- Endpoint: GET /common/my-proposed-projects
+- Auth: Student
+- Expected: 200 OK, projects proposed by current student
+
+TEST CASE 24: Get Available Mentors
+- Endpoint: GET /common/mentors
+- Expected: 200 OK, list of mentors
+
+TEST CASE 25: Get Teams (for Mentor)
+- Endpoint: GET /common/teams
+- Auth: Mentor
+- Expected: 200 OK, teams with mentor in preferences
+
+TEST CASE 26: Create Team
+- Endpoint: POST /common/create-team
+- Body: {
+    "projectChoices": ["project_id1", "project_id2"],
+    "mentorChoices": ["mentor_id1", "mentor_id2", "mentor_id3"]
+  }
+- Expected: 200 OK, team created with unique code
+
+TEST CASE 27: Join Team
+- Endpoint: POST /common/join-team
+- Body: { "teamCode": "ABC123" }
+- Expected: 200 OK, added to team
+
+TEST CASE 28: Leave Team
+- Endpoint: POST /common/leave-team
+- Expected: 200 OK, removed from team
+
+TEST CASE 29: Accept Team (Mentor)
+- Endpoint: POST /common/accept-team
+- Body: { "teamId": "...", "finalProject": "...", "feedback": "..." }
+- Expected: 200 OK, mentor assigned, finalProject set
+
+TEST CASE 30: Reject Team (Mentor)
+- Endpoint: POST /common/reject-team
+- Body: { "teamId": "...", "feedback": "..." }
+- Expected: 200 OK, mentor preference updated
+
+TEST CASE 31: Propose Project
+- Endpoint: POST /common/propose-project
+- Body: {
+    "title": "AI Project",
+    "description": "...",
+    "category": "R&D",
+    "maxTeams": 2
+  }
+- Expected: 200 OK, project created with isApproved=false
+
+TEST CASE 32: Get Documents for Review (Mentor)
+- Endpoint: GET /common/mentor/documents
+- Expected: 200 OK, documents pending review
+
+TEST CASE 33: Review Document (Mentor)
+- Endpoint: POST /common/mentor/review-document
+- Body: { "teamId": "...", "documentType": "...", "action": "approve/reject" }
+- Expected: 200 OK, document status updated
+
+NEGATIVE TESTS:
+- Join team with wrong batch/department → 400
+- Team already full → 400
+- Create team when already in team → 400
+- Accept team already assigned → 400
+
+
+2.4 TEAM ROUTES (/team)
+------------------------
+
+TEST CASE 34: Get My Team
+- Endpoint: GET /team/my-team
+- Auth: Student in a team
+- Expected: 200 OK, full team details
+
+TEST CASE 35: Update Team Name
+- Endpoint: PUT /team/update-name
+- Body: { "name": "New Team Name" }
+- Expected: 200 OK, team name updated
+
+TEST CASE 36: Submit Form 1 (Project Abstract)
+- Endpoint: POST /team/submit-form1
+- Body: Form 1 data
+- Expected: 200 OK, projectAbstract saved
+
+TEST CASE 37: Submit Form 2 (Role Specification)
+- Endpoint: POST /team/submit-form2
+- Body: Form 2 data
+- Expected: 200 OK, roleSpecification saved
+
+TEST CASE 38: Submit Form 3 (Review)
+- Endpoint: POST /team/submit-form3
+- Body: Form 3 data
+- Expected: 200 OK, review saved
+
+TEST CASE 39: Get Forms for Approval (Admin)
+- Endpoint: GET /team/admin/forms-for-approval
+- Expected: 200 OK, forms with mentor_approved status
+
+TEST CASE 40: Get Forms for Approval (Mentor)
+- Endpoint: GET /team/mentor/forms-for-approval
+- Expected: 200 OK, submitted forms for assigned teams
+
+TEST CASE 41: Approve/Reject Form (Admin)
+- Endpoint: POST /team/admin/approve-form
+- Body: { "teamId": "...", "formType": "projectAbstract", "action": "approve" }
+- Expected: 200 OK, form status = admin_approved
+
+TEST CASE 42: Approve/Reject Form (Mentor)
+- Endpoint: POST /team/mentor/approve-form
+- Body: { "teamId": "...", "formType": "roleSpecification", "action": "reject" }
+- Expected: 200 OK, form status updated
+
+TEST CASE 43: Upload Document
+- Endpoint: POST /team/upload-document
+- Body: Multipart with document file
+- Expected: 200 OK, document saved
+
+TEST CASE 44: Download Document
+- Endpoint: GET /team/download/:teamId/:documentType
+- Expected: File download
+
+TEST CASE 45: Submit Weekly Status
+- Endpoint: POST /team/weekly-submission
+- Body: Multipart with .zip file
+- Expected: 200 OK, weekly status saved
+
+TEST CASE 46: Get Weekly Submissions (Mentor)
+- Endpoint: GET /team/mentor/weekly-submissions
+- Expected: 200 OK, all weekly submissions for assigned teams
+
+TEST CASE 47: Score Weekly Submission (Mentor)
+- Endpoint: PUT /team/mentor/score/:teamId/:week
+- Body: { "score": 8, "comments": "Good work" }
+- Expected: 200 OK, score saved
+
+TEST CASE 48: Assign Timeline (Admin)
+- Endpoint: POST /team/admin/assign-timeline/:teamId
+- Body: { "startDate": "2025-01-01", "weeks": 12 }
+- Expected: 200 OK, projectTimeline created
+
+NEGATIVE TESTS:
+- Submit form without being team leader → 403
+- Duplicate form submission → 400
+- Upload wrong file type → 400
+- Score out of range (0-10) → 400
+
+================================================================================
+3. FRONTEND UI TESTING
+================================================================================
+
+3.1 AUTHENTICATION PAGES
+-------------------------
+
+LOGIN PAGE (/login):
+□ Username/email field accepts input
+□ Password field is masked
+□ "Remember Me" checkbox works
+□ Login button submits form
+□ Successful login redirects to role-based home
+□ First login redirects to reset password
+□ Error messages display for wrong credentials
+□ "Forgot Password" link works
+□ Loading state shows during authentication
+
+REGISTER PAGE (/register):
+□ All form fields accept input
+□ Password confirmation validation works
+□ Role selection works
+□ Form validation messages display
+□ Successful registration shows message
+□ Error handling for duplicate users
+
+FORGOT PASSWORD (/forgot-password):
+□ Email input accepts valid email
+□ Submit button sends reset email
+□ Success/error messages display
+□ Back to login link works
+
+RESET PASSWORD (/reset-password):
+□ Code input accepts 6-digit code
+□ New password fields validate
+□ Password strength indicator works
+□ Submit updates password
+□ Redirect to login after success
+□ First login flow works correctly
+
+
+3.2 STUDENT PAGES
+------------------
+
+STUDENT PORTAL (/home):
+□ Dashboard displays correct statistics
+□ Quick action cards work
+□ Navigation to all features works
+□ Recent activities display
+□ Responsive design on mobile
+
+CREATE TEAM (/team/create):
+□ Project selection dropdown works
+□ Can select multiple projects (priority order)
+□ Mentor selection dropdowns work
+□ Must select 3 different mentors
+□ Submit creates team successfully
+□ Team code displays after creation
+□ Error handling for already in team
+
+JOIN TEAM (/team/join):
+□ Team code input accepts 6 characters
+□ Join button works
+□ Success message displays
+□ Redirects to My Team page
+□ Error for wrong batch/department
+□ Error for team full
+
+MY TEAM (/team/my):
+□ Team details display correctly
+□ Member list shows all members
+□ Leader badge shows correctly
+□ Mentor info displays when assigned
+□ Project details show
+□ Leave team button works (with confirmation)
+□ Team status badge displays correctly
+□ Forms section accessible
+
+PROPOSE PROJECT (/propose-project):
+□ All form fields work
+□ Category dropdown populated
+□ Max teams number input validates
+□ Submit creates project proposal
+□ Proposed projects list displays
+□ Status badges show correctly
+□ Feedback displays when available
+
+TEAM DETAILS (/team/details):
+□ Full team information displays
+□ Project choices show with priority
+□ Mentor preferences display
+□ Timeline shows if assigned
+□ Document status visible
+□ Weekly submissions list shows
+
+DOCUMENT UPLOAD (/documents):
+□ Document type selection works
+□ File upload accepts correct formats
+□ Upload progress shows
+□ Uploaded documents list displays
+□ Download uploaded documents works
+□ Status badges show correctly
+□ Re-upload after rejection works
+
+FORMS (Form1, Form2, Form3):
+□ All form fields save data
+□ Validation works
+□ Submit button works
+□ Can edit before submission
+□ Status shows (draft/submitted/approved/rejected)
+□ Feedback displays when available
+□ Leader-only submit restriction works
+
+
+3.3 MENTOR PAGES
+-----------------
+
+MENTOR PORTAL (/mentor/home):
+□ Dashboard statistics correct
+□ Assigned teams count accurate
+□ Pending reviews count shows
+□ Quick actions work
+□ Navigation functional
+
+TEAM SELECTION (/mentor/teams):
+□ Available teams list displays
+□ Team details modal works
+□ Accept team modal works:
+  - Final project selection
+  - Feedback input
+  - Submit assigns team
+□ Reject team modal works
+□ Teams disappear after action
+□ Preference order visible
+
+MENTOR DASHBOARD (/mentor/dashboard):
+□ Assigned teams list displays
+□ Team cards show correct info
+□ View details opens modal
+□ Timeline info shows if assigned
+□ Progress tracking visible
+□ Document review accessible
+
+DOCUMENT REVIEW (/mentor/documents):
+□ Pending documents list shows
+□ Filter by team works
+□ Download document works
+□ Approve button works
+□ Reject with feedback works
+□ Status updates in real-time
+□ Notification count updates
+
+
+3.4 ADMIN PAGES
+----------------
+
+ADMIN PORTAL (/admin/home):
+□ Dashboard shows all statistics
+□ User counts correct
+□ Team counts accurate
+□ Project counts display
+□ Quick actions work
+□ Data flush operations work (with confirmation)
+
+ADMIN UPLOAD (/admin/upload):
+□ Upload students Excel/CSV works
+□ Upload mentors Excel/CSV works
+□ Upload projects Excel/CSV works
+□ Upload summary displays
+□ Error rows highlighted
+□ Download sample templates works
+
+MANAGE STUDENTS (/admin/manage/students):
+□ Students list displays with pagination
+□ Search/filter works
+□ Add student modal works
+□ Edit student modal works
+□ Delete student works (with confirmation)
+□ Bulk actions work
+□ Export to Excel works
+
+MANAGE MENTORS (/admin/manage/mentors):
+□ Mentors list displays
+□ View details modal works with:
+  - Edit button opens edit modal
+  - Delete button (with confirmation)
+  - Promote/Demote buttons work
+□ Search/filter functional
+□ Add mentor modal works
+□ Max teams setting works
+□ Assigned teams list shows
+
+MANAGE PROJECTS (/admin/manage/projects):
+□ Projects list with filters
+□ Approve project works
+□ Reject project with feedback works
+□ Edit project modal works
+□ Delete project works
+□ Add project modal works
+□ Category filter works
+□ Availability status shows
+
+MANAGE TEAMS (/admin/manage/teams):
+□ Teams list with all details
+□ Approve team modal works
+□ Reject team modal works
+□ Allocate mentor modal works:
+  - Mentor selection dropdown
+  - Final project selection
+  - Submit allocates successfully
+□ View team details modal works
+□ Status filters work
+□ Search by code/name works
+
+FORM APPROVAL (/admin/forms):
+□ Pending forms list shows
+□ Filter by form type works
+□ View form details works
+□ Approve form works
+□ Reject with custom message works
+□ Status updates correctly
+
+REVIEW DOCUMENTS (/admin/documents):
+□ All documents list displays
+□ Filter by team/type works
+□ Download document works
+□ Document status visible
+□ Timeline view shows history
+
+
+3.5 COMMON UI COMPONENTS
+-------------------------
+
+HEADER:
+□ Logo displays and links correctly
+□ Back button shows on non-home pages
+□ User dropdown shows name and role
+□ Logout button works
+□ Profile info displays correctly
+□ Responsive on mobile
+
+FOOTER:
+□ Copyright info displays
+□ Links work
+□ Responsive design
+
+MODALS:
+□ Open/close animations work
+□ Blur background applied
+□ Scrollbar hidden but scrolling works
+□ Close on outside click works
+□ Close button (X) works
+□ Form submission works
+□ Loading states show
+
+LOADING STATES:
+□ Spinners show during API calls
+□ Skeleton loaders for data
+□ Disabled buttons during submit
+□ Progress bars for uploads
+
+ERROR MESSAGES:
+□ API errors display clearly
+□ Validation errors show on fields
+□ Toast/alert messages work
+□ Error details shown when helpful
+
+================================================================================
+4. INTEGRATION TESTING
+================================================================================
+
+COMPLETE USER FLOWS:
+--------------------
+
+FLOW 1: Student Creates Team and Gets Approved
+1. Student logs in
+2. Creates team with projects and mentors
+3. Team code generated
+4. Other students join using code
+5. Admin approves team
+6. Mentor accepts team with final project
+7. Team sees assigned mentor and project
+
+FLOW 2: Student Submits Forms and Gets Approval
+1. Team created and approved
+2. Leader submits Form 1 (Project Abstract)
+3. Mentor reviews and approves
+4. Admin reviews and approves
+5. Leader submits Form 2 (Role Specification)
+6. Same approval workflow
+7. Forms show admin_approved status
+
+FLOW 3: Weekly Submission and Scoring
+1. Admin assigns timeline to team
+2. Student uploads weekly .zip file
+3. Mentor downloads and reviews
+4. Mentor scores submission (0-10)
+5. Score visible to team
+6. Next week submission enabled
+
+FLOW 4: Document Upload and Review
+1. Team uploads required document
+2. Document shows "submitted" status
+3. Mentor downloads and reviews
+4. Mentor approves/rejects
+5. If rejected, team can re-upload
+6. If approved, admin can review
+7. Final approval changes status
+
+FLOW 5: Project Proposal and Allocation
+1. Student proposes project
+2. Admin reviews and approves/rejects
+3. Approved project appears in project bank
+4. Team selects project in preferences
+5. Mentor selects team and assigns project
+6. Project shows as assigned
+
+FLOW 6: Bulk User Import
+1. Admin downloads sample template
+2. Fills Excel with user data
+3. Uploads file
+4. System validates data
+5. Valid users created
+6. Invalid rows reported
+7. Emails sent with credentials
+
+================================================================================
+5. AUTHENTICATION & SECURITY TESTING
+================================================================================
+
+JWT TOKEN TESTING:
+------------------
+□ Token generated on login
+□ Token stored in httpOnly cookie
+□ Token included in API requests
+□ Token validated on protected routes
+□ Token refresh works
+□ Token expiration handled (24h vs 7d)
+□ Invalid token returns 401
+□ Expired token redirects to login
+
+ROLE-BASED ACCESS:
+------------------
+□ Admin can access all admin routes
+□ Sub-admin has limited admin access
+□ Mentor can access mentor routes only
+□ Student can access student routes only
+□ Dev can access all routes
+□ Cross-role access returns 403
+
+PASSWORD SECURITY:
+------------------
+□ Passwords hashed with bcrypt
+□ Password not returned in API responses
+□ First login forces password change
+□ Password strength requirements enforced
+□ Old password verification on change
+□ Reset code expires after use
+□ Reset code has time limit
+
+SESSION MANAGEMENT:
+-------------------
+□ Multiple logins handled correctly
+□ Remember me extends session
+□ Logout clears all session data
+□ Concurrent sessions work
+□ Session timeout redirects to login
+
+INPUT VALIDATION:
+-----------------
+□ SQL injection prevented
+□ XSS attacks prevented
+□ Email format validated
+□ Phone number validated
+□ File type validation
+□ File size limits enforced
+□ Sanitization of user inputs
+
+CORS & SECURITY HEADERS:
+-------------------------
+□ CORS configured correctly
+□ Helmet.js security headers applied
+□ Rate limiting on auth endpoints
+□ HPP protection enabled
+□ Compression enabled
+
+================================================================================
+6. ROLE-BASED ACCESS TESTING
+================================================================================
+
+ADMIN ACCESS:
+-------------
+□ Can view all users
+□ Can create/edit/delete users
+□ Can approve/reject teams
+□ Can approve/reject projects
+□ Can allocate mentors
+□ Can upload bulk data
+□ Can assign timelines
+□ Can flush data
+□ Can view all documents
+□ Can approve all forms
+
+SUB-ADMIN ACCESS:
+-----------------
+□ Same as admin except:
+  - Cannot flush all data
+  - Cannot delete admin users
+  - Limited bulk operations
+
+MENTOR ACCESS:
+--------------
+□ Can view assigned teams only
+□ Can accept/reject teams from preferences
+□ Can review submitted forms
+□ Can approve/reject documents
+□ Can score weekly submissions
+□ Can view team progress
+□ Cannot access admin routes
+□ Cannot modify other mentors' teams
+
+STUDENT ACCESS:
+---------------
+□ Can create one team only
+□ Can join one team only
+□ Can view own team details
+□ Leader can submit forms
+□ Leader can upload documents
+□ All members can submit weekly status
+□ Can propose projects
+□ Cannot access admin/mentor routes
+□ Cannot modify other teams
+
+DEV ACCESS:
+-----------
+□ Can access all routes
+□ Can view dev portal
+□ Can test all features
+□ Debug mode available
+
+================================================================================
+7. DATABASE TESTING
+================================================================================
+
+MONGODB OPERATIONS:
+-------------------
+□ Connection established successfully
+□ Connection pooling works
+□ Reconnection on failure
+□ Graceful shutdown
+
+DATA MODELS:
+------------
+□ User model validations work
+□ Team model with all references
+□ Project model constraints
+□ System settings model
+
+CRUD OPERATIONS:
+----------------
+□ Create documents successfully
+□ Read with populate works
+□ Update modifies correctly
+□ Delete removes and updates refs
+□ Bulk operations work
+
+TRANSACTIONS:
+-------------
+□ Multi-document updates atomic
+□ Rollback on error
+□ Session management
+
+INDEXING:
+---------
+□ Unique indexes enforced (username, email)
+□ Text indexes for search
+□ Compound indexes used
+□ Query performance acceptable
+
+DATA INTEGRITY:
+---------------
+□ Foreign key references maintained
+□ Cascade deletes work
+□ Orphaned documents prevented
+□ Duplicate prevention works
+
+TTL (Time To Live):
+-------------------
+□ Rejected projects deleted after TTL
+□ TTL configuration from SystemSettings
+□ TTL monitoring endpoint works
+□ Manual TTL triggers work
+
+================================================================================
+8. FILE UPLOAD TESTING
+================================================================================
+
+DOCUMENT UPLOADS:
+-----------------
+□ PDF files upload successfully
+□ DOC/DOCX files upload
+□ File size limit enforced (10MB)
+□ File type validation
+□ Unique filenames generated
+□ Files stored in correct directory
+□ File path saved in database
+□ Download works correctly
+□ Multiple uploads don't overwrite
+
+WEEKLY STATUS UPLOADS:
+----------------------
+□ Only .zip files accepted
+□ File size limit (50MB) enforced
+□ Filenames include team and week
+□ Files stored in weekly-status folder
+□ Week number validation
+□ Duplicate week prevention
+□ Download works for mentors
+
+EXCEL/CSV UPLOADS:
+------------------
+□ .xlsx files processed correctly
+□ .csv files processed
+□ Column mapping works
+□ Validation errors caught
+□ Summary report generated
+□ Partial success handled
+□ File cleanup after processing
+
+IMAGE UPLOADS (if applicable):
+-------------------------------
+□ Image formats accepted
+□ Image compression works
+□ Thumbnails generated
+□ Display in UI
+
+ERROR HANDLING:
+---------------
+□ Disk full error handled
+□ Invalid file type rejected
+□ Oversized file rejected
+□ Corrupted file rejected
+□ Network interruption handled
+
+================================================================================
+9. EMAIL FUNCTIONALITY TESTING
+================================================================================
+
+EMAIL CONFIGURATION:
+--------------------
+□ Gmail SMTP configured
+□ Credentials in .env
+□ Transporter initialized
+□ Connection test successful
+
+PASSWORD RESET EMAILS:
+----------------------
+□ Email sent on forgot password
+□ 6-digit code generated
+□ Email contains code
+□ Email formatting correct
+□ Link to reset page included
+
+USER CREATION EMAILS:
+---------------------
+□ Email sent when user created
+□ Contains username
+□ Contains generated password
+□ Contains login link
+□ Sent to correct address
+
+PROJECT DISCUSSION EMAILS:
+--------------------------
+□ Email sent when meeting scheduled
+□ Contains meeting time
+□ Contains project details
+□ Sent to team leader
+
+FORM APPROVAL EMAILS (if implemented):
+---------------------------------------
+□ Email on form approval
+□ Email on form rejection
+□ Contains feedback
+
+ERROR HANDLING:
+---------------
+□ Email send failure logged
+□ Non-blocking (app continues)
+□ Retry mechanism (if implemented)
+
+================================================================================
+10. PERFORMANCE TESTING
+================================================================================
+
+API RESPONSE TIMES:
+-------------------
+□ Login < 500ms
+□ GET requests < 200ms
+□ POST requests < 500ms
+□ File uploads < 5s for 10MB
+□ Bulk operations < 10s for 100 records
+
+DATABASE QUERIES:
+-----------------
+□ Indexed queries fast
+□ Populate operations optimized
+□ Lean queries where possible
+□ Pagination works efficiently
+
+FRONTEND LOAD TIMES:
+--------------------
+□ Initial page load < 2s
+□ Route transitions < 300ms
+□ Modal open/close smooth
+□ Scroll performance good
+□ No memory leaks
+
+CONCURRENT USERS:
+-----------------
+□ 10 concurrent users handled
+□ 50 concurrent users tested
+□ 100+ users (if expected)
+□ No degradation under load
+
+FILE OPERATIONS:
+----------------
+□ Multiple uploads simultaneous
+□ Large file uploads don't block
+□ Download speeds acceptable
+
+BROWSER PERFORMANCE:
+--------------------
+□ No excessive re-renders
+□ Efficient state updates
+□ Minimal bundle size
+□ Code splitting effective
+□ Lazy loading works
+
+================================================================================
+11. ERROR HANDLING TESTING
+================================================================================
+
+BACKEND ERRORS:
+---------------
+□ 400 Bad Request for invalid input
+□ 401 Unauthorized for missing token
+□ 403 Forbidden for insufficient permissions
+□ 404 Not Found for missing resources
+□ 409 Conflict for duplicates
+□ 500 Internal Server Error caught
+□ Detailed error messages in development
+□ Generic messages in production
+
+FRONTEND ERRORS:
+----------------
+□ Network errors displayed
+□ API errors shown to user
+□ Validation errors on forms
+□ Loading states during requests
+□ Graceful degradation
+□ Error boundaries catch crashes
+□ Console errors logged
+
+DATABASE ERRORS:
+----------------
+□ Connection errors handled
+□ Validation errors caught
+□ Duplicate key errors shown
+□ Transaction failures rolled back
+□ Timeout errors handled
+
+FILE OPERATION ERRORS:
+----------------------
+□ File not found errors
+□ Permission errors
+□ Disk space errors
+□ Corrupted file errors
+
+USER EXPERIENCE:
+----------------
+□ Error messages helpful
+□ Users can recover from errors
+□ No crashes from errors
+□ Logs available for debugging
+
+================================================================================
+12. REGRESSION TESTING CHECKLIST
+================================================================================
+
+BEFORE EACH RELEASE:
+--------------------
+□ All authentication flows work
+□ All role-based routes accessible
+□ Team creation and joining work
+□ Mentor assignment works
+□ Form submissions work
+□ Document uploads work
+□ Weekly submissions work
+□ Bulk uploads work
+□ Email sending works
+□ All CRUD operations work
+□ Search and filters work
+□ Pagination works
+□ File downloads work
+□ PDF generation works (if applicable)
+□ No console errors
+□ No network errors
+□ Database migrations successful
+□ Environment variables set
+□ Production build successful
+□ Deployment successful
+
+CRITICAL PATH TESTING:
+----------------------
+1. Login → Dashboard
+2. Create Team → Join Team → Approve Team → Assign Mentor
+3. Submit Forms → Mentor Approve → Admin Approve
+4. Upload Document → Review → Approve
+5. Submit Weekly → Score → View Score
+6. Propose Project → Approve → Select → Assign
+7. Bulk Upload Users → Login as New User
+8. Forgot Password → Reset → Login
+
+BROWSER COMPATIBILITY:
+----------------------
+□ Chrome (latest)
+□ Firefox (latest)
+□ Safari (latest)
+□ Edge (latest)
+□ Mobile browsers
+
+DEVICE TESTING:
+---------------
+□ Desktop (1920x1080)
+□ Laptop (1366x768)
+□ Tablet (iPad)
+□ Mobile (iPhone, Android)
+□ Different orientations
+
+================================================================================
+TESTING TOOLS & COMMANDS
+================================================================================
+
+BACKEND TESTING:
+----------------
+# Run all tests
+npm test
+
+# Run specific test file
+npm run test:run <test-name>
+
+# Insert dummy data
+npm run test:dummy
+
+# Test TTL functionality
+npm run test:ttl
+
+# Start development server
+npm run dev
+
+
+FRONTEND TESTING:
+-----------------
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+
+# Lint code
+npm run lint
+
+
+POSTMAN/INSOMNIA COLLECTIONS:
+------------------------------
+Create collections for:
+1. Authentication flows
+2. Admin operations
+3. Mentor operations
+4. Student operations
+5. Team operations
+
+
+BROWSER DEVTOOLS:
+-----------------
+- Network tab: Check API calls, response times, status codes
+- Console: Check for JavaScript errors, warnings, logs
+- Application: Inspect cookies, local storage
+- Performance: Profile page load, rendering
+- Sources: Debug JavaScript code
+
+
+DATABASE TOOLS:
+---------------
+- MongoDB Compass: Inspect collections, run queries
+- Mongo Shell: Run database commands
+- Atlas Dashboard: Monitor cloud database
+
+
+================================================================================
+KNOWN ISSUES & FIXES
+================================================================================
+
+ISSUE 1: Backend crashes when mentor accepts team
+FIX: Added await to session.commitTransaction() and session.endSession()
+Location: backend/routes/common.js, line ~510
+
+ISSUE 2: Email and username overlapping in details popup
+FIX: Added responsive grid and text breaking classes
+Location: frontend/src/features/admin/components/ManageMentors.jsx
+
+ISSUE 3: Mentor card heights inconsistent
+FIX: Added flex layout with h-full and mt-auto
+Location: frontend/src/features/admin/components/ManageMentors.jsx
+
+ISSUE 4: Scrollbar visible in modals
+FIX: Added custom CSS to hide scrollbar while maintaining scroll
+Location: All modal components with scrollbar-hide class
+
+================================================================================
+TEST REPORT TEMPLATE
+================================================================================
+
+Date: _____________
+Tester: _____________
+Version: _____________
+
+SUMMARY:
+--------
+Total Tests: _____
+Passed: _____
+Failed: _____
+Skipped: _____
+
+FAILED TESTS:
+-------------
+Test ID | Description | Expected | Actual | Priority | Assigned To
+--------|-------------|----------|--------|----------|------------
+
+
+
+NOTES:
+------
+
+
+
+SIGN-OFF:
+---------
+Tester: _________________ Date: _______
+Reviewer: _______________ Date: _______
+
+================================================================================
+ADDITIONAL RESOURCES
+================================================================================
+
+1. Backend API Documentation: backend/README.md
+2. Frontend README: frontend/README.md
+3. Main Project README: README.md
+4. Environment Setup: .env.example files
+5. Database Schema: backend/models/
+6. API Routes: backend/routes/
+
+================================================================================
+CONTACT & SUPPORT
+================================================================================
+
+For issues, bugs, or questions:
+- Check existing documentation
+- Review test logs
+- Contact development team
+
+================================================================================
+END OF TESTING GUIDE
+================================================================================
