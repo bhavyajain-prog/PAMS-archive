@@ -103,6 +103,9 @@ export default function DevPortal() {
       { path: "/join-team", name: "Join Team" },
       { path: "/my-team", name: "My Team" },
       { path: "/project-bank", name: "Project Bank" },
+      { path: "/view-scores", name: "View Scores" },
+      { path: "/team-details", name: "Team Details" },
+      { path: "/team/documents", name: "Document Upload" },
     ],
     mentor: [
       { path: "/mentor/home", name: "Mentor Portal" },

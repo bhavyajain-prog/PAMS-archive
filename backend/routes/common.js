@@ -610,6 +610,19 @@ router.get(
                 team.projectAbstract?.modules?.length
               ),
               requiredForApproval: docType.requiredForApproval,
+              // Include full form data
+              data: team.projectAbstract ? {
+                projectTitle: team.projectAbstract.projectTitle,
+                projectTrack: team.projectAbstract.projectTrack,
+                projectCategory: team.projectAbstract.projectCategory,
+                numberOfModules: team.projectAbstract.numberOfModules,
+                githubRepo: team.projectAbstract.githubRepo,
+                tools: team.projectAbstract.tools,
+                modules: team.projectAbstract.modules,
+                teamMembers: team.projectAbstract.teamMembers,
+                objectives: team.projectAbstract.objectives,
+                scopeOfWork: team.projectAbstract.scopeOfWork,
+              } : null,
             };
           } else if (docType.key === "roleSpecification") {
             documents.roleSpecification = {
@@ -623,6 +636,11 @@ router.get(
               adminApproved: team.roleSpecification?.adminApproval || false,
               hasData: Boolean(team.roleSpecification?.assignments?.length),
               requiredForApproval: docType.requiredForApproval,
+              // Include full form data
+              data: team.roleSpecification ? {
+                projectTitle: team.roleSpecification.projectTitle,
+                assignments: team.roleSpecification.assignments,
+              } : null,
             };
           } else if (docType.key === "weeklyStatus") {
             const weeklyReports = team.evaluation?.weeklyStatus || [];

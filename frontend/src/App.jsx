@@ -27,6 +27,7 @@ import JoinTeam from "./features/student/components/JoinTeam";
 import ProposeProject from "./features/student/components/ProposeProject";
 import TeamDetails from "./features/student/components/TeamDetails";
 import DocumentUpload from "./features/student/components/DocumentUpload";
+import ViewScore from "./features/student/components/ViewScore";
 
 import MentorPortal from "./features/mentor/components/MentorPortal";
 import TeamSelection from "./features/mentor/components/TeamSelection";
@@ -185,6 +186,14 @@ const AppLayout = () => {
               </RoleBasedRoute>
             }
           />
+          <Route
+            path="/view-scores"
+            element={
+              <RoleBasedRoute roles={["student"]}>
+                <ViewScore />
+              </RoleBasedRoute>
+            }
+          />
           {/* Mentor Routes */}
           <Route
             path="/mentor/home"
@@ -198,7 +207,7 @@ const AppLayout = () => {
             path="/mentor/dashboard"
             element={
               <RoleBasedRoute roles={["mentor"]}>
-                <MentorDashboard/>
+                <MentorDashboard />
               </RoleBasedRoute>
             }
           />

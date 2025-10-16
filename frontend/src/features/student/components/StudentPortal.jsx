@@ -118,7 +118,7 @@ export default function StudentPortal() {
                 disabled={!isTeamLeader}
               />
               <StudentActionCard
-                to="/view-score" // Placeholder route
+                to="/view-scores"
                 title="View Score"
                 description="Check your current project scores and feedback from mentors."
                 icon={<FaTachometerAlt />}

@@ -185,11 +185,11 @@ const FormApproval = () => {
               </div>
               <div
                 className={`flex items-center ${form.status === "mentor_approved" ||
-                    form.status === "admin_approved"
-                    ? "text-green-600"
-                    : form.status === "submitted"
-                      ? "text-blue-600"
-                      : "text-gray-400"
+                  form.status === "admin_approved"
+                  ? "text-green-600"
+                  : form.status === "submitted"
+                    ? "text-blue-600"
+                    : "text-gray-400"
                   }`}
               >
                 <span className="w-2 h-2 rounded-full bg-current mr-1"></span>
@@ -197,10 +197,10 @@ const FormApproval = () => {
               </div>
               <div
                 className={`flex items-center ${form.status === "admin_approved"
-                    ? "text-green-600"
-                    : form.status === "mentor_approved"
-                      ? "text-blue-600"
-                      : "text-gray-400"
+                  ? "text-green-600"
+                  : form.status === "mentor_approved"
+                    ? "text-blue-600"
+                    : "text-gray-400"
                   }`}
               >
                 <span className="w-2 h-2 rounded-full bg-current mr-1"></span>
@@ -210,35 +210,215 @@ const FormApproval = () => {
           </div>
         </div>
 
+        {/* PROJECT ABSTRACT FORM - COMPLETE DETAILS */}
         {formType === "projectAbstract" && (
-          <div className="mt-3 space-y-2">
-            <div>
-              <strong>Track:</strong> {form.projectTrack}
+          <div className="mt-4 space-y-4">
+            {/* Project Information */}
+            <div className="bg-white p-4 rounded-lg border border-gray-200">
+              <h5 className="font-semibold text-gray-800 mb-3 text-base">📋 Project Information</h5>
+              <div className="space-y-2 text-sm">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <span className="font-semibold text-gray-700">Project Title:</span>
+                    <p className="text-gray-900 mt-1">{form.projectTitle || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-700">Project Track:</span>
+                    <p className="text-gray-900 mt-1">{form.projectTrack || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-700">Project Category:</span>
+                    <p className="text-gray-900 mt-1">{form.projectCategory || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-700">Number of Modules:</span>
+                    <p className="text-gray-900 mt-1">{form.numberOfModules || 'N/A'}</p>
+                  </div>
+                </div>
+                {form.githubRepo && (
+                  <div className="mt-2">
+                    <span className="font-semibold text-gray-700">GitHub Repository:</span>
+                    <p className="mt-1">
+                      <a href={form.githubRepo} target="_blank" rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline break-all">
+                        {form.githubRepo}
+                      </a>
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
-            <div>
-              <strong>GitHub:</strong> {form.githubRepo || "Not provided"}
-            </div>
-            <div>
-              <strong>Tools:</strong> {form.tools?.length || 0} tools specified
-            </div>
+
+            {/* Tools & Technologies */}
+            {form.tools && form.tools.length > 0 && (
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <h5 className="font-semibold text-gray-800 mb-3 text-base">🛠️ Tools & Technologies</h5>
+                <div className="flex flex-wrap gap-2">
+                  {form.tools.map((tool, idx) => {
+                    // Handle both string and object formats
+                    const toolName = typeof tool === 'string' ? tool : tool?.name || 'Unknown Tool';
+                    const toolVersion = typeof tool === 'object' ? tool?.version : null;
+                    return (
+                      <span key={idx} className="px-3 py-1 bg-teal-100 text-teal-800 rounded-full text-sm font-medium">
+                        {toolName} {toolVersion && `(${toolVersion})`}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Project Modules */}
+            {form.modules && form.modules.length > 0 && (
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <h5 className="font-semibold text-gray-800 mb-3 text-base">📦 Project Modules</h5>
+                <div className="space-y-3">
+                  {form.modules.map((module, idx) => (
+                    <div key={idx} className="p-3 bg-gray-50 rounded-lg border-l-4 border-blue-500">
+                      <div className="font-semibold text-gray-900 mb-1">
+                        Module {idx + 1}: {module?.moduleName || module?.name || 'Unnamed Module'}
+                      </div>
+                      <p className="text-sm text-gray-700">{module?.description || 'No description provided'}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Team Members & Roles */}
+            {form.teamMembers && form.teamMembers.length > 0 && (
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <h5 className="font-semibold text-gray-800 mb-3 text-base">👥 Team Members & Roles</h5>
+                <div className="space-y-2">
+                  {form.teamMembers.map((member, idx) => (
+                    <div key={idx} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                      <span className="font-medium text-gray-900">{member.name}</span>
+                      <span className="text-sm text-gray-600 italic">{member.role}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Objectives */}
+            {form.objectives && (
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <h5 className="font-semibold text-gray-800 mb-3 text-base">🎯 Objectives</h5>
+                <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+                  {form.objectives}
+                </p>
+              </div>
+            )}
+
+            {/* Scope of Work */}
+            {form.scopeOfWork && (
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <h5 className="font-semibold text-gray-800 mb-3 text-base">📝 Scope of Work</h5>
+                <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+                  {form.scopeOfWork}
+                </p>
+              </div>
+            )}
           </div>
         )}
 
+        {/* ROLE SPECIFICATION FORM - COMPLETE DETAILS */}
         {formType === "roleSpecification" && (
-          <div className="mt-3">
-            <div>
-              <strong>Assignments:</strong> {form.assignments?.length || 0}{" "}
-              members assigned
+          <div className="mt-4 space-y-4">
+            {/* Project Title */}
+            <div className="bg-white p-4 rounded-lg border border-gray-200">
+              <h5 className="font-semibold text-gray-800 mb-2 text-base">📋 Project Title</h5>
+              <p className="text-gray-900">{form.projectTitle || 'N/A'}</p>
             </div>
-            <div className="mt-2">
-              {form.assignments?.map((assignment, idx) => (
-                <div key={idx} className="text-sm bg-white rounded p-2 mb-1">
-                  <strong>Member {idx + 1}:</strong>{" "}
-                  {assignment.modules?.length || 0} modules,{" "}
-                  {assignment.activities?.length || 0} activities
+
+            {/* Role Assignments */}
+            {form.assignments && form.assignments.length > 0 && (
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <h5 className="font-semibold text-gray-800 mb-4 text-base">👥 Role Assignments ({form.assignments.length} members)</h5>
+                <div className="space-y-4">
+                  {form.assignments.map((assignment, idx) => (
+                    <div key={idx} className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border-l-4 border-purple-500">
+                      {/* Member Info */}
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <div className="font-semibold text-gray-900 text-base">
+                            {assignment.memberName || `Member ${idx + 1}`}
+                          </div>
+                          <div className="text-sm text-gray-600">{assignment.memberEmail || 'No email'}</div>
+                        </div>
+                        <span className="px-3 py-1 bg-purple-600 text-white rounded-full text-sm font-semibold">
+                          {assignment.role || 'No Role'}
+                        </span>
+                      </div>
+
+                      {/* Responsibilities */}
+                      {assignment.responsibilities && assignment.responsibilities.length > 0 && (
+                        <div className="mb-3">
+                          <div className="font-semibold text-gray-700 text-sm mb-2">📌 Responsibilities:</div>
+                          <ul className="list-disc list-inside space-y-1">
+                            {assignment.responsibilities.map((resp, rIdx) => {
+                              const respText = typeof resp === 'string' ? resp : resp?.description || resp?.name || 'Responsibility';
+                              return (
+                                <li key={rIdx} className="text-sm text-gray-700 ml-2">{respText}</li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Technologies */}
+                      {assignment.technologies && assignment.technologies.length > 0 && (
+                        <div className="mb-3">
+                          <div className="font-semibold text-gray-700 text-sm mb-2">💻 Technologies:</div>
+                          <div className="flex flex-wrap gap-2">
+                            {assignment.technologies.map((tech, tIdx) => {
+                              const techName = typeof tech === 'string' ? tech : tech?.name || 'Unknown Tech';
+                              return (
+                                <span key={tIdx} className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
+                                  {techName}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Modules */}
+                      {assignment.modules && assignment.modules.length > 0 && (
+                        <div className="mb-3">
+                          <div className="font-semibold text-gray-700 text-sm mb-2">📦 Assigned Modules:</div>
+                          <div className="flex flex-wrap gap-2">
+                            {assignment.modules.map((module, mIdx) => {
+                              const moduleName = typeof module === 'string' ? module : module?.moduleName || module?.name || 'Module';
+                              return (
+                                <span key={mIdx} className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium">
+                                  {moduleName}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Activities */}
+                      {assignment.activities && assignment.activities.length > 0 && (
+                        <div>
+                          <div className="font-semibold text-gray-700 text-sm mb-2">✅ Activities:</div>
+                          <ul className="list-disc list-inside space-y-1">
+                            {assignment.activities.map((activity, aIdx) => {
+                              const activityText = typeof activity === 'string' ? activity : activity?.description || activity?.name || 'Activity';
+                              return (
+                                <li key={aIdx} className="text-sm text-gray-700 ml-2">{activityText}</li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -490,8 +670,8 @@ const FormApproval = () => {
                 onClick={handleFormAction}
                 disabled={actionLoading}
                 className={`flex items-center px-4 py-2 text-white rounded transition-colors disabled:opacity-50 ${approvalData.action === "approve"
-                    ? "bg-green-600 hover:bg-green-700"
-                    : "bg-red-600 hover:bg-red-700"
+                  ? "bg-green-600 hover:bg-green-700"
+                  : "bg-red-600 hover:bg-red-700"
                   }`}
               >
                 {actionLoading && <FaSpinner className="animate-spin mr-2" />}
