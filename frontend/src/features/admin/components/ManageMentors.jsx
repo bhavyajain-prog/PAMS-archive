@@ -12,6 +12,7 @@ import {
   FaUserGraduate,
   FaEye,
 } from "react-icons/fa";
+// Inline skeletons used — shared Skeleton component removed per request
 
 // Placeholder for a more sophisticated Modal component if needed later
 const Modal = ({ isOpen, onClose, title, children }) => {
@@ -403,8 +404,33 @@ export default function ManageMentors() {
 
   if (loading)
     return (
-      <div className="flex justify-center items-center h-screen">
-        <p className="text-xl text-gray-700">Loading mentors...</p>
+      <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-slate-50">
+        <div className="w-full max-w-6xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <div key={idx} className="bg-white rounded-lg shadow p-6 animate-pulse">
+                <div className="flex items-center mb-4">
+                  <div className="h-12 w-12 bg-slate-200 rounded-full mr-4" />
+                  <div className="flex-1">
+                    <div className="h-5 bg-slate-200 rounded w-3/4 mb-2" />
+                    <div className="h-3 bg-slate-200 rounded w-1/2" />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="h-3 bg-slate-200 rounded w-5/6" />
+                  <div className="h-3 bg-slate-200 rounded w-2/3" />
+                  <div className="h-3 bg-slate-200 rounded w-3/4" />
+                </div>
+
+                <div className="mt-6 flex space-x-3">
+                  <div className="h-9 bg-slate-200 rounded w-24" />
+                  <div className="h-9 bg-slate-200 rounded w-24" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   if (error)

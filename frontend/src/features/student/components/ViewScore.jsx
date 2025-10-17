@@ -12,6 +12,7 @@ import {
     FaArrowLeft,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+// Inline skeletons used — removed shared Skeleton component per request
 
 export default function ViewScore() {
     const [weeklyScores, setWeeklyScores] = useState([]);
@@ -129,10 +130,46 @@ export default function ViewScore() {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-slate-50 to-sky-100">
-                <div className="text-center">
-                    <FaSpinner className="animate-spin text-5xl text-teal-600 mx-auto mb-4" />
-                    <p className="text-lg text-gray-700">Loading your scores...</p>
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-sky-100 py-12 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto">
+                    <div className="mb-8">
+                        <div className="h-8 w-48 bg-slate-200 rounded mb-4 animate-pulse" />
+                        <div className="h-6 w-96 bg-slate-200 rounded animate-pulse" />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        {Array.from({ length: 4 }).map((_, i) => (
+                            <div key={i} className="bg-white rounded-lg p-6 shadow animate-pulse">
+                                <div className="h-6 w-32 bg-slate-200 rounded mb-4" />
+                                <div className="h-10 w-20 bg-slate-200 rounded" />
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {Array.from({ length: 3 }).map((_, idx) => (
+                            <div key={idx} className="bg-white rounded-lg shadow p-6 animate-pulse">
+                                <div className="flex items-center mb-4">
+                                    <div className="h-12 w-12 bg-slate-200 rounded-full mr-4" />
+                                    <div className="flex-1">
+                                        <div className="h-5 bg-slate-200 rounded w-3/4 mb-2" />
+                                        <div className="h-3 bg-slate-200 rounded w-1/2" />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <div className="h-3 bg-slate-200 rounded w-5/6" />
+                                    <div className="h-3 bg-slate-200 rounded w-2/3" />
+                                    <div className="h-3 bg-slate-200 rounded w-3/4" />
+                                </div>
+
+                                <div className="mt-6 flex space-x-3">
+                                    <div className="h-9 bg-slate-200 rounded w-24" />
+                                    <div className="h-9 bg-slate-200 rounded w-24" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         );
@@ -370,8 +407,8 @@ export default function ViewScore() {
                                                                     <FaStar
                                                                         key={i}
                                                                         className={`text-sm ${i < score.mentorScore
-                                                                                ? "text-yellow-400"
-                                                                                : "text-gray-300"
+                                                                            ? "text-yellow-400"
+                                                                            : "text-gray-300"
                                                                             }`}
                                                                     />
                                                                 ))}

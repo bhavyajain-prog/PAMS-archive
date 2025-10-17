@@ -150,8 +150,8 @@ const TimelineManagement = ({ onRefresh }) => {
       {message.text && (
         <div
           className={`p-3 rounded-lg mb-4 ${message.type === "success"
-              ? "bg-green-50 border border-green-200 text-green-800"
-              : "bg-red-50 border border-red-200 text-red-800"
+            ? "bg-green-50 border border-green-200 text-green-800"
+            : "bg-red-50 border border-red-200 text-red-800"
             }`}
         >
           {message.text}
@@ -939,8 +939,8 @@ export default function ManageProjects() {
             {actionMessage && (
               <p
                 className={`text-sm ${actionMessage.includes("successfully")
-                    ? "text-green-600"
-                    : "text-red-600"
+                  ? "text-green-600"
+                  : "text-red-600"
                   }`}
               >
                 {actionMessage}
@@ -980,8 +980,8 @@ export default function ManageProjects() {
             {actionMessage && (
               <p
                 className={`text-sm mt-2 ${actionMessage.includes("successfully")
-                    ? "text-green-600"
-                    : "text-red-600"
+                  ? "text-green-600"
+                  : "text-red-600"
                   }`}
               >
                 {actionMessage}
@@ -1026,8 +1026,8 @@ export default function ManageProjects() {
             {actionMessage && (
               <p
                 className={`text-sm mt-2 ${actionMessage.includes("successfully")
-                    ? "text-green-600"
-                    : "text-red-600"
+                  ? "text-green-600"
+                  : "text-red-600"
                   }`}
               >
                 {actionMessage}
@@ -1083,8 +1083,8 @@ export default function ManageProjects() {
             {actionMessage && (
               <p
                 className={`text-sm mt-3 ${actionMessage.includes("successfully")
-                    ? "text-green-600"
-                    : "text-red-600"
+                  ? "text-green-600"
+                  : "text-red-600"
                   }`}
               >
                 {actionMessage}
@@ -1118,9 +1118,59 @@ export default function ManageProjects() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex justify-center items-center">
-        <FaSpinner className="animate-spin text-4xl text-teal-600" />
-        <p className="ml-3 text-lg text-gray-700">Loading projects...</p>
+      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto space-y-8">
+          {/* Header skeleton */}
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 bg-slate-200 rounded animate-pulse" />
+              <div>
+                <div className="h-8 bg-slate-200 rounded w-56 mb-2 animate-pulse" />
+                <div className="h-4 bg-slate-200 rounded w-72 animate-pulse" />
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-32 bg-slate-200 rounded animate-pulse" />
+              <div className="h-10 w-32 bg-slate-200 rounded animate-pulse" />
+            </div>
+          </div>
+
+          {/* Controls skeleton (search + filters) */}
+          <div className="bg-white rounded-lg p-4 shadow">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="h-10 bg-slate-200 rounded animate-pulse col-span-1 lg:col-span-4" />
+              <div className="h-10 bg-slate-200 rounded animate-pulse" />
+              <div className="h-10 bg-slate-200 rounded animate-pulse" />
+              <div className="h-10 bg-slate-200 rounded animate-pulse" />
+              <div className="h-10 bg-slate-200 rounded animate-pulse" />
+            </div>
+          </div>
+
+          {/* Projects grid skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <div key={idx} className="bg-white rounded-lg shadow p-6 animate-pulse">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <div className="h-5 bg-slate-200 rounded w-48 mb-2" />
+                    <div className="h-3 bg-slate-200 rounded w-32" />
+                  </div>
+                  <div className="h-6 w-24 bg-slate-200 rounded" />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="h-3 bg-slate-200 rounded w-full" />
+                  <div className="h-3 bg-slate-200 rounded w-full" />
+                </div>
+
+                <div className="mt-4 flex gap-3">
+                  <div className="h-8 w-24 bg-slate-200 rounded" />
+                  <div className="h-8 w-24 bg-slate-200 rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

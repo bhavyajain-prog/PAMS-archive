@@ -427,9 +427,43 @@ const FormApproval = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <FaSpinner className="animate-spin text-2xl text-blue-600 mr-3" />
-        <span className="text-lg">Loading forms for approval...</span>
+      <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-5xl mx-auto space-y-8">
+          {/* Header skeleton */}
+          <div className="bg-white rounded-lg shadow p-6 border border-gray-100">
+            <div className="flex items-start gap-4">
+              <div className="h-10 w-10 bg-slate-200 rounded animate-pulse" />
+              <div className="flex-1">
+                <div className="h-6 bg-slate-200 rounded w-56 mb-3 animate-pulse" />
+                <div className="h-4 bg-slate-200 rounded w-96 animate-pulse" />
+              </div>
+            </div>
+          </div>
+
+          {/* List skeletons */}
+          <div className="space-y-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="border border-gray-200 rounded-lg bg-white">
+                <div className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-8 w-8 bg-slate-200 rounded animate-pulse" />
+                      <div>
+                        <div className="h-4 bg-slate-200 rounded w-40 mb-2 animate-pulse" />
+                        <div className="h-3 bg-slate-200 rounded w-32 animate-pulse" />
+                      </div>
+                    </div>
+                    <div className="h-6 w-24 bg-slate-200 rounded animate-pulse" />
+                  </div>
+                  <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="h-3 bg-slate-200 rounded w-full animate-pulse" />
+                    <div className="h-3 bg-slate-200 rounded w-full animate-pulse" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

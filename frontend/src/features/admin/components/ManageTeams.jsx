@@ -116,10 +116,10 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                   <strong className="text-gray-600">Status:</strong>
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-bold ${team.status === "approved"
-                        ? "bg-green-100 text-green-800 border border-green-200"
-                        : team.status === "rejected"
-                          ? "bg-red-100 text-red-800 border border-red-200"
-                          : "bg-yellow-100 text-yellow-800 border border-yellow-200"
+                      ? "bg-green-100 text-green-800 border border-green-200"
+                      : team.status === "rejected"
+                        ? "bg-red-100 text-red-800 border border-red-200"
+                        : "bg-yellow-100 text-yellow-800 border border-yellow-200"
                       }`}
                   >
                     {team.status.toUpperCase()}
@@ -553,10 +553,10 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                             {/* Status Badge */}
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-medium ${submission.status === "mentor_reviewed"
-                                  ? "bg-green-100 text-green-800 border border-green-200"
-                                  : submission.status === "submitted"
-                                    ? "bg-yellow-100 text-yellow-800 border border-yellow-200"
-                                    : "bg-gray-100 text-gray-800 border border-gray-200"
+                                ? "bg-green-100 text-green-800 border border-green-200"
+                                : submission.status === "submitted"
+                                  ? "bg-yellow-100 text-yellow-800 border border-yellow-200"
+                                  : "bg-gray-100 text-gray-800 border border-gray-200"
                                 }`}
                             >
                               {submission.status === "mentor_reviewed"
@@ -750,12 +750,12 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
               {team.projectAbstract.status && (
                 <span
                   className={`ml-3 px-3 py-1 text-xs font-medium rounded-full ${team.projectAbstract.status === "submitted" ||
-                      team.projectAbstract.status === "admin_approved" ||
-                      team.projectAbstract.status === "mentor_approved"
-                      ? "bg-green-100 text-green-800"
-                      : team.projectAbstract.status === "rejected"
-                        ? "bg-red-100 text-red-800"
-                        : "bg-yellow-100 text-yellow-800"
+                    team.projectAbstract.status === "admin_approved" ||
+                    team.projectAbstract.status === "mentor_approved"
+                    ? "bg-green-100 text-green-800"
+                    : team.projectAbstract.status === "rejected"
+                      ? "bg-red-100 text-red-800"
+                      : "bg-yellow-100 text-yellow-800"
                     }`}
                 >
                   {team.projectAbstract.status.replace("_", " ").toUpperCase()}
@@ -877,12 +877,12 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
               {team.roleSpecification.status && (
                 <span
                   className={`ml-3 px-3 py-1 text-xs font-medium rounded-full ${team.roleSpecification.status === "submitted" ||
-                      team.roleSpecification.status === "admin_approved" ||
-                      team.roleSpecification.status === "mentor_approved"
-                      ? "bg-green-100 text-green-800"
-                      : team.roleSpecification.status === "rejected"
-                        ? "bg-red-100 text-red-800"
-                        : "bg-yellow-100 text-yellow-800"
+                    team.roleSpecification.status === "admin_approved" ||
+                    team.roleSpecification.status === "mentor_approved"
+                    ? "bg-green-100 text-green-800"
+                    : team.roleSpecification.status === "rejected"
+                      ? "bg-red-100 text-red-800"
+                      : "bg-yellow-100 text-yellow-800"
                     }`}
                 >
                   {team.roleSpecification.status
@@ -1083,10 +1083,10 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                             {week.mentorScore !== undefined ? (
                               <span
                                 className={`px-2 py-1 rounded text-xs font-medium ${week.mentorScore >= 8
-                                    ? "bg-green-100 text-green-800"
-                                    : week.mentorScore >= 6
-                                      ? "bg-yellow-100 text-yellow-800"
-                                      : "bg-red-100 text-red-800"
+                                  ? "bg-green-100 text-green-800"
+                                  : week.mentorScore >= 6
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : "bg-red-100 text-red-800"
                                   }`}
                               >
                                 {week.mentorScore}/10
@@ -1573,10 +1573,13 @@ export default function ManageTeams() {
       setTeams(response.data.teams);
     } catch (error) {
       console.error("Error fetching teams:", error);
-      alert(
-        "Error fetching teams: " +
-        (error.response?.data?.message || error.message)
-      );
+      // If backend returns 404 (no teams), keep teams as empty array.
+      if (error.response?.status === 404) {
+        setTeams([]);
+      } else {
+        // For other errors, avoid disruptive alert; log and set empty list as fallback.
+        setTeams([]);
+      }
     } finally {
       setLoading(false);
     }
@@ -1636,10 +1639,59 @@ export default function ManageTeams() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex justify-center items-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-teal-500 border-t-transparent mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading teams...</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+        <div className="max-w-7xl mx-auto space-y-8">
+          {/* Header skeleton */}
+          <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+              <div className="flex items-center mb-4 sm:mb-0">
+                <div className="h-12 w-12 bg-slate-200 rounded mr-4 animate-pulse" />
+                <div className="space-y-2">
+                  <div className="h-8 bg-slate-200 rounded w-64 animate-pulse" />
+                  <div className="h-4 bg-slate-200 rounded w-40 animate-pulse" />
+                </div>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="h-6 w-24 bg-slate-200 rounded animate-pulse" />
+                <div className="h-10 w-24 bg-slate-200 rounded animate-pulse" />
+              </div>
+            </div>
+          </div>
+
+          {/* Stats skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white p-4 rounded-lg border animate-pulse h-20" />
+            <div className="bg-white p-4 rounded-lg border animate-pulse h-20" />
+            <div className="bg-white p-4 rounded-lg border animate-pulse h-20" />
+          </div>
+
+          {/* Teams grid skeleton */}
+          <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, idx) => (
+                <div key={idx} className="bg-white rounded-lg shadow p-6 animate-pulse">
+                  <div className="flex items-center mb-4">
+                    <div className="h-12 w-12 bg-slate-200 rounded-full mr-4" />
+                    <div className="flex-1">
+                      <div className="h-5 bg-slate-200 rounded w-3/4 mb-2" />
+                      <div className="h-3 bg-slate-200 rounded w-1/2" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="h-3 bg-slate-200 rounded w-5/6" />
+                    <div className="h-3 bg-slate-200 rounded w-2/3" />
+                    <div className="h-3 bg-slate-200 rounded w-3/4" />
+                  </div>
+
+                  <div className="mt-6 flex space-x-3">
+                    <div className="h-9 bg-slate-200 rounded w-24" />
+                    <div className="h-9 bg-slate-200 rounded w-24" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -1693,8 +1745,8 @@ export default function ManageTeams() {
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className={`px-6 py-3 rounded-md font-medium transition-colors flex items-center ${showFilters
-                    ? "bg-teal-700 text-white"
-                    : "bg-teal-600 hover:bg-teal-700 text-white"
+                  ? "bg-teal-700 text-white"
+                  : "bg-teal-600 hover:bg-teal-700 text-white"
                   }`}
               >
                 <FaFilter className="mr-2" />
