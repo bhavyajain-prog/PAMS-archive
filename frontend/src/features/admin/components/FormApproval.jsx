@@ -142,11 +142,12 @@ const FormApproval = () => {
     const form = team[formType];
     if (!form) return null;
 
+    // Get project details from team's finalProject or first projectChoice
+    const project = team.finalProject || (team.projectChoices && team.projectChoices.length > 0 ? team.projectChoices[0] : null);
+    
     // Compute fallbacks for fields that may be stored under different keys depending on submission shape
-    const projectTitle =
-      form.projectTitle || form.project?.title || team.finalProject?.title || (team.projectChoices && team.projectChoices[0]?.title) || "N/A";
-    const projectCategory =
-      form.projectCategory || form.project?.category || team.finalProject?.category || (team.projectChoices && team.projectChoices[0]?.category) || "N/A";
+    const projectTitle = project?.title || form.projectTitle || form.project?.title || "N/A";
+    const projectCategory = project?.category || form.projectCategory || form.project?.category || "N/A";
     const numberOfModules =
       form.numberOfModules || (form.modules && form.modules.length) || (team.projectAbstract && team.projectAbstract.modules && team.projectAbstract.modules.length) || "N/A";
 
@@ -336,7 +337,7 @@ const FormApproval = () => {
             {/* Project Title */}
             <div className="bg-white p-4 rounded-lg border border-gray-200">
               <h5 className="font-semibold text-gray-800 mb-2 text-base">📋 Project Title</h5>
-              <p className="text-gray-900">{form.projectTitle || 'N/A'}</p>
+              <p className="text-gray-900">{projectTitle}</p>
             </div>
 
             {/* Role Assignments */}
@@ -344,86 +345,97 @@ const FormApproval = () => {
               <div className="bg-white p-4 rounded-lg border border-gray-200">
                 <h5 className="font-semibold text-gray-800 mb-4 text-base">👥 Role Assignments ({form.assignments.length} members)</h5>
                 <div className="space-y-4">
-                  {form.assignments.map((assignment, idx) => (
-                    <div key={idx} className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border-l-4 border-purple-500">
-                      {/* Member Info */}
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <div className="font-semibold text-gray-900 text-base">
-                            {assignment.memberName || `Member ${idx + 1}`}
+                  {form.assignments.map((assignment, idx) => {
+                    // Get member details - handle both populated and non-populated member field
+                    const member = assignment.member;
+                    const memberName = member?.name || assignment.memberName || `Member ${idx + 1}`;
+                    const memberEmail = member?.email || assignment.memberEmail || 'No email';
+                    const memberRollNumber = member?.studentData?.rollNumber || '';
+
+                    return (
+                      <div key={idx} className="p-4 bg-linear-to-r from-purple-50 to-blue-50 rounded-lg border-l-4 border-purple-500">
+                        {/* Member Info */}
+                        <div className="flex justify-between items-start mb-3">
+                          <div>
+                            <div className="font-semibold text-gray-900 text-base">
+                              {memberName}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              {memberEmail}
+                              {memberRollNumber && <span className="ml-2">• {memberRollNumber}</span>}
+                            </div>
                           </div>
-                          <div className="text-sm text-gray-600">{assignment.memberEmail || 'No email'}</div>
+                          <span className="px-3 py-1 bg-purple-600 text-white rounded-full text-sm font-semibold">
+                            {assignment.role || 'Team Member'}
+                          </span>
                         </div>
-                        <span className="px-3 py-1 bg-purple-600 text-white rounded-full text-sm font-semibold">
-                          {assignment.role || 'No Role'}
-                        </span>
+
+                        {/* Responsibilities */}
+                        {assignment.responsibilities && assignment.responsibilities.length > 0 && (
+                          <div className="mb-3">
+                            <div className="font-semibold text-gray-700 text-sm mb-2">📌 Responsibilities:</div>
+                            <ul className="list-disc list-inside space-y-1">
+                              {assignment.responsibilities.map((resp, rIdx) => {
+                                const respText = typeof resp === 'string' ? resp : resp?.description || resp?.name || 'Responsibility';
+                                return (
+                                  <li key={rIdx} className="text-sm text-gray-700 ml-2">{respText}</li>
+                                );
+                              })}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Technologies */}
+                        {assignment.technologies && assignment.technologies.length > 0 && (
+                          <div className="mb-3">
+                            <div className="font-semibold text-gray-700 text-sm mb-2">💻 Technologies:</div>
+                            <div className="flex flex-wrap gap-2">
+                              {assignment.technologies.map((tech, tIdx) => {
+                                const techName = typeof tech === 'string' ? tech : tech?.name || 'Unknown Tech';
+                                return (
+                                  <span key={tIdx} className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
+                                    {techName}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Modules */}
+                        {assignment.modules && assignment.modules.length > 0 && (
+                          <div className="mb-3">
+                            <div className="font-semibold text-gray-700 text-sm mb-2">📦 Assigned Modules:</div>
+                            <div className="flex flex-wrap gap-2">
+                              {assignment.modules.map((module, mIdx) => {
+                                const moduleName = typeof module === 'string' ? module : module?.moduleName || module?.name || 'Module';
+                                return (
+                                  <span key={mIdx} className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium">
+                                    {moduleName}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Activities */}
+                        {assignment.activities && assignment.activities.length > 0 && (
+                          <div>
+                            <div className="font-semibold text-gray-700 text-sm mb-2">✅ Activities:</div>
+                            <ul className="list-disc list-inside space-y-1">
+                              {assignment.activities.map((activity, aIdx) => {
+                                const activityText = typeof activity === 'string' ? activity : activity?.description || activity?.name || 'Activity';
+                                return (
+                                  <li key={aIdx} className="text-sm text-gray-700 ml-2">{activityText}</li>
+                                );
+                              })}
+                            </ul>
+                          </div>
+                        )}
                       </div>
-
-                      {/* Responsibilities */}
-                      {assignment.responsibilities && assignment.responsibilities.length > 0 && (
-                        <div className="mb-3">
-                          <div className="font-semibold text-gray-700 text-sm mb-2">📌 Responsibilities:</div>
-                          <ul className="list-disc list-inside space-y-1">
-                            {assignment.responsibilities.map((resp, rIdx) => {
-                              const respText = typeof resp === 'string' ? resp : resp?.description || resp?.name || 'Responsibility';
-                              return (
-                                <li key={rIdx} className="text-sm text-gray-700 ml-2">{respText}</li>
-                              );
-                            })}
-                          </ul>
-                        </div>
-                      )}
-
-                      {/* Technologies */}
-                      {assignment.technologies && assignment.technologies.length > 0 && (
-                        <div className="mb-3">
-                          <div className="font-semibold text-gray-700 text-sm mb-2">💻 Technologies:</div>
-                          <div className="flex flex-wrap gap-2">
-                            {assignment.technologies.map((tech, tIdx) => {
-                              const techName = typeof tech === 'string' ? tech : tech?.name || 'Unknown Tech';
-                              return (
-                                <span key={tIdx} className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
-                                  {techName}
-                                </span>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Modules */}
-                      {assignment.modules && assignment.modules.length > 0 && (
-                        <div className="mb-3">
-                          <div className="font-semibold text-gray-700 text-sm mb-2">📦 Assigned Modules:</div>
-                          <div className="flex flex-wrap gap-2">
-                            {assignment.modules.map((module, mIdx) => {
-                              const moduleName = typeof module === 'string' ? module : module?.moduleName || module?.name || 'Module';
-                              return (
-                                <span key={mIdx} className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium">
-                                  {moduleName}
-                                </span>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Activities */}
-                      {assignment.activities && assignment.activities.length > 0 && (
-                        <div>
-                          <div className="font-semibold text-gray-700 text-sm mb-2">✅ Activities:</div>
-                          <ul className="list-disc list-inside space-y-1">
-                            {assignment.activities.map((activity, aIdx) => {
-                              const activityText = typeof activity === 'string' ? activity : activity?.description || activity?.name || 'Activity';
-                              return (
-                                <li key={aIdx} className="text-sm text-gray-700 ml-2">{activityText}</li>
-                              );
-                            })}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
