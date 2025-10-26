@@ -23,7 +23,7 @@ const ProjectAbstractForm = () => {
     projectTrack: "",
     githubRepo: "",
     tools: [{ name: "", version: "", type: "", purpose: "" }],
-    modules: [{ name: "", functionality: "" }],
+    modules: [{ name: "", functionality: "", description: "" }],
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -54,8 +54,12 @@ const ProjectAbstractForm = () => {
                 : [{ name: "", version: "", type: "", purpose: "" }],
             modules:
               data.modules && data.modules.length > 0
-                ? data.modules
-                : [{ name: "", functionality: "" }],
+                ? data.modules.map((m) => ({
+                  name: m?.name || "",
+                  functionality: m?.functionality || "",
+                  description: m?.description || "",
+                }))
+                : [{ name: "", functionality: "", description: "" }],
           });
         }
       } catch (error) {
@@ -121,7 +125,7 @@ const ProjectAbstractForm = () => {
   const addModule = () => {
     setFormData((prev) => ({
       ...prev,
-      modules: [...prev.modules, { name: "", functionality: "" }],
+      modules: [...prev.modules, { name: "", functionality: "", description: "" }],
     }));
   };
 
@@ -235,43 +239,41 @@ const ProjectAbstractForm = () => {
             {existingData && (
               <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 border rounded-md">
                 <FaCheckCircle
-                  className={`${
-                    existingData.status === "submitted"
+                  className={`${existingData.status === "submitted"
                       ? "text-blue-600"
                       : existingData.status === "rejected"
-                      ? "text-red-600"
-                      : existingData.status === "mentor_approved"
-                      ? "text-green-600"
-                      : existingData.status === "admin_approved"
-                      ? "text-green-600"
-                      : "text-yellow-600"
-                  }`}
+                        ? "text-red-600"
+                        : existingData.status === "mentor_approved"
+                          ? "text-green-600"
+                          : existingData.status === "admin_approved"
+                            ? "text-green-600"
+                            : "text-yellow-600"
+                    }`}
                 />
                 <span
-                  className={`font-medium text-sm ${
-                    existingData.status === "submitted"
+                  className={`font-medium text-sm ${existingData.status === "submitted"
                       ? "text-blue-800 bg-blue-50 border-blue-200"
                       : existingData.status === "rejected"
-                      ? "text-red-800 bg-red-50 border-red-200"
-                      : existingData.status === "mentor_approved"
-                      ? "text-green-800 bg-green-50 border-green-200"
-                      : existingData.status === "admin_approved"
-                      ? "text-green-800 bg-green-50 border-green-200"
-                      : "text-yellow-800 bg-yellow-50 border-yellow-200"
-                  }`}
+                        ? "text-red-800 bg-red-50 border-red-200"
+                        : existingData.status === "mentor_approved"
+                          ? "text-green-800 bg-green-50 border-green-200"
+                          : existingData.status === "admin_approved"
+                            ? "text-green-800 bg-green-50 border-green-200"
+                            : "text-yellow-800 bg-yellow-50 border-yellow-200"
+                    }`}
                 >
                   Status:{" "}
                   {existingData.status === "submitted"
                     ? "Submitted (Under Review)"
                     : existingData.status === "rejected"
-                    ? "Rejected (Can Edit)"
-                    : existingData.status === "mentor_approved"
-                    ? "Mentor Approved"
-                    : existingData.status === "admin_approved"
-                    ? "Admin Approved"
-                    : existingData.status === "draft"
-                    ? "Draft"
-                    : "Unknown"}
+                      ? "Rejected (Can Edit)"
+                      : existingData.status === "mentor_approved"
+                        ? "Mentor Approved"
+                        : existingData.status === "admin_approved"
+                          ? "Admin Approved"
+                          : existingData.status === "draft"
+                            ? "Draft"
+                            : "Unknown"}
                 </span>
                 {existingData.submittedAt && (
                   <span className="text-gray-700 text-xs sm:text-sm">
@@ -288,11 +290,10 @@ const ProjectAbstractForm = () => {
         {message.text && (
           <div className="mt-4 mb-4 w-full px-6 sm:px-8 md:px-10">
             <div
-              className={`p-4 sm:p-5 rounded-lg border flex items-start gap-2 ${
-                message.type === "success"
+              className={`p-4 sm:p-5 rounded-lg border flex items-start gap-2 ${message.type === "success"
                   ? "bg-green-50 border-green-200 text-green-800"
                   : "bg-red-50 border-red-200 text-red-800"
-              }`}
+                }`}
             >
               {message.type === "success" ? (
                 <FaCheckCircle className="mt-0.5 flex-shrink-0" />
@@ -318,11 +319,10 @@ const ProjectAbstractForm = () => {
                 onChange={handleInputChange}
                 disabled={!isEditable}
                 required
-                className={`w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none transition-all ${
-                  isEditable
+                className={`w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none transition-all ${isEditable
                     ? "focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                     : "bg-gray-100 cursor-not-allowed"
-                }`}
+                  }`}
               >
                 <option value="">Select project track</option>
                 {projectTracks.map((track) => (
@@ -401,11 +401,10 @@ const ProjectAbstractForm = () => {
                   disabled={!isEditable}
                   placeholder="https://github.com/username/repository-name"
                   required
-                  className={`w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none transition-all ${
-                    isEditable
+                  className={`w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none transition-all ${isEditable
                       ? "focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                       : "bg-gray-100 cursor-not-allowed"
-                  }`}
+                    }`}
                 />
                 <p className="mt-2 text-xs text-gray-600">
                   Paste the full URL of your GitHub repository (e.g.,
@@ -464,11 +463,10 @@ const ProjectAbstractForm = () => {
                         }
                         disabled={!isEditable}
                         required
-                        className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${
-                          isEditable
+                        className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${isEditable
                             ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                             : "bg-gray-100 cursor-not-allowed"
-                        }`}
+                          }`}
                       />
                     </div>
                     <div>
@@ -483,11 +481,10 @@ const ProjectAbstractForm = () => {
                           handleToolChange(index, "version", e.target.value)
                         }
                         disabled={!isEditable}
-                        className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${
-                          isEditable
+                        className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${isEditable
                             ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                             : "bg-gray-100 cursor-not-allowed"
-                        }`}
+                          }`}
                       />
                     </div>
                     <div>
@@ -502,11 +499,10 @@ const ProjectAbstractForm = () => {
                           handleToolChange(index, "type", e.target.value)
                         }
                         disabled={!isEditable}
-                        className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${
-                          isEditable
+                        className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${isEditable
                             ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                             : "bg-gray-100 cursor-not-allowed"
-                        }`}
+                          }`}
                       />
                     </div>
                     <div>
@@ -522,11 +518,10 @@ const ProjectAbstractForm = () => {
                             handleToolChange(index, "purpose", e.target.value)
                           }
                           disabled={!isEditable}
-                          className={`flex-1 border border-gray-300 rounded-lg px-3 py-2 transition-all ${
-                            isEditable
+                          className={`flex-1 border border-gray-300 rounded-lg px-3 py-2 transition-all ${isEditable
                               ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                               : "bg-gray-100 cursor-not-allowed"
-                          }`}
+                            }`}
                         />
                         {formData.tools.length > 1 && isEditable && (
                           <button
@@ -582,11 +577,10 @@ const ProjectAbstractForm = () => {
                         }
                         disabled={!isEditable}
                         required
-                        className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${
-                          isEditable
+                        className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${isEditable
                             ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                             : "bg-gray-100 cursor-not-allowed"
-                        }`}
+                          }`}
                       />
                     </div>
                     <div>
@@ -606,11 +600,10 @@ const ProjectAbstractForm = () => {
                             )
                           }
                           disabled={!isEditable}
-                          className={`flex-1 border border-gray-300 rounded-lg px-3 py-2 transition-all ${
-                            isEditable
+                          className={`flex-1 border border-gray-300 rounded-lg px-3 py-2 transition-all ${isEditable
                               ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                               : "bg-gray-100 cursor-not-allowed"
-                          }`}
+                            }`}
                         />
                         {formData.modules.length > 1 && isEditable && (
                           <button
@@ -622,6 +615,25 @@ const ProjectAbstractForm = () => {
                             <FaTrash className="w-4 h-4" />
                           </button>
                         )}
+                      </div>
+                      {/* Optional Description for the module */}
+                      <div className="mt-3">
+                        <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+                          Description <span className="text-xs text-gray-500">(optional)</span>
+                        </label>
+                        <textarea
+                          placeholder="Optional: Describe the module in more detail (responsibilities, constraints, dependencies)"
+                          value={module.description || ""}
+                          onChange={(e) =>
+                            handleModuleChange(index, "description", e.target.value)
+                          }
+                          disabled={!isEditable}
+                          rows={3}
+                          className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${isEditable
+                              ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                              : "bg-gray-100 cursor-not-allowed"
+                            }`}
+                        />
                       </div>
                     </div>
                   </div>

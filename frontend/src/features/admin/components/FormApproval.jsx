@@ -142,6 +142,14 @@ const FormApproval = () => {
     const form = team[formType];
     if (!form) return null;
 
+    // Compute fallbacks for fields that may be stored under different keys depending on submission shape
+    const projectTitle =
+      form.projectTitle || form.project?.title || team.finalProject?.title || (team.projectChoices && team.projectChoices[0]?.title) || "N/A";
+    const projectCategory =
+      form.projectCategory || form.project?.category || team.finalProject?.category || (team.projectChoices && team.projectChoices[0]?.category) || "N/A";
+    const numberOfModules =
+      form.numberOfModules || (form.modules && form.modules.length) || (team.projectAbstract && team.projectAbstract.modules && team.projectAbstract.modules.length) || "N/A";
+
     return (
       <div className="bg-gray-50 rounded-lg p-4 mt-3">
         <div className="grid grid-cols-2 gap-4 text-sm">
@@ -220,19 +228,19 @@ const FormApproval = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <span className="font-semibold text-gray-700">Project Title:</span>
-                    <p className="text-gray-900 mt-1">{form.projectTitle || 'N/A'}</p>
+                    <p className="text-gray-900 mt-1">{projectTitle}</p>
                   </div>
                   <div>
                     <span className="font-semibold text-gray-700">Project Track:</span>
-                    <p className="text-gray-900 mt-1">{form.projectTrack || 'N/A'}</p>
+                    <p className="text-gray-900 mt-1">{form.projectTrack || form.project?.track || 'N/A'}</p>
                   </div>
                   <div>
                     <span className="font-semibold text-gray-700">Project Category:</span>
-                    <p className="text-gray-900 mt-1">{form.projectCategory || 'N/A'}</p>
+                    <p className="text-gray-900 mt-1">{projectCategory}</p>
                   </div>
                   <div>
                     <span className="font-semibold text-gray-700">Number of Modules:</span>
-                    <p className="text-gray-900 mt-1">{form.numberOfModules || 'N/A'}</p>
+                    <p className="text-gray-900 mt-1">{numberOfModules}</p>
                   </div>
                 </div>
                 {form.githubRepo && (
