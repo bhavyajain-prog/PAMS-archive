@@ -32,6 +32,7 @@ import ViewScore from "./features/student/components/ViewScore";
 import MentorPortal from "./features/mentor/components/MentorPortal";
 import TeamSelection from "./features/mentor/components/TeamSelection";
 import MentorDocumentReview from "./features/mentor/components/MentorDocumentReview";
+import ProgressTracking from "./features/mentor/components/ProgressTracking";
 
 import AdminPortal from "./features/admin/components/AdminPortal";
 import AdminUpload from "./features/admin/components/AdminUpload";
@@ -232,6 +233,14 @@ const AppLayout = () => {
             element={
               <RoleBasedRoute roles={["mentor"]}>
                 <MentorDocumentReview />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/mentor/progress-tracking"
+            element={
+              <RoleBasedRoute roles={["mentor"]}>
+                <ProgressTracking />
               </RoleBasedRoute>
             }
           />

@@ -845,4 +845,81 @@ router.get(
   })
 );
 
+// Mentor: Get teams progress tracking data
+router.get(
+  "/mentor/teams-progress",
+  authenticate,
+  authorizeRoles("mentor"),
+  asyncHandler(async (req, res) => {
+    try {
+      // Find teams assigned to this mentor
+      const teams = await Team.find({ "mentor.assigned": req.user._id })
+        .select(
+          "code batch department leader members evaluation.weeklyStatus finalProject projectTimeline"
+        )
+        .populate("leader", "name email")
+        .populate("members.student", "name email")
+        .populate("finalProject", "title category")
+        .populate({
+          path: "evaluation.weeklyStatus.submittedBy",
+          select: "name email",
+        })
+        .lean();
+
+      // Format teams data with weekly status
+      const formattedTeams = teams.map((team) => {
+        const weeklyStatus = team.evaluation?.weeklyStatus || [];
+
+        // Format weekly status (exclude sensitive file paths)
+        const formattedWeeklyStatus = weeklyStatus.map((submission) => ({
+          _id: submission._id,
+          week: submission.week,
+          dateRange: submission.dateRange,
+          module: submission.module,
+          progress: submission.progress,
+          achievements: submission.achievements,
+          challenges: submission.challenges,
+          studentRemarks: submission.studentRemarks,
+          projectFile: submission.projectFile
+            ? {
+              originalName: submission.projectFile.originalName,
+              filename: submission.projectFile.filename,
+              size: submission.projectFile.size,
+              uploadedAt: submission.projectFile.uploadedAt,
+            }
+            : null,
+          status: submission.status || "submitted",
+          mentorScore: submission.mentorScore,
+          mentorComments: submission.mentorComments,
+          submittedAt: submission.submittedAt,
+          submittedBy: submission.submittedBy,
+          scoredAt: submission.scoredAt,
+        }));
+
+        return {
+          _id: team._id,
+          code: team.code,
+          batch: team.batch,
+          department: team.department,
+          leader: team.leader,
+          members: team.members,
+          finalProject: team.finalProject,
+          weeklyStatus: formattedWeeklyStatus,
+          hasTimeline: Boolean(team.projectTimeline),
+        };
+      });
+
+      res.status(200).json({
+        teams: formattedTeams,
+      });
+    } catch (error) {
+      console.error("Error fetching teams progress:", error);
+      res.status(500).json({
+        message: "Failed to fetch progress data",
+        error: error.message,
+      });
+    }
+  })
+);
+
 module.exports = router;

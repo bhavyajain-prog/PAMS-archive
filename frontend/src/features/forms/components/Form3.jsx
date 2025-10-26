@@ -148,6 +148,17 @@ const WeeklyStatusMatrix = () => {
                 studentRemarks: currentWeekSubmission.studentRemarks || "",
               });
               setExistingData(currentWeekSubmission);
+
+              // Show approval message if mentor approved
+              if (currentWeekSubmission.status === "mentor_approved") {
+                showMessage(
+                  "success",
+                  `Week ${currentWeekSubmission.week} status has been approved by your mentor!${currentWeekSubmission.mentorScore
+                    ? ` Score: ${currentWeekSubmission.mentorScore}/10`
+                    : ""
+                  }`
+                );
+              }
             }
           }
         } catch (error) {
@@ -383,8 +394,8 @@ const WeeklyStatusMatrix = () => {
               {message.text && (
                 <div
                   className={`p-4 rounded-lg border ${message.type === "success"
-                      ? "bg-green-50 border-green-200 text-green-800"
-                      : "bg-red-50 border-red-200 text-red-800"
+                    ? "bg-green-50 border-green-200 text-green-800"
+                    : "bg-red-50 border-red-200 text-red-800"
                     }`}
                 >
                   {message.text}
@@ -452,8 +463,8 @@ const WeeklyStatusMatrix = () => {
           <div className="mt-4 mb-4 w-full px-6 sm:px-8 md:px-10">
             <div
               className={`p-4 sm:p-5 rounded-lg border flex items-start gap-2 ${message.type === "success"
-                  ? "bg-green-50 border-green-200 text-green-800"
-                  : "bg-red-50 border-red-200 text-red-800"
+                ? "bg-green-50 border-green-200 text-green-800"
+                : "bg-red-50 border-red-200 text-red-800"
                 }`}
             >
               {message.type === "success" ? (
@@ -469,6 +480,71 @@ const WeeklyStatusMatrix = () => {
         {/* Form Content */}
         <div className="bg-white rounded-b-xl shadow-lg p-8">
           <div className="space-y-8">
+            {/* Current Submission Status Banner */}
+            {existingData && (
+              <div
+                className={`rounded-lg p-4 border-2 ${existingData.status === "mentor_approved"
+                    ? "bg-green-50 border-green-300"
+                    : existingData.status === "rejected"
+                      ? "bg-red-50 border-red-300"
+                      : "bg-yellow-50 border-yellow-300"
+                  }`}
+              >
+                <div className="flex items-start gap-3">
+                  {existingData.status === "mentor_approved" ? (
+                    <FaCheckCircle className="text-green-600 text-xl mt-0.5 flex-shrink-0" />
+                  ) : existingData.status === "rejected" ? (
+                    <FaExclamationTriangle className="text-red-600 text-xl mt-0.5 flex-shrink-0" />
+                  ) : (
+                    <FaClock className="text-yellow-600 text-xl mt-0.5 flex-shrink-0" />
+                  )}
+                  <div className="flex-1">
+                    <h3
+                      className={`font-semibold text-lg mb-1 ${existingData.status === "mentor_approved"
+                          ? "text-green-800"
+                          : existingData.status === "rejected"
+                            ? "text-red-800"
+                            : "text-yellow-800"
+                        }`}
+                    >
+                      {existingData.status === "mentor_approved"
+                        ? "✓ Week Approved"
+                        : existingData.status === "rejected"
+                          ? "Needs Resubmission"
+                          : "Pending Mentor Review"}
+                    </h3>
+                    <p
+                      className={`text-sm ${existingData.status === "mentor_approved"
+                          ? "text-green-700"
+                          : existingData.status === "rejected"
+                            ? "text-red-700"
+                            : "text-yellow-700"
+                        }`}
+                    >
+                      {existingData.status === "mentor_approved"
+                        ? `Your Week ${existingData.week} submission has been approved by your mentor.${existingData.mentorScore
+                          ? ` Score: ${existingData.mentorScore}/10`
+                          : ""
+                        }`
+                        : existingData.status === "rejected"
+                          ? `Your Week ${existingData.week} submission was rejected. Please review the feedback and resubmit.`
+                          : `Your Week ${existingData.week} submission is awaiting mentor review.`}
+                    </p>
+                    {existingData.mentorComments && (
+                      <div className="mt-2 p-3 bg-white rounded border border-gray-200">
+                        <p className="text-sm font-semibold text-gray-700 mb-1">
+                          Mentor Feedback:
+                        </p>
+                        <p className="text-sm text-gray-600 whitespace-pre-wrap">
+                          {existingData.mentorComments}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Week Information */}
             <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-lg p-6 border border-teal-200">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -692,31 +768,42 @@ const WeeklyStatusMatrix = () => {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6 border-t border-gray-200">
-              <button
-                onClick={handleSubmit}
-                disabled={submitting}
-                className="px-8 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold rounded-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
-              >
-                {submitting ? (
-                  <>
-                    <FaSpinner className="animate-spin" />
-                    Submitting...
-                  </>
-                ) : (
-                  <>
-                    <FaSave />
-                    Submit Week {formData.week} Status
-                  </>
-                )}
-              </button>
-              <button
-                onClick={handleReset}
-                disabled={submitting}
-                className="px-8 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
-              >
-                <FaUndo />
-                Reset Form
-              </button>
+              {existingData?.status === "mentor_approved" ? (
+                <div className="text-center py-2">
+                  <p className="text-green-700 font-medium flex items-center justify-center gap-2">
+                    <FaCheckCircle className="text-green-600" />
+                    This week&apos;s submission has been approved. No further action needed.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <button
+                    onClick={handleSubmit}
+                    disabled={submitting || existingData?.status === "mentor_approved"}
+                    className="px-8 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold rounded-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
+                  >
+                    {submitting ? (
+                      <>
+                        <FaSpinner className="animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <FaSave />
+                        Submit Week {formData.week} Status
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={handleReset}
+                    disabled={submitting}
+                    className="px-8 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
+                  >
+                    <FaUndo />
+                    Reset Form
+                  </button>
+                </>
+              )}
             </div>
 
             {/* Previous Submissions */}

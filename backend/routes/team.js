@@ -825,6 +825,60 @@ router.post(
   })
 );
 
+// Download weekly status file
+router.get(
+  "/:teamId/weekly-status/:week/download",
+  authenticate,
+  authorizeRoles("student", "mentor", "admin", "sub-admin"),
+  asyncHandler(async (req, res) => {
+    const { teamId, week } = req.params;
+    const weekNumber = parseInt(week);
+
+    // Find the team
+    const team = await Team.findById(teamId);
+    if (!team) {
+      return res.status(404).json({ message: "Team not found" });
+    }
+
+    // Check authorization
+    const isMentor = req.user.role === "mentor" && team.mentor?.assigned?.toString() === req.user._id.toString();
+    const isAdmin = ["admin", "sub-admin"].includes(req.user.role);
+    const isTeamMember =
+      team.leader.toString() === req.user._id.toString() ||
+      team.members.some((m) => m.student.toString() === req.user._id.toString());
+
+    if (!isMentor && !isAdmin && !isTeamMember) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    // Find the weekly status submission
+    const weeklySubmission = team.evaluation?.weeklyStatus?.find(
+      (w) => w.week === weekNumber
+    );
+
+    if (!weeklySubmission) {
+      return res.status(404).json({ message: "Weekly status not found for this week" });
+    }
+
+    if (!weeklySubmission.projectFile || !weeklySubmission.projectFile.path) {
+      return res.status(404).json({ message: "No file attached to this weekly status" });
+    }
+
+    // Check if file exists
+    if (!fs.existsSync(weeklySubmission.projectFile.path)) {
+      return res.status(404).json({ message: "File not found on server" });
+    }
+
+    // Send file
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${weeklySubmission.projectFile.filename}"`
+    );
+    res.sendFile(path.resolve(weeklySubmission.projectFile.path));
+  })
+);
+
 router.put(
   "/weekly-status/:week",
   authenticate,
@@ -912,6 +966,110 @@ router.put(
     res.status(200).json({
       message: `Week ${week} status updated successfully`,
       weeklyStatus: team.evaluation.weeklyStatus,
+    });
+  })
+);
+
+// Approve weekly status (Mentor only)
+router.put(
+  "/:teamId/weekly-status/:week/approve",
+  authenticate,
+  authorizeRoles("mentor"),
+  asyncHandler(async (req, res) => {
+    const { teamId, week } = req.params;
+    const weekNumber = parseInt(week);
+
+    // Find the team
+    const team = await Team.findById(teamId);
+    if (!team) {
+      return res.status(404).json({ message: "Team not found" });
+    }
+
+    // Check if mentor is assigned to this team
+    if (!team.mentor?.assigned || team.mentor.assigned.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "You are not assigned to this team" });
+    }
+
+    // Find the weekly status submission
+    const weeklyStatus = team.evaluation?.weeklyStatus?.find(
+      (w) => w.week === weekNumber
+    );
+
+    if (!weeklyStatus) {
+      return res.status(404).json({ message: "Weekly status not found for this week" });
+    }
+
+    if (weeklyStatus.status === "mentor_approved") {
+      return res.status(400).json({ message: "This weekly status is already approved" });
+    }
+
+    // Update status to approved
+    weeklyStatus.status = "mentor_approved";
+    weeklyStatus.scoredAt = new Date();
+
+    await team.save();
+
+    res.status(200).json({
+      message: `Week ${week} status approved successfully`,
+      weeklyStatus,
+    });
+  })
+);
+
+// Reject weekly status (Mentor only)
+router.put(
+  "/:teamId/weekly-status/:week/reject",
+  authenticate,
+  authorizeRoles("mentor"),
+  asyncHandler(async (req, res) => {
+    const { teamId, week } = req.params;
+    const { reason } = req.body;
+    const weekNumber = parseInt(week);
+
+    // Find the team
+    const team = await Team.findById(teamId);
+    if (!team) {
+      return res.status(404).json({ message: "Team not found" });
+    }
+
+    // Check if mentor is assigned to this team
+    if (!team.mentor?.assigned || team.mentor.assigned.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "You are not assigned to this team" });
+    }
+
+    // Find the weekly status submission
+    const weeklyStatusIndex = team.evaluation?.weeklyStatus?.findIndex(
+      (w) => w.week === weekNumber
+    );
+
+    if (weeklyStatusIndex === -1) {
+      return res.status(404).json({ message: "Weekly status not found for this week" });
+    }
+
+    const weeklyStatus = team.evaluation.weeklyStatus[weeklyStatusIndex];
+
+    // Delete the existing file if present
+    if (weeklyStatus.projectFile?.path) {
+      const fs = require("fs");
+      if (fs.existsSync(weeklyStatus.projectFile.path)) {
+        fs.unlinkSync(weeklyStatus.projectFile.path);
+      }
+    }
+
+    // Remove the weekly status entry so student can resubmit
+    team.evaluation.weeklyStatus.splice(weeklyStatusIndex, 1);
+
+    // Optionally, you can keep a record in a rejections array or send notification
+    // For now, we'll just remove it and the student will see it's missing
+
+    await team.save();
+
+    // TODO: Send notification to student about rejection
+    // You can implement email notification here
+
+    res.status(200).json({
+      message: `Week ${week} status rejected. Student can now resubmit.`,
+      reason: reason ? reason.trim() : null,
     });
   })
 );

@@ -108,7 +108,6 @@ export default function MentorPortal() {
             title="Progress Tracking"
             description="Monitor weekly progress reports and track team development over time."
             icon={<FaChartLine />}
-            disabled={true}
           />
           <MentorActionCard
             to="/mentor/feedback"

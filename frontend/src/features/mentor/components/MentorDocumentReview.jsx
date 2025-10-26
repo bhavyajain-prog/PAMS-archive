@@ -242,7 +242,7 @@ const MentorDocumentReview = () => {
                   <div className="flex flex-wrap gap-1.5">
                     {document.data.tools.map((tool, idx) => (
                       <span key={idx} className="px-2 py-1 bg-teal-100 text-teal-800 rounded text-xs">
-                        {tool}
+                        {typeof tool === 'string' ? tool : tool.name || 'Unknown'}
                       </span>
                     ))}
                   </div>
