@@ -24,6 +24,8 @@ const WeeklyStatusMatrix = () => {
   const [availableModules, setAvailableModules] = useState([]);
   const [currentWeekInfo, setCurrentWeekInfo] = useState(null);
   const [hasTimeline, setHasTimeline] = useState(false);
+  const [zipFile, setZipFile] = useState(null);
+  const [zipFileName, setZipFileName] = useState("");
 
   const initialFormState = {
     week: 1,
@@ -202,6 +204,40 @@ const WeeklyStatusMatrix = () => {
     }));
   };
 
+  const handleZipFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setZipFile(null);
+      setZipFileName("");
+      return;
+    }
+
+    // Validate file type
+    const fileExtension = file.name.toLowerCase().split('.').pop();
+    const isZip = fileExtension === 'zip' || file.type === 'application/zip' || file.type === 'application/x-zip-compressed';
+
+    if (!isZip) {
+      showMessage("error", "Only ZIP files are allowed. Please upload a .zip file.");
+      e.target.value = ""; // Clear the input
+      setZipFile(null);
+      setZipFileName("");
+      return;
+    }
+
+    // Validate file size (50MB limit)
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    if (file.size > maxSize) {
+      showMessage("error", "File size must be less than 50MB");
+      e.target.value = "";
+      setZipFile(null);
+      setZipFileName("");
+      return;
+    }
+
+    setZipFile(file);
+    setZipFileName(file.name);
+  };
+
   const validateForm = () => {
     if (!formData.module.trim()) {
       showMessage("error", "Please select a module");
@@ -234,17 +270,25 @@ const WeeklyStatusMatrix = () => {
     try {
       setSubmitting(true);
 
-      const submitData = {
-        week: formData.week,
-        dateRange: formData.dateRange,
-        module: formData.module,
-        progress: formData.progress.trim(),
-        achievements: formData.achievements.filter((a) => a.trim()),
-        challenges: formData.challenges.filter((c) => c.trim()),
-        studentRemarks: formData.studentRemarks.trim(),
-      };
+      const submitData = new FormData();
+      submitData.append("week", formData.week);
+      submitData.append("dateRange", JSON.stringify(formData.dateRange));
+      submitData.append("module", formData.module);
+      submitData.append("progress", formData.progress.trim());
+      submitData.append("achievements", JSON.stringify(formData.achievements.filter((a) => a.trim())));
+      submitData.append("challenges", JSON.stringify(formData.challenges.filter((c) => c.trim())));
+      submitData.append("studentRemarks", formData.studentRemarks.trim());
 
-      const response = await axios.post("/team/weekly-status", submitData);
+      // Append zip file if present
+      if (zipFile) {
+        submitData.append("projectFile", zipFile);
+      }
+
+      const response = await axios.post("/team/weekly-status", submitData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       showMessage(
         "success",
@@ -257,15 +301,17 @@ const WeeklyStatusMatrix = () => {
         week: currentWeekInfo?.currentWeek || 1,
         dateRange: currentWeekInfo?.dateRange
           ? {
-              from: new Date(currentWeekInfo.dateRange.from)
-                .toISOString()
-                .slice(0, 10),
-              to: new Date(currentWeekInfo.dateRange.to)
-                .toISOString()
-                .slice(0, 10),
-            }
+            from: new Date(currentWeekInfo.dateRange.from)
+              .toISOString()
+              .slice(0, 10),
+            to: new Date(currentWeekInfo.dateRange.to)
+              .toISOString()
+              .slice(0, 10),
+          }
           : { from: "", to: "" },
       });
+      setZipFile(null);
+      setZipFileName("");
     } catch (error) {
       console.error("Submission error:", error);
       const errorMessage =
@@ -283,15 +329,17 @@ const WeeklyStatusMatrix = () => {
       week: currentWeekInfo?.currentWeek || 1,
       dateRange: currentWeekInfo?.dateRange
         ? {
-            from: new Date(currentWeekInfo.dateRange.from)
-              .toISOString()
-              .slice(0, 10),
-            to: new Date(currentWeekInfo.dateRange.to)
-              .toISOString()
-              .slice(0, 10),
-          }
+          from: new Date(currentWeekInfo.dateRange.from)
+            .toISOString()
+            .slice(0, 10),
+          to: new Date(currentWeekInfo.dateRange.to)
+            .toISOString()
+            .slice(0, 10),
+        }
         : { from: "", to: "" },
     });
+    setZipFile(null);
+    setZipFileName("");
     setMessage({ type: "", text: "" });
   };
 
@@ -334,11 +382,10 @@ const WeeklyStatusMatrix = () => {
               </div>
               {message.text && (
                 <div
-                  className={`p-4 rounded-lg border ${
-                    message.type === "success"
+                  className={`p-4 rounded-lg border ${message.type === "success"
                       ? "bg-green-50 border-green-200 text-green-800"
                       : "bg-red-50 border-red-200 text-red-800"
-                  }`}
+                    }`}
                 >
                   {message.text}
                 </div>
@@ -404,11 +451,10 @@ const WeeklyStatusMatrix = () => {
         {message.text && (
           <div className="mt-4 mb-4 w-full px-6 sm:px-8 md:px-10">
             <div
-              className={`p-4 sm:p-5 rounded-lg border flex items-start gap-2 ${
-                message.type === "success"
+              className={`p-4 sm:p-5 rounded-lg border flex items-start gap-2 ${message.type === "success"
                   ? "bg-green-50 border-green-200 text-green-800"
                   : "bg-red-50 border-red-200 text-red-800"
-              }`}
+                }`}
             >
               {message.type === "success" ? (
                 <FaCheckCircle className="mt-0.5 flex-shrink-0" />
@@ -617,6 +663,31 @@ const WeeklyStatusMatrix = () => {
                 Optional: Share any additional thoughts, learnings, or plans for
                 next week.
               </p>
+            </div>
+
+            {/* Project File Upload (ZIP) */}
+            <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-lg p-6 border-2 border-teal-200">
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                <FaPlus className="inline mr-2" />
+                Project File Upload (Optional)
+              </label>
+              <div className="flex flex-col gap-3">
+                <input
+                  type="file"
+                  accept=".zip"
+                  onChange={handleZipFileChange}
+                  className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-600 file:text-white hover:file:bg-teal-700 file:cursor-pointer cursor-pointer"
+                />
+                {zipFileName && (
+                  <div className="flex items-center gap-2 text-sm text-teal-700 bg-teal-100 px-3 py-2 rounded-lg">
+                    <FaCheckCircle className="text-teal-600" />
+                    <span className="font-medium">{zipFileName}</span>
+                  </div>
+                )}
+                <p className="text-xs text-gray-600">
+                  Upload your project files as a ZIP archive (max 50MB). Only .zip files are accepted.
+                </p>
+              </div>
             </div>
 
             {/* Action Buttons */}

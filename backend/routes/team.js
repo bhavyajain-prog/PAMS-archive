@@ -338,15 +338,15 @@ router.put(
         modules: assignment.modules,
         activities: assignment.activities
           ? assignment.activities.map((activity) => ({
-              name: activity.name,
-              softDeadline: activity.softDeadline
-                ? new Date(activity.softDeadline)
-                : null,
-              hardDeadline: activity.hardDeadline
-                ? new Date(activity.hardDeadline)
-                : null,
-              details: activity.details || "",
-            }))
+            name: activity.name,
+            softDeadline: activity.softDeadline
+              ? new Date(activity.softDeadline)
+              : null,
+            hardDeadline: activity.hardDeadline
+              ? new Date(activity.hardDeadline)
+              : null,
+            details: activity.details || "",
+          }))
           : [],
       })),
       submittedAt: new Date(),
@@ -540,11 +540,11 @@ router.get(
         studentRemarks: submission.studentRemarks,
         projectFile: submission.projectFile
           ? {
-              originalName: submission.projectFile.originalName,
-              filename: submission.projectFile.filename,
-              size: submission.projectFile.size,
-              uploadedAt: submission.projectFile.uploadedAt,
-            }
+            originalName: submission.projectFile.originalName,
+            filename: submission.projectFile.filename,
+            size: submission.projectFile.size,
+            uploadedAt: submission.projectFile.uploadedAt,
+          }
           : null,
         status: submission.status || "submitted",
         mentorScore: submission.mentorScore || null,
@@ -568,7 +568,7 @@ router.post(
   authorizeRoles("student"),
   weeklyUpload.single("projectFile"),
   asyncHandler(async (req, res) => {
-    const {
+    let {
       week,
       dateRange,
       module,
@@ -577,6 +577,27 @@ router.post(
       challenges,
       studentRemarks,
     } = req.body;
+
+    // Parse JSON strings from FormData
+    try {
+      if (typeof dateRange === 'string') {
+        dateRange = JSON.parse(dateRange);
+      }
+      if (typeof achievements === 'string') {
+        achievements = JSON.parse(achievements);
+      }
+      if (typeof challenges === 'string') {
+        challenges = JSON.parse(challenges);
+      }
+    } catch (error) {
+      // Clean up uploaded file if parsing fails
+      if (req.file) {
+        fs.unlink(req.file.path, () => { });
+      }
+      return res.status(400).json({
+        message: "Invalid JSON format in request data",
+      });
+    }
 
     // Validate required fields
     if (
@@ -589,7 +610,7 @@ router.post(
     ) {
       // Clean up uploaded file if validation fails
       if (req.file) {
-        fs.unlink(req.file.path, () => {});
+        fs.unlink(req.file.path, () => { });
       }
       return res.status(400).json({
         message: "All required fields must be provided",
@@ -604,18 +625,16 @@ router.post(
       });
     }
 
-    // Validate that project file is uploaded
-    if (!req.file) {
-      return res.status(400).json({
-        message: "Project file (.zip) is required",
-      });
-    }
+    // File upload is now optional - no validation required
+    // If file is uploaded, it will be processed below
 
     // Find the student's team
     const student = await User.findById(req.user._id);
     if (!student || !student.studentData?.currentTeam) {
-      // Clean up uploaded file
-      fs.unlink(req.file.path, () => {});
+      // Clean up uploaded file if present
+      if (req.file) {
+        fs.unlink(req.file.path, () => { });
+      }
       return res
         .status(404)
         .json({ message: "No team found for this student" });
@@ -626,8 +645,10 @@ router.post(
       .populate("members.student", "studentData.rollNumber");
 
     if (!team) {
-      // Clean up uploaded file
-      fs.unlink(req.file.path, () => {});
+      // Clean up uploaded file if present
+      if (req.file) {
+        fs.unlink(req.file.path, () => { });
+      }
       return res.status(404).json({ message: "Team not found" });
     }
 
@@ -638,17 +659,21 @@ router.post(
     );
 
     if (!isLeader && !isMember) {
-      // Clean up uploaded file
-      fs.unlink(req.file.path, () => {});
+      // Clean up uploaded file if present
+      if (req.file) {
+        fs.unlink(req.file.path, () => { });
+      }
       return res.status(403).json({
-        message: "Only team members can submit weekly status",
+        message: "Only team leader or team members can submit weekly status",
       });
     }
 
     // Check timeline access
     if (!checkTeamTimelineAccess(team)) {
-      // Clean up uploaded file
-      fs.unlink(req.file.path, () => {});
+      // Clean up uploaded file if present
+      if (req.file) {
+        fs.unlink(req.file.path, () => { });
+      }
       return res.status(403).json({
         message:
           "Weekly status access denied. Project timeline not assigned yet.",
@@ -659,8 +684,10 @@ router.post(
     // Validate week number against current week
     const currentWeek = calculateCurrentWeek(team.projectTimeline.startDate);
     if (week > currentWeek) {
-      // Clean up uploaded file
-      fs.unlink(req.file.path, () => {});
+      // Clean up uploaded file if present
+      if (req.file) {
+        fs.unlink(req.file.path, () => { });
+      }
       return res.status(400).json({
         message: `Cannot submit for future weeks. Current week is ${currentWeek}`,
         currentWeek,
@@ -669,8 +696,10 @@ router.post(
     }
 
     if (week < 1 || week > team.projectTimeline.weekDuration) {
-      // Clean up uploaded file
-      fs.unlink(req.file.path, () => {});
+      // Clean up uploaded file if present
+      if (req.file) {
+        fs.unlink(req.file.path, () => { });
+      }
       return res.status(400).json({
         message: `Invalid week number. Must be between 1 and ${Math.min(
           currentWeek,
@@ -691,8 +720,10 @@ router.post(
     );
 
     if (existingSubmission) {
-      // Clean up uploaded file
-      fs.unlink(req.file.path, () => {});
+      // Clean up uploaded file if present
+      if (req.file) {
+        fs.unlink(req.file.path, () => { });
+      }
       return res.status(400).json({
         message: `Week ${week} status has already been submitted`,
       });
@@ -709,36 +740,50 @@ router.post(
     }
 
     if (!availableModules.includes(module)) {
-      // Clean up uploaded file
-      fs.unlink(req.file.path, () => {});
+      // Clean up uploaded file if present
+      if (req.file) {
+        fs.unlink(req.file.path, () => { });
+      }
       return res.status(400).json({
         message: "Selected module is not available in your role specification",
       });
     }
 
-    // Get user's roll number for filename
-    const userRollNumber = student.studentData?.rollNumber;
-    if (!userRollNumber) {
-      // Clean up uploaded file
-      fs.unlink(req.file.path, () => {});
-      return res.status(400).json({
-        message: "Student roll number not found",
-      });
-    }
+    // Prepare file information object (if file was uploaded)
+    let projectFileData = null;
+    if (req.file) {
+      // Get user's roll number for filename
+      const userRollNumber = student.studentData?.rollNumber;
+      if (!userRollNumber) {
+        // Clean up uploaded file
+        fs.unlink(req.file.path, () => { });
+        return res.status(400).json({
+          message: "Student roll number not found",
+        });
+      }
 
-    // Create proper filename: rollno_teamcode_weekX.zip
-    const properFilename = `${userRollNumber}_${team.code}_week${week}.zip`;
-    const newFilePath = path.join(path.dirname(req.file.path), properFilename);
+      // Create proper filename: rollno_teamcode_weekX.zip
+      const properFilename = `${userRollNumber}_${team.code}_week${week}.zip`;
+      const newFilePath = path.join(path.dirname(req.file.path), properFilename);
 
-    try {
-      // Rename file to proper format
-      fs.renameSync(req.file.path, newFilePath);
-    } catch (error) {
-      // Clean up uploaded file
-      fs.unlink(req.file.path, () => {});
-      return res.status(500).json({
-        message: "Error processing uploaded file",
-      });
+      try {
+        // Rename file to proper format
+        fs.renameSync(req.file.path, newFilePath);
+
+        // Set file data for saving
+        projectFileData = {
+          originalName: req.file.originalname,
+          filename: properFilename,
+          path: newFilePath,
+          size: req.file.size,
+        };
+      } catch (error) {
+        // Clean up uploaded file
+        fs.unlink(req.file.path, () => { });
+        return res.status(500).json({
+          message: "Error processing uploaded file",
+        });
+      }
     }
 
     // Create new weekly status entry
@@ -756,14 +801,8 @@ router.post(
       challenges: challenges.filter((c) => c && c.trim()).map((c) => c.trim()),
       studentRemarks: studentRemarks ? studentRemarks.trim() : "",
 
-      // File information
-      projectFile: {
-        originalName: req.file.originalname,
-        filename: properFilename,
-        path: newFilePath,
-        size: req.file.size,
-        uploadedAt: new Date(),
-      },
+      // File information (only if file was uploaded)
+      ...(projectFileData && { projectFile: projectFileData }),
 
       // Initial status
       status: "submitted",
@@ -842,9 +881,9 @@ router.put(
       ...team.evaluation.weeklyStatus[weeklyStatusIndex],
       dateRange: dateRange
         ? {
-            from: new Date(dateRange.from),
-            to: new Date(dateRange.to),
-          }
+          from: new Date(dateRange.from),
+          to: new Date(dateRange.to),
+        }
         : team.evaluation.weeklyStatus[weeklyStatusIndex].dateRange,
       module: module
         ? module.trim()
@@ -1161,16 +1200,14 @@ router.post(
       // Generate default message based on action and role
       const defaultMessage =
         action === "approve"
-          ? `${
-              formType === "projectAbstract"
-                ? "Project Abstract (Form 1)"
-                : "Role Specification (Form 2)"
-            } has been approved by Admin.`
-          : `${
-              formType === "projectAbstract"
-                ? "Project Abstract (Form 1)"
-                : "Role Specification (Form 2)"
-            } has been rejected by Admin. Please review and resubmit.`;
+          ? `${formType === "projectAbstract"
+            ? "Project Abstract (Form 1)"
+            : "Role Specification (Form 2)"
+          } has been approved by Admin.`
+          : `${formType === "projectAbstract"
+            ? "Project Abstract (Form 1)"
+            : "Role Specification (Form 2)"
+          } has been rejected by Admin. Please review and resubmit.`;
 
       // Combine default message with custom message if provided
       const finalMessage = customMessage
@@ -1253,16 +1290,14 @@ router.post(
       // Generate default message based on action and role
       const defaultMessage =
         action === "approve"
-          ? `${
-              formType === "projectAbstract"
-                ? "Project Abstract (Form 1)"
-                : "Role Specification (Form 2)"
-            } has been approved by Mentor.`
-          : `${
-              formType === "projectAbstract"
-                ? "Project Abstract (Form 1)"
-                : "Role Specification (Form 2)"
-            } has been rejected by Mentor. Please review and resubmit.`;
+          ? `${formType === "projectAbstract"
+            ? "Project Abstract (Form 1)"
+            : "Role Specification (Form 2)"
+          } has been approved by Mentor.`
+          : `${formType === "projectAbstract"
+            ? "Project Abstract (Form 1)"
+            : "Role Specification (Form 2)"
+          } has been rejected by Mentor. Please review and resubmit.`;
 
       // Combine default message with custom message if provided
       const finalMessage = customMessage
