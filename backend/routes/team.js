@@ -338,15 +338,15 @@ router.put(
         modules: assignment.modules,
         activities: assignment.activities
           ? assignment.activities.map((activity) => ({
-            name: activity.name,
-            softDeadline: activity.softDeadline
-              ? new Date(activity.softDeadline)
-              : null,
-            hardDeadline: activity.hardDeadline
-              ? new Date(activity.hardDeadline)
-              : null,
-            details: activity.details || "",
-          }))
+              name: activity.name,
+              softDeadline: activity.softDeadline
+                ? new Date(activity.softDeadline)
+                : null,
+              hardDeadline: activity.hardDeadline
+                ? new Date(activity.hardDeadline)
+                : null,
+              details: activity.details || "",
+            }))
           : [],
       })),
       submittedAt: new Date(),
@@ -540,11 +540,11 @@ router.get(
         studentRemarks: submission.studentRemarks,
         projectFile: submission.projectFile
           ? {
-            originalName: submission.projectFile.originalName,
-            filename: submission.projectFile.filename,
-            size: submission.projectFile.size,
-            uploadedAt: submission.projectFile.uploadedAt,
-          }
+              originalName: submission.projectFile.originalName,
+              filename: submission.projectFile.filename,
+              size: submission.projectFile.size,
+              uploadedAt: submission.projectFile.uploadedAt,
+            }
           : null,
         status: submission.status || "submitted",
         mentorScore: submission.mentorScore || null,
@@ -589,7 +589,7 @@ router.post(
     ) {
       // Clean up uploaded file if validation fails
       if (req.file) {
-        fs.unlink(req.file.path, () => { });
+        fs.unlink(req.file.path, () => {});
       }
       return res.status(400).json({
         message: "All required fields must be provided",
@@ -615,7 +615,7 @@ router.post(
     const student = await User.findById(req.user._id);
     if (!student || !student.studentData?.currentTeam) {
       // Clean up uploaded file
-      fs.unlink(req.file.path, () => { });
+      fs.unlink(req.file.path, () => {});
       return res
         .status(404)
         .json({ message: "No team found for this student" });
@@ -627,7 +627,7 @@ router.post(
 
     if (!team) {
       // Clean up uploaded file
-      fs.unlink(req.file.path, () => { });
+      fs.unlink(req.file.path, () => {});
       return res.status(404).json({ message: "Team not found" });
     }
 
@@ -639,7 +639,7 @@ router.post(
 
     if (!isLeader && !isMember) {
       // Clean up uploaded file
-      fs.unlink(req.file.path, () => { });
+      fs.unlink(req.file.path, () => {});
       return res.status(403).json({
         message: "Only team members can submit weekly status",
       });
@@ -648,7 +648,7 @@ router.post(
     // Check timeline access
     if (!checkTeamTimelineAccess(team)) {
       // Clean up uploaded file
-      fs.unlink(req.file.path, () => { });
+      fs.unlink(req.file.path, () => {});
       return res.status(403).json({
         message:
           "Weekly status access denied. Project timeline not assigned yet.",
@@ -660,7 +660,7 @@ router.post(
     const currentWeek = calculateCurrentWeek(team.projectTimeline.startDate);
     if (week > currentWeek) {
       // Clean up uploaded file
-      fs.unlink(req.file.path, () => { });
+      fs.unlink(req.file.path, () => {});
       return res.status(400).json({
         message: `Cannot submit for future weeks. Current week is ${currentWeek}`,
         currentWeek,
@@ -670,7 +670,7 @@ router.post(
 
     if (week < 1 || week > team.projectTimeline.weekDuration) {
       // Clean up uploaded file
-      fs.unlink(req.file.path, () => { });
+      fs.unlink(req.file.path, () => {});
       return res.status(400).json({
         message: `Invalid week number. Must be between 1 and ${Math.min(
           currentWeek,
@@ -692,7 +692,7 @@ router.post(
 
     if (existingSubmission) {
       // Clean up uploaded file
-      fs.unlink(req.file.path, () => { });
+      fs.unlink(req.file.path, () => {});
       return res.status(400).json({
         message: `Week ${week} status has already been submitted`,
       });
@@ -710,7 +710,7 @@ router.post(
 
     if (!availableModules.includes(module)) {
       // Clean up uploaded file
-      fs.unlink(req.file.path, () => { });
+      fs.unlink(req.file.path, () => {});
       return res.status(400).json({
         message: "Selected module is not available in your role specification",
       });
@@ -720,7 +720,7 @@ router.post(
     const userRollNumber = student.studentData?.rollNumber;
     if (!userRollNumber) {
       // Clean up uploaded file
-      fs.unlink(req.file.path, () => { });
+      fs.unlink(req.file.path, () => {});
       return res.status(400).json({
         message: "Student roll number not found",
       });
@@ -735,7 +735,7 @@ router.post(
       fs.renameSync(req.file.path, newFilePath);
     } catch (error) {
       // Clean up uploaded file
-      fs.unlink(req.file.path, () => { });
+      fs.unlink(req.file.path, () => {});
       return res.status(500).json({
         message: "Error processing uploaded file",
       });
@@ -842,9 +842,9 @@ router.put(
       ...team.evaluation.weeklyStatus[weeklyStatusIndex],
       dateRange: dateRange
         ? {
-          from: new Date(dateRange.from),
-          to: new Date(dateRange.to),
-        }
+            from: new Date(dateRange.from),
+            to: new Date(dateRange.to),
+          }
         : team.evaluation.weeklyStatus[weeklyStatusIndex].dateRange,
       module: module
         ? module.trim()
@@ -1031,7 +1031,10 @@ router.get(
         .populate("members.student", "name email studentData.rollNumber")
         .populate("finalProject", "title description category")
         .populate("projectChoices", "title description category")
-        .populate("roleSpecification.assignments.member", "name email studentData.rollNumber")
+        .populate(
+          "roleSpecification.assignments.member",
+          "name email studentData.rollNumber"
+        )
         .lean();
 
       // Add pending forms count for each team
@@ -1085,7 +1088,10 @@ router.get(
         .populate("members.student", "name email studentData.rollNumber")
         .populate("finalProject", "title description category")
         .populate("projectChoices", "title description category")
-        .populate("roleSpecification.assignments.member", "name email studentData.rollNumber")
+        .populate(
+          "roleSpecification.assignments.member",
+          "name email studentData.rollNumber"
+        )
         .lean();
 
       // Add pending forms count for each team
@@ -1155,14 +1161,16 @@ router.post(
       // Generate default message based on action and role
       const defaultMessage =
         action === "approve"
-          ? `${formType === "projectAbstract"
-            ? "Project Abstract (Form 1)"
-            : "Role Specification (Form 2)"
-          } has been approved by Admin.`
-          : `${formType === "projectAbstract"
-            ? "Project Abstract (Form 1)"
-            : "Role Specification (Form 2)"
-          } has been rejected by Admin. Please review and resubmit.`;
+          ? `${
+              formType === "projectAbstract"
+                ? "Project Abstract (Form 1)"
+                : "Role Specification (Form 2)"
+            } has been approved by Admin.`
+          : `${
+              formType === "projectAbstract"
+                ? "Project Abstract (Form 1)"
+                : "Role Specification (Form 2)"
+            } has been rejected by Admin. Please review and resubmit.`;
 
       // Combine default message with custom message if provided
       const finalMessage = customMessage
@@ -1245,14 +1253,16 @@ router.post(
       // Generate default message based on action and role
       const defaultMessage =
         action === "approve"
-          ? `${formType === "projectAbstract"
-            ? "Project Abstract (Form 1)"
-            : "Role Specification (Form 2)"
-          } has been approved by Mentor.`
-          : `${formType === "projectAbstract"
-            ? "Project Abstract (Form 1)"
-            : "Role Specification (Form 2)"
-          } has been rejected by Mentor. Please review and resubmit.`;
+          ? `${
+              formType === "projectAbstract"
+                ? "Project Abstract (Form 1)"
+                : "Role Specification (Form 2)"
+            } has been approved by Mentor.`
+          : `${
+              formType === "projectAbstract"
+                ? "Project Abstract (Form 1)"
+                : "Role Specification (Form 2)"
+            } has been rejected by Mentor. Please review and resubmit.`;
 
       // Combine default message with custom message if provided
       const finalMessage = customMessage
@@ -1608,8 +1618,8 @@ const pdfUploadsStorage = multer.diskStorage({
   filename: function (req, file, cb) {
     const extension = path.extname(file.originalname);
     // Use teamCode_documentType format if available, otherwise fallback to timestamp
-    const teamCode = req.teamCode || 'team';
-    const docType = req.params.documentType || 'document';
+    const teamCode = req.teamCode || "team";
+    const docType = req.params.documentType || "document";
     cb(null, `${teamCode}_${docType}${extension}`);
   },
 });
@@ -1710,7 +1720,9 @@ router.get(
 const attachTeamCode = asyncHandler(async (req, res, next) => {
   const student = await User.findById(req.user._id);
   if (student?.studentData?.currentTeam) {
-    const team = await Team.findById(student.studentData.currentTeam).select('code');
+    const team = await Team.findById(student.studentData.currentTeam).select(
+      "code"
+    );
     if (team) {
       req.teamCode = team.code;
     }
@@ -1771,7 +1783,11 @@ router.post(
       if (docTypeConfig.fileType && uploadedExt !== expectedExt) {
         // delete uploaded file
         fs.unlinkSync(req.file.path);
-        return res.status(400).json({ message: `Expected a ${docTypeConfig.fileType.toUpperCase()} file for this document type` });
+        return res
+          .status(400)
+          .json({
+            message: `Expected a ${docTypeConfig.fileType.toUpperCase()} file for this document type`,
+          });
       }
 
       // Delete old file if exists

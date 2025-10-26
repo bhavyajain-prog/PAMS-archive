@@ -588,8 +588,12 @@ teamSchema.methods.checkAutoAssignmentEligibility = function () {
 teamSchema.statics.findEligibleForAutoAssignment = function () {
   return this.find({
     status: "approved",
+    finalProject: { $exists: true, $ne: null }, // Must have a final project assigned
     "mentor.assigned": { $exists: true, $ne: null },
-    "projectTimeline.startDate": { $exists: false },
+    $or: [
+      { "projectTimeline.startDate": { $exists: false } },
+      { "projectTimeline.startDate": null },
+    ],
   });
 };
 
