@@ -1023,8 +1023,11 @@ router.get(
           { "roleSpecification.status": "mentor_approved" },
         ],
       })
-        .populate("leader", "name email")
-        .populate("members.student", "name email")
+        .populate("leader", "name email studentData.rollNumber")
+        .populate("members.student", "name email studentData.rollNumber")
+        .populate("finalProject", "title description category")
+        .populate("projectChoices", "title description category")
+        .populate("roleSpecification.assignments.member", "name email studentData.rollNumber")
         .lean();
 
       // Add pending forms count for each team
@@ -1074,8 +1077,11 @@ router.get(
           { "roleSpecification.status": "submitted" },
         ],
       })
-        .populate("leader", "name email")
-        .populate("members.student", "name email")
+        .populate("leader", "name email studentData.rollNumber")
+        .populate("members.student", "name email studentData.rollNumber")
+        .populate("finalProject", "title description category")
+        .populate("projectChoices", "title description category")
+        .populate("roleSpecification.assignments.member", "name email studentData.rollNumber")
         .lean();
 
       // Add pending forms count for each team
