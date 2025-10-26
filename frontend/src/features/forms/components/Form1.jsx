@@ -190,6 +190,9 @@ const ProjectAbstractForm = () => {
         modules: formData.modules.filter((module) => module.name.trim()),
       };
 
+      // Debug: Log what we're sending
+      console.log("Submitting modules:", JSON.stringify(submitData.modules, null, 2));
+
       const response = await axios.put("/team/project-abstract", submitData);
 
       showMessage(

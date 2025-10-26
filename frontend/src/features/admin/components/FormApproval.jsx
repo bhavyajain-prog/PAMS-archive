@@ -285,9 +285,21 @@ const FormApproval = () => {
                   {form.modules.map((module, idx) => (
                     <div key={idx} className="p-3 bg-gray-50 rounded-lg border-l-4 border-blue-500">
                       <div className="font-semibold text-gray-900 mb-1">
-                        Module {idx + 1}: {module?.moduleName || module?.name || 'Unnamed Module'}
+                        Module {idx + 1}: {module?.name || 'Unnamed Module'}
                       </div>
-                      <p className="text-sm text-gray-700">{module?.description || 'No description provided'}</p>
+                      {module?.functionality && (
+                        <p className="text-sm text-gray-600 mb-1">
+                          <span className="font-medium">Functionality:</span> {module.functionality}
+                        </p>
+                      )}
+                      {module?.description && (
+                        <p className="text-sm text-gray-700">
+                          <span className="font-medium">Description:</span> {module.description}
+                        </p>
+                      )}
+                      {!module?.functionality && !module?.description && (
+                        <p className="text-sm text-gray-500 italic">No details provided</p>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -355,19 +367,14 @@ const FormApproval = () => {
                     return (
                       <div key={idx} className="p-4 bg-linear-to-r from-purple-50 to-blue-50 rounded-lg border-l-4 border-purple-500">
                         {/* Member Info */}
-                        <div className="flex justify-between items-start mb-3">
-                          <div>
-                            <div className="font-semibold text-gray-900 text-base">
-                              {memberName}
-                            </div>
-                            <div className="text-sm text-gray-600">
-                              {memberEmail}
-                              {memberRollNumber && <span className="ml-2">• {memberRollNumber}</span>}
-                            </div>
+                        <div className="mb-3">
+                          <div className="font-semibold text-gray-900 text-base">
+                            {memberName}
                           </div>
-                          <span className="px-3 py-1 bg-purple-600 text-white rounded-full text-sm font-semibold">
-                            {assignment.role || 'Team Member'}
-                          </span>
+                          <div className="text-sm text-gray-600">
+                            {memberEmail}
+                            {memberRollNumber && <span className="ml-2">• {memberRollNumber}</span>}
+                          </div>
                         </div>
 
                         {/* Responsibilities */}

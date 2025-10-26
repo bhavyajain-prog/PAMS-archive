@@ -162,6 +162,9 @@ router.put(
   asyncHandler(async (req, res) => {
     const { projectTrack, githubRepo, tools, modules } = req.body;
 
+    // Debug: Log received modules to check if description is being sent
+    console.log("Received modules:", JSON.stringify(modules, null, 2));
+
     // Validate required fields
     if (!projectTrack || !githubRepo || !tools || !modules) {
       return res.status(400).json({
@@ -217,6 +220,7 @@ router.put(
       modules: modules.map((module) => ({
         name: module.name,
         functionality: module.functionality || "",
+        description: module.description || "",
       })),
       submittedAt: new Date(),
       submittedBy: req.user._id,
