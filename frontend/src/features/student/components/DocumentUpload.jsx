@@ -25,6 +25,7 @@ const DocumentUpload = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isLeader, setIsLeader] = useState(false);
+  const [deleteModal, setDeleteModal] = useState({ show: false, documentType: null, documentName: null });
 
   // Fetch team documents
   const fetchDocuments = async () => {
@@ -60,8 +61,15 @@ const DocumentUpload = () => {
   const handleFileUpload = async (documentType, file) => {
     if (!file) return;
 
-    // Validate file type
-    if (file.type !== "application/pdf") {
+    // Determine if this document is a presentation (presentations will be uploaded as PDF)
+    const docMeta = documents[documentType] || {};
+    const isPresentationType =
+      String(documentType).toLowerCase().includes("ppt") ||
+      String(documentType).toLowerCase().includes("presentation") ||
+      String(docMeta.name || "").toLowerCase().includes("presentation") ||
+      false;
+    // All documents (including presentations) should be uploaded as PDF
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith('.pdf')) {
       setError("Only PDF files are allowed");
       return;
     }
@@ -115,9 +123,19 @@ const DocumentUpload = () => {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
+      // Default filename should reflect expected extension
+      const docMeta = documents[documentType] || {};
+      const isPresentationType =
+        String(documentType).toLowerCase().includes("ppt") ||
+        String(documentType).toLowerCase().includes("presentation") ||
+        String(docMeta.name || "").toLowerCase().includes("presentation") ||
+        false;
+
+      const defaultName = isPresentationType ? "presentation.pdf" : "document.pdf";
+
       link.setAttribute(
         "download",
-        documents[documentType]?.originalName || "document.pdf"
+        documents[documentType]?.originalName || defaultName
       );
       document.body.appendChild(link);
       link.click();
@@ -130,10 +148,13 @@ const DocumentUpload = () => {
   };
 
   // Handle file delete
-  const handleDelete = async (documentType) => {
-    if (!window.confirm("Are you sure you want to delete this document?")) {
-      return;
-    }
+  const handleDeleteClick = (documentType, documentName) => {
+    setDeleteModal({ show: true, documentType, documentName });
+  };
+
+  const confirmDelete = async () => {
+    const { documentType } = deleteModal;
+    setDeleteModal({ show: false, documentType: null, documentName: null });
 
     try {
       setError("");
@@ -147,6 +168,10 @@ const DocumentUpload = () => {
       console.error("Error deleting document:", err);
       setError(err.response?.data?.message || "Failed to delete document");
     }
+  };
+
+  const cancelDelete = () => {
+    setDeleteModal({ show: false, documentType: null, documentName: null });
   };
 
   // Get status badge
@@ -205,105 +230,116 @@ const DocumentUpload = () => {
     const canDelete = isLeader && hasFile && !document.adminApproved;
 
     return (
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">
-              {document.name}
-            </h3>
-            <p className="text-sm text-gray-600 mb-3">{document.description}</p>
-            <StatusBadge status={document.status} />
+      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 flex flex-col h-full">
+        <div className="flex-1">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                {document.name}
+              </h3>
+              <p className="text-sm text-gray-600 mb-3">{document.description}</p>
+              <StatusBadge status={document.status} />
+            </div>
+            <div className="ml-4">
+              <FileText className="w-8 h-8 text-gray-400" />
+            </div>
           </div>
-          <div className="ml-4">
-            <FileText className="w-8 h-8 text-gray-400" />
-          </div>
+
+          {/* File info */}
+          {hasFile && (
+            <div className="bg-gray-50 rounded-lg p-4 mb-4 space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600">File:</span>
+                <span className="font-medium text-gray-900">
+                  {document.originalName}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600">Size:</span>
+                <span className="font-medium text-gray-900">
+                  {(document.size / 1024).toFixed(2)} KB
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600">Uploaded:</span>
+                <span className="font-medium text-gray-900">
+                  {new Date(document.uploadedAt).toLocaleDateString()}
+                </span>
+              </div>
+              {document.mentorApproved && (
+                <div className="flex items-center text-sm text-green-600 pt-2 border-t">
+                  <CheckCircle className="w-4 h-4 mr-1" />
+                  <span>Mentor Approved</span>
+                </div>
+              )}
+              {document.adminApproved && (
+                <div className="flex items-center text-sm text-green-600">
+                  <CheckCircle className="w-4 h-4 mr-1" />
+                  <span>Admin Approved</span>
+                </div>
+              )}
+              {document.rejectionReason && (
+                <div className="flex items-start text-sm text-red-600 pt-2 border-t">
+                  <XCircle className="w-4 h-4 mr-1 mt-0.5" />
+                  <span>{document.rejectionReason}</span>
+                </div>
+              )}
+            </div>
+          )}
+
         </div>
 
-        {/* File info */}
-        {hasFile && (
-          <div className="bg-gray-50 rounded-lg p-4 mb-4 space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">File:</span>
-              <span className="font-medium text-gray-900">
-                {document.originalName}
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">Size:</span>
-              <span className="font-medium text-gray-900">
-                {(document.size / 1024).toFixed(2)} KB
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">Uploaded:</span>
-              <span className="font-medium text-gray-900">
-                {new Date(document.uploadedAt).toLocaleDateString()}
-              </span>
-            </div>
-            {document.mentorApproved && (
-              <div className="flex items-center text-sm text-green-600 pt-2 border-t">
-                <CheckCircle className="w-4 h-4 mr-1" />
-                <span>Mentor Approved</span>
-              </div>
-            )}
-            {document.adminApproved && (
-              <div className="flex items-center text-sm text-green-600">
-                <CheckCircle className="w-4 h-4 mr-1" />
-                <span>Admin Approved</span>
-              </div>
-            )}
-            {document.rejectionReason && (
-              <div className="flex items-start text-sm text-red-600 pt-2 border-t">
-                <XCircle className="w-4 h-4 mr-1 mt-0.5" />
-                <span>{document.rejectionReason}</span>
-              </div>
-            )}
-          </div>
-        )}
-
         {/* Actions */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 mt-4">
           {/* Upload button (leader only) */}
           {canUpload && (
-            <label
-              className={`flex-1 flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-                isUploading
-                  ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                  : "bg-teal-600 text-white hover:bg-teal-700"
-              }`}
-            >
-              {isUploading ? (
-                <>
-                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                  Uploading...
-                </>
-              ) : (
-                <>
-                  <Upload className="w-4 h-4 mr-2" />
-                  {hasFile ? "Replace" : "Upload"} PDF
-                </>
-              )}
-              <input
-                type="file"
-                accept=".pdf"
-                className="hidden"
-                disabled={isUploading}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    handleFileUpload(docKey, file);
-                  }
-                  e.target.value = "";
-                }}
-              />
-            </label>
+            (() => {
+              const isPresentationType =
+                String(docKey).toLowerCase().includes("ppt") ||
+                String(docKey).toLowerCase().includes("presentation") ||
+                String(document.name || "").toLowerCase().includes("presentation");
+
+              return (
+                <label
+                  className={`flex-1 flex items-center justify-center px-3 py-1 rounded-lg text-sm font-medium transition-colors cursor-pointer ${isUploading
+                    ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                    : "bg-teal-600 text-white hover:bg-teal-700"
+                    }`}
+                >
+                  {isUploading ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4 mr-2" />
+                      {hasFile ? "Replace" : "Upload"} PDF
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    className="hidden"
+                    disabled={isUploading}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        handleFileUpload(docKey, file);
+                      }
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+              );
+            })()
           )}
 
           {/* Download button (all members) */}
           {hasFile && (
             <button
               onClick={() => handleDownload(docKey)}
-              className="flex items-center justify-center px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors"
+              className="flex items-center justify-center px-3 py-1 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors"
             >
               <Download className="w-4 h-4 mr-2" />
               Download
@@ -313,8 +349,8 @@ const DocumentUpload = () => {
           {/* Delete button (leader only, not approved) */}
           {canDelete && (
             <button
-              onClick={() => handleDelete(docKey)}
-              className="flex items-center justify-center px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+              onClick={() => handleDeleteClick(docKey, document.name)}
+              className="flex items-center justify-center px-3 py-1 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
             >
               <Trash2 className="w-4 h-4 mr-2" />
               Delete
@@ -483,7 +519,7 @@ const DocumentUpload = () => {
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
             Required Documents
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
             {documentTypes.map((docType) => (
               <DocumentCard
                 key={docType.key}
@@ -532,6 +568,37 @@ const DocumentUpload = () => {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.show && (
+        <div className="fixed inset-0 backdrop-blur-md bg-white/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transform transition-all">
+            <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
+              <AlertCircle className="w-6 h-6 text-red-600" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 text-center mb-2">
+              Delete Document
+            </h3>
+            <p className="text-gray-600 text-center mb-6">
+              Are you sure you want to delete <span className="font-semibold text-gray-900">{deleteModal.documentName}</span>? This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={cancelDelete}
+                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

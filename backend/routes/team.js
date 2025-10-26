@@ -334,15 +334,15 @@ router.put(
         modules: assignment.modules,
         activities: assignment.activities
           ? assignment.activities.map((activity) => ({
-              name: activity.name,
-              softDeadline: activity.softDeadline
-                ? new Date(activity.softDeadline)
-                : null,
-              hardDeadline: activity.hardDeadline
-                ? new Date(activity.hardDeadline)
-                : null,
-              details: activity.details || "",
-            }))
+            name: activity.name,
+            softDeadline: activity.softDeadline
+              ? new Date(activity.softDeadline)
+              : null,
+            hardDeadline: activity.hardDeadline
+              ? new Date(activity.hardDeadline)
+              : null,
+            details: activity.details || "",
+          }))
           : [],
       })),
       submittedAt: new Date(),
@@ -536,11 +536,11 @@ router.get(
         studentRemarks: submission.studentRemarks,
         projectFile: submission.projectFile
           ? {
-              originalName: submission.projectFile.originalName,
-              filename: submission.projectFile.filename,
-              size: submission.projectFile.size,
-              uploadedAt: submission.projectFile.uploadedAt,
-            }
+            originalName: submission.projectFile.originalName,
+            filename: submission.projectFile.filename,
+            size: submission.projectFile.size,
+            uploadedAt: submission.projectFile.uploadedAt,
+          }
           : null,
         status: submission.status || "submitted",
         mentorScore: submission.mentorScore || null,
@@ -585,7 +585,7 @@ router.post(
     ) {
       // Clean up uploaded file if validation fails
       if (req.file) {
-        fs.unlink(req.file.path, () => {});
+        fs.unlink(req.file.path, () => { });
       }
       return res.status(400).json({
         message: "All required fields must be provided",
@@ -611,7 +611,7 @@ router.post(
     const student = await User.findById(req.user._id);
     if (!student || !student.studentData?.currentTeam) {
       // Clean up uploaded file
-      fs.unlink(req.file.path, () => {});
+      fs.unlink(req.file.path, () => { });
       return res
         .status(404)
         .json({ message: "No team found for this student" });
@@ -623,7 +623,7 @@ router.post(
 
     if (!team) {
       // Clean up uploaded file
-      fs.unlink(req.file.path, () => {});
+      fs.unlink(req.file.path, () => { });
       return res.status(404).json({ message: "Team not found" });
     }
 
@@ -635,7 +635,7 @@ router.post(
 
     if (!isLeader && !isMember) {
       // Clean up uploaded file
-      fs.unlink(req.file.path, () => {});
+      fs.unlink(req.file.path, () => { });
       return res.status(403).json({
         message: "Only team members can submit weekly status",
       });
@@ -644,7 +644,7 @@ router.post(
     // Check timeline access
     if (!checkTeamTimelineAccess(team)) {
       // Clean up uploaded file
-      fs.unlink(req.file.path, () => {});
+      fs.unlink(req.file.path, () => { });
       return res.status(403).json({
         message:
           "Weekly status access denied. Project timeline not assigned yet.",
@@ -656,7 +656,7 @@ router.post(
     const currentWeek = calculateCurrentWeek(team.projectTimeline.startDate);
     if (week > currentWeek) {
       // Clean up uploaded file
-      fs.unlink(req.file.path, () => {});
+      fs.unlink(req.file.path, () => { });
       return res.status(400).json({
         message: `Cannot submit for future weeks. Current week is ${currentWeek}`,
         currentWeek,
@@ -666,7 +666,7 @@ router.post(
 
     if (week < 1 || week > team.projectTimeline.weekDuration) {
       // Clean up uploaded file
-      fs.unlink(req.file.path, () => {});
+      fs.unlink(req.file.path, () => { });
       return res.status(400).json({
         message: `Invalid week number. Must be between 1 and ${Math.min(
           currentWeek,
@@ -688,7 +688,7 @@ router.post(
 
     if (existingSubmission) {
       // Clean up uploaded file
-      fs.unlink(req.file.path, () => {});
+      fs.unlink(req.file.path, () => { });
       return res.status(400).json({
         message: `Week ${week} status has already been submitted`,
       });
@@ -706,7 +706,7 @@ router.post(
 
     if (!availableModules.includes(module)) {
       // Clean up uploaded file
-      fs.unlink(req.file.path, () => {});
+      fs.unlink(req.file.path, () => { });
       return res.status(400).json({
         message: "Selected module is not available in your role specification",
       });
@@ -716,7 +716,7 @@ router.post(
     const userRollNumber = student.studentData?.rollNumber;
     if (!userRollNumber) {
       // Clean up uploaded file
-      fs.unlink(req.file.path, () => {});
+      fs.unlink(req.file.path, () => { });
       return res.status(400).json({
         message: "Student roll number not found",
       });
@@ -731,7 +731,7 @@ router.post(
       fs.renameSync(req.file.path, newFilePath);
     } catch (error) {
       // Clean up uploaded file
-      fs.unlink(req.file.path, () => {});
+      fs.unlink(req.file.path, () => { });
       return res.status(500).json({
         message: "Error processing uploaded file",
       });
@@ -838,9 +838,9 @@ router.put(
       ...team.evaluation.weeklyStatus[weeklyStatusIndex],
       dateRange: dateRange
         ? {
-            from: new Date(dateRange.from),
-            to: new Date(dateRange.to),
-          }
+          from: new Date(dateRange.from),
+          to: new Date(dateRange.to),
+        }
         : team.evaluation.weeklyStatus[weeklyStatusIndex].dateRange,
       module: module
         ? module.trim()
@@ -1145,16 +1145,14 @@ router.post(
       // Generate default message based on action and role
       const defaultMessage =
         action === "approve"
-          ? `${
-              formType === "projectAbstract"
-                ? "Project Abstract (Form 1)"
-                : "Role Specification (Form 2)"
-            } has been approved by Admin.`
-          : `${
-              formType === "projectAbstract"
-                ? "Project Abstract (Form 1)"
-                : "Role Specification (Form 2)"
-            } has been rejected by Admin. Please review and resubmit.`;
+          ? `${formType === "projectAbstract"
+            ? "Project Abstract (Form 1)"
+            : "Role Specification (Form 2)"
+          } has been approved by Admin.`
+          : `${formType === "projectAbstract"
+            ? "Project Abstract (Form 1)"
+            : "Role Specification (Form 2)"
+          } has been rejected by Admin. Please review and resubmit.`;
 
       // Combine default message with custom message if provided
       const finalMessage = customMessage
@@ -1237,16 +1235,14 @@ router.post(
       // Generate default message based on action and role
       const defaultMessage =
         action === "approve"
-          ? `${
-              formType === "projectAbstract"
-                ? "Project Abstract (Form 1)"
-                : "Role Specification (Form 2)"
-            } has been approved by Mentor.`
-          : `${
-              formType === "projectAbstract"
-                ? "Project Abstract (Form 1)"
-                : "Role Specification (Form 2)"
-            } has been rejected by Mentor. Please review and resubmit.`;
+          ? `${formType === "projectAbstract"
+            ? "Project Abstract (Form 1)"
+            : "Role Specification (Form 2)"
+          } has been approved by Mentor.`
+          : `${formType === "projectAbstract"
+            ? "Project Abstract (Form 1)"
+            : "Role Specification (Form 2)"
+          } has been rejected by Mentor. Please review and resubmit.`;
 
       // Combine default message with custom message if provided
       const finalMessage = customMessage
@@ -1601,14 +1597,19 @@ const pdfUploadsStorage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     const extension = path.extname(file.originalname);
-    cb(null, `doc_${Date.now()}_${req.user._id}${extension}`);
+    // Use teamCode_documentType format if available, otherwise fallback to timestamp
+    const teamCode = req.teamCode || 'team';
+    const docType = req.params.documentType || 'document';
+    cb(null, `${teamCode}_${docType}${extension}`);
   },
 });
 
 const pdfUpload = multer({
   storage: pdfUploadsStorage,
   fileFilter: function (req, file, cb) {
-    if (path.extname(file.originalname).toLowerCase() === ".pdf") {
+    const ext = path.extname(file.originalname).toLowerCase();
+    // Allow only PDF uploads at the middleware level; specific document validation
+    if (ext === ".pdf") {
       cb(null, true);
     } else {
       cb(new Error("Only PDF files are allowed!"), false);
@@ -1648,7 +1649,7 @@ router.get(
       // Check if current user is the team leader
       const isLeader = team.leader._id.toString() === req.user._id.toString();
 
-      // Get PDF document types only
+      // Get PDF document types
       const pdfDocTypes = DocumentTypesConfig.getEnabled().filter(
         (doc) => doc.category === "pdf-document"
       );
@@ -1695,11 +1696,24 @@ router.get(
   })
 );
 
+// Middleware to attach team code before multer processes the file
+const attachTeamCode = asyncHandler(async (req, res, next) => {
+  const student = await User.findById(req.user._id);
+  if (student?.studentData?.currentTeam) {
+    const team = await Team.findById(student.studentData.currentTeam).select('code');
+    if (team) {
+      req.teamCode = team.code;
+    }
+  }
+  next();
+});
+
 // Upload PDF document (team leader only)
 router.post(
   "/my-team/upload-document/:documentType",
   authenticate,
   authorizeRoles("student"),
+  attachTeamCode,
   pdfUpload.single("document"),
   asyncHandler(async (req, res) => {
     try {
@@ -1739,6 +1753,15 @@ router.post(
       // Check if file was uploaded
       if (!req.file) {
         return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      // Ensure uploaded file matches expected fileType for this document type
+      const uploadedExt = path.extname(req.file.originalname).toLowerCase();
+      const expectedExt = `.${docTypeConfig.fileType}`;
+      if (docTypeConfig.fileType && uploadedExt !== expectedExt) {
+        // delete uploaded file
+        fs.unlinkSync(req.file.path);
+        return res.status(400).json({ message: `Expected a ${docTypeConfig.fileType.toUpperCase()} file for this document type` });
       }
 
       // Delete old file if exists
@@ -1827,7 +1850,8 @@ router.get(
           .json({ message: "Document file not found on server" });
       }
 
-      // Send file
+      // Send file with appropriate content type based on extension
+      // All served documents are PDFs
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
