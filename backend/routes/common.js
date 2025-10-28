@@ -101,7 +101,7 @@ function isCurrentMentor(team, userId) {
   return (
     team.mentor.preferences &&
     team.mentor.preferences[team.mentor.currentPreference]?.toString() ===
-    userId.toString()
+      userId.toString()
   );
 }
 
@@ -394,9 +394,10 @@ router.post(
         const mentor = await User.findById(team.mentor.assigned);
         if (mentor) {
           // Remove team from mentor's mentorData.assignedTeams
-          mentor.mentorData.assignedTeams = mentor.mentorData.assignedTeams.filter(
-            (id) => id.toString() !== teamId.toString()
-          );
+          mentor.mentorData.assignedTeams =
+            mentor.mentorData.assignedTeams.filter(
+              (id) => id.toString() !== teamId.toString()
+            );
           await mentor.save();
         }
         await Team.deleteOne({ _id: teamId });
@@ -519,7 +520,10 @@ router.post(
       console.error("Error accepting team:", err);
       res
         .status(500)
-        .json({ message: "Failed to accept team. Please try again later.", error: err.message });
+        .json({
+          message: "Failed to accept team. Please try again later.",
+          error: err.message,
+        });
     }
   })
 );
@@ -583,6 +587,10 @@ router.get(
         .populate("leader", "name email studentData.rollNumber")
         .populate("members.student", "name email studentData.rollNumber")
         .populate("finalProject", "title category")
+        .populate(
+          "roleSpecification.assignments.member",
+          "name email studentData.rollNumber"
+        )
         .lean({ virtuals: true });
 
       // Get dynamic document types configuration
@@ -605,24 +613,30 @@ router.get(
               adminApproved: team.projectAbstract?.adminApproval || false,
               hasData: Boolean(
                 team.projectAbstract?.projectTrack ||
-                team.projectAbstract?.githubRepo ||
-                team.projectAbstract?.tools?.length ||
-                team.projectAbstract?.modules?.length
+                  team.projectAbstract?.githubRepo ||
+                  team.projectAbstract?.tools?.length ||
+                  team.projectAbstract?.modules?.length
               ),
               requiredForApproval: docType.requiredForApproval,
-              // Include full form data
-              data: team.projectAbstract ? {
-                projectTitle: team.projectAbstract.projectTitle,
-                projectTrack: team.projectAbstract.projectTrack,
-                projectCategory: team.projectAbstract.projectCategory,
-                numberOfModules: team.projectAbstract.numberOfModules,
-                githubRepo: team.projectAbstract.githubRepo,
-                tools: team.projectAbstract.tools,
-                modules: team.projectAbstract.modules,
-                teamMembers: team.projectAbstract.teamMembers,
-                objectives: team.projectAbstract.objectives,
-                scopeOfWork: team.projectAbstract.scopeOfWork,
-              } : null,
+              // Include full form data mapped from actual schema fields
+              data: team.projectAbstract
+                ? {
+                    projectTitle: team.finalProject?.title || "N/A",
+                    projectTrack: team.projectAbstract.projectTrack || "N/A",
+                    projectCategory: team.finalProject?.category || "N/A",
+                    numberOfModules: team.projectAbstract.modules?.length || 0,
+                    githubRepo: team.projectAbstract.githubRepo || "",
+                    tools: team.projectAbstract.tools || [],
+                    modules:
+                      team.projectAbstract.modules?.map((m) => ({
+                        moduleName: m.name,
+                        description: m.functionality || m.description || "",
+                      })) || [],
+                    teamMembers: [],
+                    objectives: "",
+                    scopeOfWork: "",
+                  }
+                : null,
             };
           } else if (docType.key === "roleSpecification") {
             documents.roleSpecification = {
@@ -636,11 +650,22 @@ router.get(
               adminApproved: team.roleSpecification?.adminApproval || false,
               hasData: Boolean(team.roleSpecification?.assignments?.length),
               requiredForApproval: docType.requiredForApproval,
-              // Include full form data
-              data: team.roleSpecification ? {
-                projectTitle: team.roleSpecification.projectTitle,
-                assignments: team.roleSpecification.assignments,
-              } : null,
+              // Include full form data with populated member details
+              data: team.roleSpecification?.assignments?.length
+                ? {
+                    projectTitle: team.finalProject?.title || "N/A",
+                    assignments: team.roleSpecification.assignments.map(
+                      (assignment) => ({
+                        memberName: assignment.member?.name || "Unknown",
+                        memberEmail: assignment.member?.email || "N/A",
+                        role: "Team Member",
+                        responsibilities: [],
+                        technologies: [],
+                        modules: assignment.modules || [],
+                      })
+                    ),
+                  }
+                : null,
             };
           } else if (docType.key === "weeklyStatus") {
             const weeklyReports = team.evaluation?.weeklyStatus || [];
@@ -740,10 +765,10 @@ router.get(
           })),
           finalProject: team.finalProject
             ? {
-              _id: team.finalProject._id,
-              title: team.finalProject.title,
-              category: team.finalProject.category,
-            }
+                _id: team.finalProject._id,
+                title: team.finalProject.title,
+                category: team.finalProject.category,
+              }
             : null,
           documents,
           completionSummary: {
@@ -882,11 +907,11 @@ router.get(
           studentRemarks: submission.studentRemarks,
           projectFile: submission.projectFile
             ? {
-              originalName: submission.projectFile.originalName,
-              filename: submission.projectFile.filename,
-              size: submission.projectFile.size,
-              uploadedAt: submission.projectFile.uploadedAt,
-            }
+                originalName: submission.projectFile.originalName,
+                filename: submission.projectFile.filename,
+                size: submission.projectFile.size,
+                uploadedAt: submission.projectFile.uploadedAt,
+              }
             : null,
           status: submission.status || "submitted",
           mentorScore: submission.mentorScore,
@@ -937,8 +962,13 @@ router.put(
     }
 
     // Check if mentor is assigned to this team
-    if (!team.mentor?.assigned || team.mentor.assigned.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "You are not assigned to this team" });
+    if (
+      !team.mentor?.assigned ||
+      team.mentor.assigned.toString() !== req.user._id.toString()
+    ) {
+      return res
+        .status(403)
+        .json({ message: "You are not assigned to this team" });
     }
 
     // Check if document exists
@@ -955,7 +985,9 @@ router.put(
 
     // Check if already admin approved
     if (document.status === "admin_approved") {
-      return res.status(400).json({ message: "Document is already admin approved" });
+      return res
+        .status(400)
+        .json({ message: "Document is already admin approved" });
     }
 
     // Update document status
@@ -995,8 +1027,13 @@ router.put(
     }
 
     // Check if mentor is assigned to this team
-    if (!team.mentor?.assigned || team.mentor.assigned.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "You are not assigned to this team" });
+    if (
+      !team.mentor?.assigned ||
+      team.mentor.assigned.toString() !== req.user._id.toString()
+    ) {
+      return res
+        .status(403)
+        .json({ message: "You are not assigned to this team" });
     }
 
     // Check if document exists
@@ -1013,7 +1050,9 @@ router.put(
 
     // Check if already admin approved
     if (document.status === "admin_approved") {
-      return res.status(400).json({ message: "Cannot reject admin approved document" });
+      return res
+        .status(400)
+        .json({ message: "Cannot reject admin approved document" });
     }
 
     // Update document status
@@ -1021,7 +1060,9 @@ router.put(
     document.mentorApproval = false;
     document.mentorApprovedBy = req.user._id;
     document.mentorApprovedAt = new Date();
-    document.rejectionReason = reason ? reason.trim() : "Document rejected by mentor";
+    document.rejectionReason = reason
+      ? reason.trim()
+      : "Document rejected by mentor";
 
     await team.save();
 

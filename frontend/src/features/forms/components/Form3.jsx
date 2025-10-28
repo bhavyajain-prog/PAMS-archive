@@ -20,7 +20,8 @@ const WeeklyStatusMatrix = () => {
   const [submitting, setSubmitting] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState(true);
   const [message, setMessage] = useState({ type: "", text: "" });
-  const [existingData, setExistingData] = useState(null);
+  const [existingData, setExistingData] = useState(null); // Current week submission only
+  const [allSubmissions, setAllSubmissions] = useState([]); // All previous submissions
   const [availableModules, setAvailableModules] = useState([]);
   const [currentWeekInfo, setCurrentWeekInfo] = useState(null);
   const [hasTimeline, setHasTimeline] = useState(false);
@@ -41,6 +42,12 @@ const WeeklyStatusMatrix = () => {
   };
 
   const [formData, setFormData] = useState(initialFormState);
+
+  // Check if form should be editable (only when no submission exists for current week)
+  const isEditable = !existingData || existingData.status === "rejected";
+
+  // Determine if current week has submission
+  // const hasCurrentWeekSubmission = Boolean(existingData);
 
   // Load existing data and available modules
   useEffect(() => {
@@ -102,70 +109,98 @@ const WeeklyStatusMatrix = () => {
         const teamResponse = await axios.get("/team/my-team");
         const team = teamResponse.data?.team;
 
+        // Extract all modules from role specification
+        let allModules = [];
         if (team?.roleSpecification?.assignments) {
-          // Extract all modules from role specification
-          const modules = [];
           team.roleSpecification.assignments.forEach((assignment) => {
             if (assignment.modules) {
-              modules.push(...assignment.modules);
+              allModules.push(...assignment.modules);
             }
           });
           // Remove duplicates
-          const uniqueModules = [...new Set(modules)];
-          setAvailableModules(uniqueModules);
+          allModules = [...new Set(allModules)];
         }
 
         // Get existing weekly status data
         try {
           const statusResponse = await axios.get("/team/weekly-status");
           if (statusResponse.data.weeklyStatus) {
-            // Check if current week already has submission
-            const currentWeekSubmission = statusResponse.data.weeklyStatus.find(
-              (s) => s.week === currentWeekInfo.currentWeek
+            // Store all submissions for display
+            setAllSubmissions(statusResponse.data.weeklyStatus);
+
+            // Get modules that have been submitted for the CURRENT week only
+            // Since backend now allows multiple submissions per week (but not same week+module combo)
+            const currentWeekSubmissions =
+              statusResponse.data.weeklyStatus.filter(
+                (s) => s.week === currentWeekInfo.currentWeek
+              );
+
+            const currentWeekModules = currentWeekSubmissions.map(
+              (s) => s.module
             );
 
-            if (currentWeekSubmission) {
+            // Filter out modules already submitted for current week
+            const availableModulesFiltered = allModules.filter(
+              (module) => !currentWeekModules.includes(module)
+            );
+
+            setAvailableModules(availableModulesFiltered);
+
+            // If there's a submission for current week, find the most recent one to display
+            if (currentWeekSubmissions.length > 0) {
+              // Sort by submission date and get the most recent
+              const mostRecentSubmission = currentWeekSubmissions.sort(
+                (a, b) => new Date(b.submittedAt) - new Date(a.submittedAt)
+              )[0];
+
               setFormData({
-                week: currentWeekSubmission.week,
+                week: mostRecentSubmission.week,
                 dateRange: {
-                  from: new Date(currentWeekSubmission.dateRange.from)
+                  from: new Date(mostRecentSubmission.dateRange.from)
                     .toISOString()
                     .slice(0, 10),
-                  to: new Date(currentWeekSubmission.dateRange.to)
+                  to: new Date(mostRecentSubmission.dateRange.to)
                     .toISOString()
                     .slice(0, 10),
                 },
-                module: currentWeekSubmission.module || "",
-                progress: currentWeekSubmission.progress || "",
+                module: mostRecentSubmission.module || "",
+                progress: mostRecentSubmission.progress || "",
                 achievements:
-                  currentWeekSubmission.achievements?.length > 0
-                    ? currentWeekSubmission.achievements
+                  mostRecentSubmission.achievements?.length > 0
+                    ? mostRecentSubmission.achievements
                     : [""],
                 challenges:
-                  currentWeekSubmission.challenges?.length > 0
-                    ? currentWeekSubmission.challenges
+                  mostRecentSubmission.challenges?.length > 0
+                    ? mostRecentSubmission.challenges
                     : [""],
-                studentRemarks: currentWeekSubmission.studentRemarks || "",
+                studentRemarks: mostRecentSubmission.studentRemarks || "",
               });
-              setExistingData(currentWeekSubmission);
+              setExistingData(mostRecentSubmission);
 
               // Show approval message if mentor approved
-              if (currentWeekSubmission.status === "mentor_approved") {
+              if (mostRecentSubmission.status === "mentor_approved") {
                 showMessage(
                   "success",
-                  `Week ${currentWeekSubmission.week} status has been approved by your mentor!${currentWeekSubmission.mentorScore
-                    ? ` Score: ${currentWeekSubmission.mentorScore}/10`
-                    : ""
+                  `Week ${
+                    mostRecentSubmission.week
+                  } status has been approved by your mentor!${
+                    mostRecentSubmission.mentorScore
+                      ? ` Score: ${mostRecentSubmission.mentorScore}/10`
+                      : ""
                   }`
                 );
               }
             }
+          } else {
+            // No submissions yet, show all modules
+            setAvailableModules(allModules);
           }
         } catch (error) {
-          // No existing data, start fresh
+          // No existing data, start fresh - show all modules
           if (error.response?.status !== 404) {
             console.error("Error loading weekly status:", error);
           }
+          setAvailableModules(allModules);
         }
       } catch (error) {
         console.error("Error loading team data:", error);
@@ -224,11 +259,17 @@ const WeeklyStatusMatrix = () => {
     }
 
     // Validate file type
-    const fileExtension = file.name.toLowerCase().split('.').pop();
-    const isZip = fileExtension === 'zip' || file.type === 'application/zip' || file.type === 'application/x-zip-compressed';
+    const fileExtension = file.name.toLowerCase().split(".").pop();
+    const isZip =
+      fileExtension === "zip" ||
+      file.type === "application/zip" ||
+      file.type === "application/x-zip-compressed";
 
     if (!isZip) {
-      showMessage("error", "Only ZIP files are allowed. Please upload a .zip file.");
+      showMessage(
+        "error",
+        "Only ZIP files are allowed. Please upload a .zip file."
+      );
       e.target.value = ""; // Clear the input
       setZipFile(null);
       setZipFileName("");
@@ -286,8 +327,14 @@ const WeeklyStatusMatrix = () => {
       submitData.append("dateRange", JSON.stringify(formData.dateRange));
       submitData.append("module", formData.module);
       submitData.append("progress", formData.progress.trim());
-      submitData.append("achievements", JSON.stringify(formData.achievements.filter((a) => a.trim())));
-      submitData.append("challenges", JSON.stringify(formData.challenges.filter((c) => c.trim())));
+      submitData.append(
+        "achievements",
+        JSON.stringify(formData.achievements.filter((a) => a.trim()))
+      );
+      submitData.append(
+        "challenges",
+        JSON.stringify(formData.challenges.filter((c) => c.trim()))
+      );
       submitData.append("studentRemarks", formData.studentRemarks.trim());
 
       // Append zip file if present
@@ -306,23 +353,8 @@ const WeeklyStatusMatrix = () => {
         response.data.message || "Weekly status submitted successfully!"
       );
 
-      // Reset form for next submission
-      setFormData({
-        ...initialFormState,
-        week: currentWeekInfo?.currentWeek || 1,
-        dateRange: currentWeekInfo?.dateRange
-          ? {
-            from: new Date(currentWeekInfo.dateRange.from)
-              .toISOString()
-              .slice(0, 10),
-            to: new Date(currentWeekInfo.dateRange.to)
-              .toISOString()
-              .slice(0, 10),
-          }
-          : { from: "", to: "" },
-      });
-      setZipFile(null);
-      setZipFileName("");
+      // Reload the page data to reflect the new submission
+      window.location.reload();
     } catch (error) {
       console.error("Submission error:", error);
       const errorMessage =
@@ -340,13 +372,13 @@ const WeeklyStatusMatrix = () => {
       week: currentWeekInfo?.currentWeek || 1,
       dateRange: currentWeekInfo?.dateRange
         ? {
-          from: new Date(currentWeekInfo.dateRange.from)
-            .toISOString()
-            .slice(0, 10),
-          to: new Date(currentWeekInfo.dateRange.to)
-            .toISOString()
-            .slice(0, 10),
-        }
+            from: new Date(currentWeekInfo.dateRange.from)
+              .toISOString()
+              .slice(0, 10),
+            to: new Date(currentWeekInfo.dateRange.to)
+              .toISOString()
+              .slice(0, 10),
+          }
         : { from: "", to: "" },
     });
     setZipFile(null);
@@ -356,7 +388,7 @@ const WeeklyStatusMatrix = () => {
 
   if (loadingStatus) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-cyan-50 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-teal-50 to-cyan-50 flex items-center justify-center">
         <div className="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center">
           <FaSpinner className="animate-spin text-4xl text-teal-600 mb-4" />
           <p className="text-gray-600">Loading weekly status matrix...</p>
@@ -368,7 +400,7 @@ const WeeklyStatusMatrix = () => {
   // Check if team has timeline access
   if (!hasTimeline) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-cyan-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-teal-50 to-cyan-50 py-8 px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-4xl mx-auto">
           <div className="bg-white rounded-xl shadow-lg p-8">
             <div className="text-center">
@@ -393,10 +425,11 @@ const WeeklyStatusMatrix = () => {
               </div>
               {message.text && (
                 <div
-                  className={`p-4 rounded-lg border ${message.type === "success"
-                    ? "bg-green-50 border-green-200 text-green-800"
-                    : "bg-red-50 border-red-200 text-red-800"
-                    }`}
+                  className={`p-4 rounded-lg border ${
+                    message.type === "success"
+                      ? "bg-green-50 border-green-200 text-green-800"
+                      : "bg-red-50 border-red-200 text-red-800"
+                  }`}
                 >
                   {message.text}
                 </div>
@@ -409,12 +442,12 @@ const WeeklyStatusMatrix = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-cyan-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-teal-50 to-cyan-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-none mx-auto">
         {/* Header */}
         <div className="bg-white rounded-t-xl shadow-lg border-b border-gray-200 p-6 sm:p-8 md:p-10">
           <div className="text-center mx-auto max-w-3xl">
-            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent mb-1 sm:mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent mb-1 sm:mb-2">
               Weekly Status Matrix
             </h1>
             <h2 className="text-base sm:text-lg font-medium text-gray-700">
@@ -458,19 +491,79 @@ const WeeklyStatusMatrix = () => {
           </div>
         </div>
 
+        {/* Submission Status Info Box */}
+        {existingData && (
+          <div className="mt-4 px-6 sm:px-8 md:px-10">
+            <div className="bg-linear-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                Current Week Submission Status
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="font-medium text-gray-700">Status:</span>{" "}
+                  <span
+                    className={`font-semibold ${
+                      existingData.status === "mentor_approved"
+                        ? "text-green-600"
+                        : existingData.status === "rejected"
+                        ? "text-red-600"
+                        : "text-yellow-600"
+                    }`}
+                  >
+                    {existingData.status === "mentor_approved"
+                      ? "✓ Approved"
+                      : existingData.status === "rejected"
+                      ? "✗ Rejected"
+                      : "⏳ Pending Review"}
+                  </span>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-700">
+                    Submitted At:
+                  </span>{" "}
+                  {new Date(existingData.submittedAt).toLocaleString()}
+                </div>
+                <div>
+                  <span className="font-medium text-gray-700">Module:</span>{" "}
+                  {existingData.module}
+                </div>
+                {existingData.mentorScore && (
+                  <div>
+                    <span className="font-medium text-gray-700">Score:</span>{" "}
+                    <span className="font-semibold text-teal-600">
+                      {existingData.mentorScore}/10
+                    </span>
+                  </div>
+                )}
+              </div>
+              {!isEditable && (
+                <div className="mt-4 p-3 bg-white rounded border border-gray-200">
+                  <p className="text-sm text-gray-600">
+                    <strong>Note:</strong> This submission cannot be edited.
+                    {existingData.status === "mentor_approved"
+                      ? " It has been approved by your mentor."
+                      : " It is currently under review by your mentor."}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Message Alert */}
         {message.text && (
           <div className="mt-4 mb-4 w-full px-6 sm:px-8 md:px-10">
             <div
-              className={`p-4 sm:p-5 rounded-lg border flex items-start gap-2 ${message.type === "success"
-                ? "bg-green-50 border-green-200 text-green-800"
-                : "bg-red-50 border-red-200 text-red-800"
-                }`}
+              className={`p-4 sm:p-5 rounded-lg border flex items-start gap-2 ${
+                message.type === "success"
+                  ? "bg-green-50 border-green-200 text-green-800"
+                  : "bg-red-50 border-red-200 text-red-800"
+              }`}
             >
               {message.type === "success" ? (
-                <FaCheckCircle className="mt-0.5 flex-shrink-0" />
+                <FaCheckCircle className="mt-0.5 shrink-0" />
               ) : (
-                <FaExclamationTriangle className="mt-0.5 flex-shrink-0" />
+                <FaExclamationTriangle className="mt-0.5 shrink-0" />
               )}
               <span className="text-sm sm:text-base">{message.text}</span>
             </div>
@@ -483,52 +576,58 @@ const WeeklyStatusMatrix = () => {
             {/* Current Submission Status Banner */}
             {existingData && (
               <div
-                className={`rounded-lg p-4 border-2 ${existingData.status === "mentor_approved"
+                className={`rounded-lg p-4 border-2 ${
+                  existingData.status === "mentor_approved"
                     ? "bg-green-50 border-green-300"
                     : existingData.status === "rejected"
-                      ? "bg-red-50 border-red-300"
-                      : "bg-yellow-50 border-yellow-300"
-                  }`}
+                    ? "bg-red-50 border-red-300"
+                    : "bg-yellow-50 border-yellow-300"
+                }`}
               >
                 <div className="flex items-start gap-3">
                   {existingData.status === "mentor_approved" ? (
-                    <FaCheckCircle className="text-green-600 text-xl mt-0.5 flex-shrink-0" />
+                    <FaCheckCircle className="text-green-600 text-xl mt-0.5 shrink-0" />
                   ) : existingData.status === "rejected" ? (
-                    <FaExclamationTriangle className="text-red-600 text-xl mt-0.5 flex-shrink-0" />
+                    <FaExclamationTriangle className="text-red-600 text-xl mt-0.5 shrink-0" />
                   ) : (
-                    <FaClock className="text-yellow-600 text-xl mt-0.5 flex-shrink-0" />
+                    <FaClock className="text-yellow-600 text-xl mt-0.5 shrink-0" />
                   )}
                   <div className="flex-1">
                     <h3
-                      className={`font-semibold text-lg mb-1 ${existingData.status === "mentor_approved"
+                      className={`font-semibold text-lg mb-1 ${
+                        existingData.status === "mentor_approved"
                           ? "text-green-800"
                           : existingData.status === "rejected"
-                            ? "text-red-800"
-                            : "text-yellow-800"
-                        }`}
+                          ? "text-red-800"
+                          : "text-yellow-800"
+                      }`}
                     >
                       {existingData.status === "mentor_approved"
                         ? "✓ Week Approved"
                         : existingData.status === "rejected"
-                          ? "Needs Resubmission"
-                          : "Pending Mentor Review"}
+                        ? "Needs Resubmission"
+                        : "Pending Mentor Review"}
                     </h3>
                     <p
-                      className={`text-sm ${existingData.status === "mentor_approved"
+                      className={`text-sm ${
+                        existingData.status === "mentor_approved"
                           ? "text-green-700"
                           : existingData.status === "rejected"
-                            ? "text-red-700"
-                            : "text-yellow-700"
-                        }`}
+                          ? "text-red-700"
+                          : "text-yellow-700"
+                      }`}
                     >
                       {existingData.status === "mentor_approved"
-                        ? `Your Week ${existingData.week} submission has been approved by your mentor.${existingData.mentorScore
-                          ? ` Score: ${existingData.mentorScore}/10`
-                          : ""
-                        }`
+                        ? `Your Week ${
+                            existingData.week
+                          } submission has been approved by your mentor.${
+                            existingData.mentorScore
+                              ? ` Score: ${existingData.mentorScore}/10`
+                              : ""
+                          }`
                         : existingData.status === "rejected"
-                          ? `Your Week ${existingData.week} submission was rejected. Please review the feedback and resubmit.`
-                          : `Your Week ${existingData.week} submission is awaiting mentor review.`}
+                        ? `Your Week ${existingData.week} submission was rejected. Please review the feedback and resubmit.`
+                        : `Your Week ${existingData.week} submission is awaiting mentor review.`}
                     </p>
                     {existingData.mentorComments && (
                       <div className="mt-2 p-3 bg-white rounded border border-gray-200">
@@ -546,7 +645,7 @@ const WeeklyStatusMatrix = () => {
             )}
 
             {/* Week Information */}
-            <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-lg p-6 border border-teal-200">
+            <div className="bg-linear-to-r from-teal-50 to-cyan-50 rounded-lg p-6 border border-teal-200">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -594,8 +693,9 @@ const WeeklyStatusMatrix = () => {
                 name="module"
                 value={formData.module}
                 onChange={handleInputChange}
+                disabled={!isEditable}
                 required
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
               >
                 <option value="">Select module to report on</option>
                 {availableModules.map((module, index) => (
@@ -604,11 +704,24 @@ const WeeklyStatusMatrix = () => {
                   </option>
                 ))}
               </select>
+              {availableModules.length > 0 &&
+                allSubmissions.some(
+                  (s) => s.week === currentWeekInfo?.currentWeek
+                ) && (
+                  <p className="mt-2 text-xs text-gray-500 italic">
+                    Note: Modules already submitted for Week{" "}
+                    {currentWeekInfo?.currentWeek} are not shown. You can submit
+                    multiple modules per week.
+                  </p>
+                )}
               {availableModules.length === 0 && (
-                <p className="mt-2 text-sm text-gray-600">
-                  No modules available. Please complete the Role Specification
-                  form first.
-                </p>
+                <div className="mt-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm text-blue-800 font-medium flex items-center gap-2">
+                    <FaCheckCircle className="text-blue-600" />
+                    All modules have been submitted for Week{" "}
+                    {currentWeekInfo?.currentWeek}. Great work!
+                  </p>
+                </div>
               )}
             </div>
 
@@ -622,10 +735,11 @@ const WeeklyStatusMatrix = () => {
                 name="progress"
                 value={formData.progress}
                 onChange={handleInputChange}
+                disabled={!isEditable}
                 placeholder="Describe the progress made this week on the selected module..."
                 required
                 rows="4"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-vertical"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-vertical disabled:bg-gray-100 disabled:cursor-not-allowed"
               />
               <p className="mt-2 text-xs text-gray-600">
                 Provide detailed information about what was accomplished,
@@ -643,7 +757,8 @@ const WeeklyStatusMatrix = () => {
                 <button
                   type="button"
                   onClick={() => addArrayItem("achievements")}
-                  className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-200 transform hover:scale-105"
+                  disabled={!isEditable}
+                  className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   <FaPlus className="w-3 h-3" />
                   Add Achievement
@@ -660,9 +775,10 @@ const WeeklyStatusMatrix = () => {
                       onChange={(e) =>
                         handleArrayChange("achievements", index, e.target.value)
                       }
-                      className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      disabled={!isEditable}
+                      className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                     />
-                    {formData.achievements.length > 1 && (
+                    {formData.achievements.length > 1 && isEditable && (
                       <button
                         type="button"
                         onClick={() => removeArrayItem("achievements", index)}
@@ -687,7 +803,8 @@ const WeeklyStatusMatrix = () => {
                 <button
                   type="button"
                   onClick={() => addArrayItem("challenges")}
-                  className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-200 transform hover:scale-105"
+                  disabled={!isEditable}
+                  className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   <FaPlus className="w-3 h-3" />
                   Add Challenge
@@ -704,9 +821,10 @@ const WeeklyStatusMatrix = () => {
                       onChange={(e) =>
                         handleArrayChange("challenges", index, e.target.value)
                       }
-                      className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      disabled={!isEditable}
+                      className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                     />
-                    {formData.challenges.length > 1 && (
+                    {formData.challenges.length > 1 && isEditable && (
                       <button
                         type="button"
                         onClick={() => removeArrayItem("challenges", index)}
@@ -731,9 +849,10 @@ const WeeklyStatusMatrix = () => {
                 name="studentRemarks"
                 value={formData.studentRemarks}
                 onChange={handleInputChange}
+                disabled={!isEditable}
                 placeholder="Any additional comments, observations, or notes about this week's work..."
                 rows="3"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-vertical"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-vertical disabled:bg-gray-100 disabled:cursor-not-allowed"
               />
               <p className="mt-2 text-xs text-gray-600">
                 Optional: Share any additional thoughts, learnings, or plans for
@@ -742,7 +861,7 @@ const WeeklyStatusMatrix = () => {
             </div>
 
             {/* Project File Upload (ZIP) */}
-            <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-lg p-6 border-2 border-teal-200">
+            <div className="bg-linear-to-r from-teal-50 to-cyan-50 rounded-lg p-6 border-2 border-teal-200">
               <label className="block text-sm font-semibold text-gray-700 mb-3">
                 <FaPlus className="inline mr-2" />
                 Project File Upload (Optional)
@@ -752,7 +871,8 @@ const WeeklyStatusMatrix = () => {
                   type="file"
                   accept=".zip"
                   onChange={handleZipFileChange}
-                  className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-600 file:text-white hover:file:bg-teal-700 file:cursor-pointer cursor-pointer"
+                  disabled={!isEditable}
+                  className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-600 file:text-white hover:file:bg-teal-700 file:cursor-pointer cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 {zipFileName && (
                   <div className="flex items-center gap-2 text-sm text-teal-700 bg-teal-100 px-3 py-2 rounded-lg">
@@ -761,26 +881,38 @@ const WeeklyStatusMatrix = () => {
                   </div>
                 )}
                 <p className="text-xs text-gray-600">
-                  Upload your project files as a ZIP archive (max 50MB). Only .zip files are accepted.
+                  Upload your project files as a ZIP archive (max 50MB). Only
+                  .zip files are accepted.
                 </p>
               </div>
             </div>
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6 border-t border-gray-200">
-              {existingData?.status === "mentor_approved" ? (
+              {!isEditable ? (
                 <div className="text-center py-2">
-                  <p className="text-green-700 font-medium flex items-center justify-center gap-2">
-                    <FaCheckCircle className="text-green-600" />
-                    This week&apos;s submission has been approved. No further action needed.
+                  <p className="text-gray-700 font-medium flex items-center justify-center gap-2">
+                    {existingData?.status === "mentor_approved" ? (
+                      <>
+                        <FaCheckCircle className="text-green-600" />
+                        This week&apos;s submission has been approved. No
+                        further action needed.
+                      </>
+                    ) : existingData?.status === "submitted" ? (
+                      <>
+                        <FaClock className="text-yellow-600" />
+                        This week&apos;s submission is pending mentor review.
+                        You cannot edit it now.
+                      </>
+                    ) : null}
                   </p>
                 </div>
               ) : (
                 <>
                   <button
                     onClick={handleSubmit}
-                    disabled={submitting || existingData?.status === "mentor_approved"}
-                    className="px-8 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold rounded-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
+                    disabled={submitting || !isEditable}
+                    className="px-8 py-3 bg-linear-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold rounded-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
                   >
                     {submitting ? (
                       <>
@@ -806,40 +938,71 @@ const WeeklyStatusMatrix = () => {
               )}
             </div>
 
-            {/* Previous Submissions */}
-            {existingData && existingData.length > 0 && (
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
+            {/* All Weekly Submissions */}
+            {allSubmissions.length > 0 && (
+              <div className="bg-linear-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Previous Submissions
+                  All Weekly Submissions ({allSubmissions.length})
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {existingData.map((submission, index) => (
-                    <div
-                      key={index}
-                      className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm"
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-semibold text-gray-800">
-                          Week {submission.week}
-                        </span>
-                        <span className="text-xs text-gray-600">
-                          {new Date(
-                            submission.submittedAt
-                          ).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        <p>
-                          <strong>Module:</strong> {submission.module}
-                        </p>
-                        {submission.mentorScore && (
+                  {allSubmissions
+                    .sort((a, b) => a.week - b.week)
+                    .map((submission, index) => (
+                      <div
+                        key={submission._id || index}
+                        className={`bg-white rounded-lg p-4 border-2 shadow-sm ${
+                          submission.status === "mentor_approved"
+                            ? "border-green-300 bg-green-50"
+                            : submission.status === "submitted"
+                            ? "border-yellow-300 bg-yellow-50"
+                            : "border-gray-200"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-semibold text-gray-800 flex items-center gap-2">
+                            Week {submission.week}
+                            {submission.status === "mentor_approved" && (
+                              <FaCheckCircle className="text-green-600 text-sm" />
+                            )}
+                            {submission.status === "submitted" && (
+                              <FaClock className="text-yellow-600 text-sm" />
+                            )}
+                          </span>
+                          <span className="text-xs text-gray-600">
+                            {new Date(
+                              submission.submittedAt
+                            ).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div className="text-sm text-gray-600 space-y-1">
                           <p>
-                            <strong>Score:</strong> {submission.mentorScore}/10
+                            <strong>Module:</strong> {submission.module}
                           </p>
-                        )}
+                          <p>
+                            <strong>Status:</strong>{" "}
+                            <span
+                              className={`font-semibold ${
+                                submission.status === "mentor_approved"
+                                  ? "text-green-600"
+                                  : "text-yellow-600"
+                              }`}
+                            >
+                              {submission.status === "mentor_approved"
+                                ? "Approved"
+                                : "Pending"}
+                            </span>
+                          </p>
+                          {submission.mentorScore && (
+                            <p>
+                              <strong>Score:</strong>{" "}
+                              <span className="font-semibold text-teal-600">
+                                {submission.mentorScore}/10
+                              </span>
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </div>
             )}

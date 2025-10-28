@@ -218,7 +218,7 @@ const ProjectAbstractForm = () => {
 
   if (loadingStatus) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-cyan-50 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-teal-50 to-cyan-50 flex items-center justify-center">
         <div className="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center">
           <FaSpinner className="animate-spin text-4xl text-teal-600 mb-4" />
           <p className="text-gray-600">Loading project abstract form...</p>
@@ -228,12 +228,12 @@ const ProjectAbstractForm = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-cyan-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-teal-50 to-cyan-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-none mx-auto">
         {/* Header */}
         <div className="bg-white rounded-t-xl shadow-lg border-b border-gray-200 p-6 sm:p-8 md:p-10">
           <div className="text-center mx-auto max-w-3xl">
-            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent mb-1 sm:mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent mb-1 sm:mb-2">
               Project Abstract Submission
             </h1>
             <h2 className="text-base sm:text-lg font-medium text-gray-700">
@@ -299,9 +299,9 @@ const ProjectAbstractForm = () => {
                 }`}
             >
               {message.type === "success" ? (
-                <FaCheckCircle className="mt-0.5 flex-shrink-0" />
+                <FaCheckCircle className="mt-0.5 shrink-0" />
               ) : (
-                <FaExclamationTriangle className="mt-0.5 flex-shrink-0" />
+                <FaExclamationTriangle className="mt-0.5 shrink-0" />
               )}
               <span className="text-sm sm:text-base">{message.text}</span>
             </div>
@@ -337,7 +337,7 @@ const ProjectAbstractForm = () => {
             </div>
 
             {/* GitHub Repository Section */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
+            <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
               <div className="flex items-center gap-3 mb-4">
                 <div className="flex items-center justify-center w-10 h-10 bg-gray-900 rounded-full">
                   <FaGithub className="text-white text-xl" />
@@ -650,7 +650,7 @@ const ProjectAbstractForm = () => {
                 <button
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="px-8 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold rounded-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
+                  className="px-8 py-3 bg-linear-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold rounded-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
                 >
                   {submitting ? (
                     <>

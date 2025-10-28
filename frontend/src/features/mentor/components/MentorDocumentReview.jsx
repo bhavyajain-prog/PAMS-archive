@@ -219,7 +219,11 @@ const MentorDocumentReview = () => {
               </span>
               <StatusBadge
                 status={
-                  document.totalReports > 0 ? "submitted" : "not_submitted"
+                  document.totalReports === 0
+                    ? "not_submitted"
+                    : document.approvedReports === document.totalReports
+                    ? "mentor_approved"
+                    : "submitted"
                 }
               />
             </div>
@@ -256,28 +260,47 @@ const MentorDocumentReview = () => {
             // Display Project Abstract form details
             <div className="space-y-3">
               <div className="bg-white p-3 rounded border">
-                <h5 className="font-semibold text-gray-800 mb-2">Project Information</h5>
+                <h5 className="font-semibold text-gray-800 mb-2">
+                  Project Information
+                </h5>
                 <div className="space-y-1.5">
                   <div>
                     <span className="text-gray-600 font-medium">Title: </span>
-                    <span className="text-gray-900">{document.data.projectTitle || 'N/A'}</span>
+                    <span className="text-gray-900">
+                      {document.data.projectTitle || "N/A"}
+                    </span>
                   </div>
                   <div>
                     <span className="text-gray-600 font-medium">Track: </span>
-                    <span className="text-gray-900">{document.data.projectTrack || 'N/A'}</span>
+                    <span className="text-gray-900">
+                      {document.data.projectTrack || "N/A"}
+                    </span>
                   </div>
                   <div>
-                    <span className="text-gray-600 font-medium">Category: </span>
-                    <span className="text-gray-900">{document.data.projectCategory || 'N/A'}</span>
+                    <span className="text-gray-600 font-medium">
+                      Category:{" "}
+                    </span>
+                    <span className="text-gray-900">
+                      {document.data.projectCategory || "N/A"}
+                    </span>
                   </div>
                   <div>
                     <span className="text-gray-600 font-medium">Modules: </span>
-                    <span className="text-gray-900">{document.data.numberOfModules || 'N/A'}</span>
+                    <span className="text-gray-900">
+                      {document.data.numberOfModules || "N/A"}
+                    </span>
                   </div>
                   {document.data.githubRepo && (
                     <div>
-                      <span className="text-gray-600 font-medium">GitHub: </span>
-                      <a href={document.data.githubRepo} target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:underline break-all">
+                      <span className="text-gray-600 font-medium">
+                        GitHub:{" "}
+                      </span>
+                      <a
+                        href={document.data.githubRepo}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-teal-600 hover:underline break-all"
+                      >
                         {document.data.githubRepo}
                       </a>
                     </div>
@@ -287,11 +310,18 @@ const MentorDocumentReview = () => {
 
               {document.data.tools && document.data.tools.length > 0 && (
                 <div className="bg-white p-3 rounded border">
-                  <h5 className="font-semibold text-gray-800 mb-2">Tools & Technologies</h5>
+                  <h5 className="font-semibold text-gray-800 mb-2">
+                    Tools & Technologies
+                  </h5>
                   <div className="flex flex-wrap gap-1.5">
                     {document.data.tools.map((tool, idx) => (
-                      <span key={idx} className="px-2 py-1 bg-teal-100 text-teal-800 rounded text-xs">
-                        {typeof tool === 'string' ? tool : tool.name || 'Unknown'}
+                      <span
+                        key={idx}
+                        className="px-2 py-1 bg-teal-100 text-teal-800 rounded text-xs"
+                      >
+                        {typeof tool === "string"
+                          ? tool
+                          : tool.name || "Unknown"}
                       </span>
                     ))}
                   </div>
@@ -300,12 +330,18 @@ const MentorDocumentReview = () => {
 
               {document.data.modules && document.data.modules.length > 0 && (
                 <div className="bg-white p-3 rounded border">
-                  <h5 className="font-semibold text-gray-800 mb-2">Project Modules</h5>
+                  <h5 className="font-semibold text-gray-800 mb-2">
+                    Project Modules
+                  </h5>
                   <div className="space-y-2">
                     {document.data.modules.map((module, idx) => (
                       <div key={idx} className="p-2 bg-gray-50 rounded">
-                        <div className="font-medium text-gray-900">{module.moduleName}</div>
-                        <div className="text-xs text-gray-600 mt-1">{module.description}</div>
+                        <div className="font-medium text-gray-900">
+                          {module.moduleName}
+                        </div>
+                        <div className="text-xs text-gray-600 mt-1">
+                          {module.description}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -314,97 +350,144 @@ const MentorDocumentReview = () => {
 
               {document.data.objectives && (
                 <div className="bg-white p-3 rounded border">
-                  <h5 className="font-semibold text-gray-800 mb-2">Objectives</h5>
-                  <p className="text-gray-700 text-sm whitespace-pre-wrap">{document.data.objectives}</p>
+                  <h5 className="font-semibold text-gray-800 mb-2">
+                    Objectives
+                  </h5>
+                  <p className="text-gray-700 text-sm whitespace-pre-wrap">
+                    {document.data.objectives}
+                  </p>
                 </div>
               )}
 
               {document.data.scopeOfWork && (
                 <div className="bg-white p-3 rounded border">
-                  <h5 className="font-semibold text-gray-800 mb-2">Scope of Work</h5>
-                  <p className="text-gray-700 text-sm whitespace-pre-wrap">{document.data.scopeOfWork}</p>
+                  <h5 className="font-semibold text-gray-800 mb-2">
+                    Scope of Work
+                  </h5>
+                  <p className="text-gray-700 text-sm whitespace-pre-wrap">
+                    {document.data.scopeOfWork}
+                  </p>
                 </div>
               )}
 
-              {document.data.teamMembers && document.data.teamMembers.length > 0 && (
-                <div className="bg-white p-3 rounded border">
-                  <h5 className="font-semibold text-gray-800 mb-2">Team Member Roles</h5>
-                  <div className="space-y-1.5">
-                    {document.data.teamMembers.map((member, idx) => (
-                      <div key={idx} className="flex justify-between items-start">
-                        <span className="text-gray-900">{member.name}</span>
-                        <span className="text-gray-600 text-xs">{member.role}</span>
-                      </div>
-                    ))}
+              {document.data.teamMembers &&
+                document.data.teamMembers.length > 0 && (
+                  <div className="bg-white p-3 rounded border">
+                    <h5 className="font-semibold text-gray-800 mb-2">
+                      Team Member Roles
+                    </h5>
+                    <div className="space-y-1.5">
+                      {document.data.teamMembers.map((member, idx) => (
+                        <div
+                          key={idx}
+                          className="flex justify-between items-start"
+                        >
+                          <span className="text-gray-900">{member.name}</span>
+                          <span className="text-gray-600 text-xs">
+                            {member.role}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
           ) : isRoleSpecification && document.data ? (
             // Display Role Specification form details
             <div className="space-y-3">
               <div className="bg-white p-3 rounded border">
-                <h5 className="font-semibold text-gray-800 mb-2">Project Title</h5>
-                <p className="text-gray-900">{document.data.projectTitle || 'N/A'}</p>
+                <h5 className="font-semibold text-gray-800 mb-2">
+                  Project Title
+                </h5>
+                <p className="text-gray-900">
+                  {document.data.projectTitle || "N/A"}
+                </p>
               </div>
 
-              {document.data.assignments && document.data.assignments.length > 0 && (
-                <div className="bg-white p-3 rounded border">
-                  <h5 className="font-semibold text-gray-800 mb-2">Role Assignments</h5>
-                  <div className="space-y-3">
-                    {document.data.assignments.map((assignment, idx) => (
-                      <div key={idx} className="p-3 bg-gray-50 rounded border-l-4 border-teal-500">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <div className="font-medium text-gray-900">{assignment.memberName}</div>
-                            <div className="text-xs text-gray-600">{assignment.memberEmail}</div>
+              {document.data.assignments &&
+                document.data.assignments.length > 0 && (
+                  <div className="bg-white p-3 rounded border">
+                    <h5 className="font-semibold text-gray-800 mb-2">
+                      Role Assignments
+                    </h5>
+                    <div className="space-y-3">
+                      {document.data.assignments.map((assignment, idx) => (
+                        <div
+                          key={idx}
+                          className="p-3 bg-gray-50 rounded border-l-4 border-teal-500"
+                        >
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <div className="font-medium text-gray-900">
+                                {assignment.memberName}
+                              </div>
+                              <div className="text-xs text-gray-600">
+                                {assignment.memberEmail}
+                              </div>
+                            </div>
+                            <span className="px-2 py-1 bg-teal-100 text-teal-800 rounded text-xs font-medium">
+                              {assignment.role}
+                            </span>
                           </div>
-                          <span className="px-2 py-1 bg-teal-100 text-teal-800 rounded text-xs font-medium">
-                            {assignment.role}
-                          </span>
+
+                          {assignment.responsibilities &&
+                            assignment.responsibilities.length > 0 && (
+                              <div className="mt-2">
+                                <div className="text-xs font-semibold text-gray-700 mb-1">
+                                  Responsibilities:
+                                </div>
+                                <ul className="list-disc list-inside space-y-0.5 text-xs text-gray-700">
+                                  {assignment.responsibilities.map(
+                                    (resp, rIdx) => (
+                                      <li key={rIdx}>{resp}</li>
+                                    )
+                                  )}
+                                </ul>
+                              </div>
+                            )}
+
+                          {assignment.technologies &&
+                            assignment.technologies.length > 0 && (
+                              <div className="mt-2">
+                                <div className="text-xs font-semibold text-gray-700 mb-1">
+                                  Technologies:
+                                </div>
+                                <div className="flex flex-wrap gap-1">
+                                  {assignment.technologies.map((tech, tIdx) => (
+                                    <span
+                                      key={tIdx}
+                                      className="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded text-xs"
+                                    >
+                                      {tech}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                          {assignment.modules &&
+                            assignment.modules.length > 0 && (
+                              <div className="mt-2">
+                                <div className="text-xs font-semibold text-gray-700 mb-1">
+                                  Assigned Modules:
+                                </div>
+                                <div className="flex flex-wrap gap-1">
+                                  {assignment.modules.map((module, mIdx) => (
+                                    <span
+                                      key={mIdx}
+                                      className="px-1.5 py-0.5 bg-purple-100 text-purple-800 rounded text-xs"
+                                    >
+                                      {module}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                         </div>
-
-                        {assignment.responsibilities && assignment.responsibilities.length > 0 && (
-                          <div className="mt-2">
-                            <div className="text-xs font-semibold text-gray-700 mb-1">Responsibilities:</div>
-                            <ul className="list-disc list-inside space-y-0.5 text-xs text-gray-700">
-                              {assignment.responsibilities.map((resp, rIdx) => (
-                                <li key={rIdx}>{resp}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-
-                        {assignment.technologies && assignment.technologies.length > 0 && (
-                          <div className="mt-2">
-                            <div className="text-xs font-semibold text-gray-700 mb-1">Technologies:</div>
-                            <div className="flex flex-wrap gap-1">
-                              {assignment.technologies.map((tech, tIdx) => (
-                                <span key={tIdx} className="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded text-xs">
-                                  {tech}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {assignment.modules && assignment.modules.length > 0 && (
-                          <div className="mt-2">
-                            <div className="text-xs font-semibold text-gray-700 mb-1">Assigned Modules:</div>
-                            <div className="flex flex-wrap gap-1">
-                              {assignment.modules.map((module, mIdx) => (
-                                <span key={mIdx} className="px-1.5 py-0.5 bg-purple-100 text-purple-800 rounded text-xs">
-                                  {module}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
           ) : (
             <div className="space-y-3">
@@ -412,8 +495,9 @@ const MentorDocumentReview = () => {
                 <div className="flex items-center gap-2">
                   <span className="text-gray-600 text-xs">Submitted:</span>
                   <span
-                    className={`font-medium text-xs ${document.submitted ? "text-teal-600" : "text-gray-400"
-                      }`}
+                    className={`font-medium text-xs ${
+                      document.submitted ? "text-teal-600" : "text-gray-400"
+                    }`}
                   >
                     {document.submitted ? "Yes" : "No"}
                   </span>
@@ -421,8 +505,9 @@ const MentorDocumentReview = () => {
                 <div className="flex items-center gap-2">
                   <span className="text-gray-600 text-xs">Has Data:</span>
                   <span
-                    className={`font-medium text-xs ${document.hasData ? "text-teal-600" : "text-gray-400"
-                      }`}
+                    className={`font-medium text-xs ${
+                      document.hasData ? "text-teal-600" : "text-gray-400"
+                    }`}
                   >
                     {document.hasData ? "Yes" : "No"}
                   </span>
@@ -500,7 +585,11 @@ const MentorDocumentReview = () => {
                 <div className="bg-teal-50 rounded-lg p-3 border border-teal-200">
                   <p className="text-teal-800 text-sm font-medium flex items-center">
                     <CheckCircle className="w-4 h-4 mr-2" />
-                    Approved by you{document.mentorApprovedAt && ` on ${new Date(document.mentorApprovedAt).toLocaleDateString()}`}
+                    Approved by you
+                    {document.mentorApprovedAt &&
+                      ` on ${new Date(
+                        document.mentorApprovedAt
+                      ).toLocaleDateString()}`}
                   </p>
                 </div>
               )}
@@ -645,9 +734,16 @@ const MentorDocumentReview = () => {
               </h4>
               <div className="grid grid-cols-1 gap-4">
                 {Object.entries(team.documents).map(([docKey, document]) => {
-                  const isFormDocument = docKey === "projectAbstract" || docKey === "roleSpecification";
+                  const isFormDocument =
+                    docKey === "projectAbstract" ||
+                    docKey === "roleSpecification";
                   return (
-                    <div key={docKey} className={isFormDocument ? "col-span-1" : "lg:col-span-1"}>
+                    <div
+                      key={docKey}
+                      className={
+                        isFormDocument ? "col-span-1" : "lg:col-span-1"
+                      }
+                    >
                       <DocumentCard
                         document={document}
                         docKey={docKey}
@@ -842,7 +938,8 @@ const MentorDocumentReview = () => {
             </div>
 
             <p className="text-gray-600">
-              Please provide a reason for rejection (optional). The team will be notified.
+              Please provide a reason for rejection (optional). The team will be
+              notified.
             </p>
 
             <div>
@@ -860,7 +957,12 @@ const MentorDocumentReview = () => {
 
             <div className="flex items-center gap-3 pt-2">
               <button
-                onClick={() => handleRejectDocument(showRejectModal.teamId, showRejectModal.docKey)}
+                onClick={() =>
+                  handleRejectDocument(
+                    showRejectModal.teamId,
+                    showRejectModal.docKey
+                  )
+                }
                 disabled={actionLoading === `reject-${showRejectModal.docKey}`}
                 className="flex-1 flex items-center justify-center px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
               >
