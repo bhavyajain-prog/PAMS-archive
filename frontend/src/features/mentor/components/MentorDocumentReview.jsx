@@ -15,6 +15,9 @@ import {
   Hash,
   BookOpen,
   Download,
+  ThumbsUp,
+  ThumbsDown,
+  MessageSquare,
 } from "lucide-react";
 
 const MentorDocumentReview = () => {
@@ -24,6 +27,9 @@ const MentorDocumentReview = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [expandedTeams, setExpandedTeams] = useState(new Set());
+  const [actionLoading, setActionLoading] = useState(null);
+  const [showRejectModal, setShowRejectModal] = useState(null);
+  const [rejectReason, setRejectReason] = useState("");
 
   // Handle document download
   const handleDownload = async (teamId, documentType, originalName) => {
@@ -46,6 +52,49 @@ const MentorDocumentReview = () => {
     } catch (err) {
       console.error("Error downloading document:", err);
       setError(err.response?.data?.message || "Failed to download document");
+    }
+  };
+
+  // Handle document approval
+  const handleApproveDocument = async (teamId, documentType) => {
+    try {
+      setActionLoading(`approve-${documentType}`);
+      await axios.put(
+        `/common/mentor/team/${teamId}/document/${documentType}/approve`
+      );
+
+      // Refresh data
+      await fetchDocumentData();
+      setError("");
+    } catch (err) {
+      console.error("Error approving document:", err);
+      setError(err.response?.data?.message || "Failed to approve document");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // Handle document rejection
+  const handleRejectDocument = async (teamId, documentType) => {
+    try {
+      setActionLoading(`reject-${documentType}`);
+      await axios.put(
+        `/common/mentor/team/${teamId}/document/${documentType}/reject`,
+        {
+          reason: rejectReason.trim() || null,
+        }
+      );
+
+      // Refresh data and close modal
+      await fetchDocumentData();
+      setShowRejectModal(null);
+      setRejectReason("");
+      setError("");
+    } catch (err) {
+      console.error("Error rejecting document:", err);
+      setError(err.response?.data?.message || "Failed to reject document");
+    } finally {
+      setActionLoading(null);
     }
   };
 
@@ -358,45 +407,110 @@ const MentorDocumentReview = () => {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600">Submitted:</span>
-                <span
-                  className={`font-medium ${document.submitted ? "text-teal-600" : "text-gray-400"
-                    }`}
-                >
-                  {document.submitted ? "Yes" : "No"}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600">Has Data:</span>
-                <span
-                  className={`font-medium ${document.hasData ? "text-teal-600" : "text-gray-400"
-                    }`}
-                >
-                  {document.hasData ? "Yes" : "No"}
-                </span>
-              </div>
-              {document.uploadedAt && (
-                <div className="col-span-2 flex justify-between">
-                  <span className="text-gray-600">Uploaded At:</span>
-                  <span className="font-medium">
-                    {new Date(document.uploadedAt).toLocaleDateString()}
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-600 text-xs">Submitted:</span>
+                  <span
+                    className={`font-medium text-xs ${document.submitted ? "text-teal-600" : "text-gray-400"
+                      }`}
+                  >
+                    {document.submitted ? "Yes" : "No"}
                   </span>
                 </div>
-              )}
-              {document.originalName && (
-                <div className="col-span-2 flex items-center justify-between">
-                  <span className="text-gray-600">File:</span>
-                  <button
-                    onClick={() =>
-                      handleDownload(teamId, docKey, document.originalName)
-                    }
-                    className="font-medium text-teal-600 hover:text-teal-800 flex items-center transition-colors"
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-600 text-xs">Has Data:</span>
+                  <span
+                    className={`font-medium text-xs ${document.hasData ? "text-teal-600" : "text-gray-400"
+                      }`}
                   >
-                    <Download className="w-3 h-3 mr-1" />
-                    {document.originalName}
+                    {document.hasData ? "Yes" : "No"}
+                  </span>
+                </div>
+                {document.uploadedAt && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-600 text-xs">Uploaded At:</span>
+                    <span className="font-medium text-xs">
+                      {new Date(document.uploadedAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                )}
+                {document.originalName && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-600 text-xs">File:</span>
+                    <button
+                      onClick={() =>
+                        handleDownload(teamId, docKey, document.originalName)
+                      }
+                      className="font-medium text-teal-600 hover:text-teal-800 flex items-center transition-colors text-xs"
+                    >
+                      <Download className="w-3 h-3 mr-1" />
+                      {document.originalName}
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Rejection Reason Display */}
+              {document.status === "rejected" && document.rejectionReason && (
+                <div className="bg-red-50 rounded-lg p-3 border border-red-200">
+                  <h5 className="font-semibold text-red-900 mb-1 flex items-center text-sm">
+                    <AlertCircle className="w-3 h-3 mr-1" />
+                    Rejection Reason
+                  </h5>
+                  <p className="text-red-800 text-sm whitespace-pre-wrap">
+                    {document.rejectionReason}
+                  </p>
+                </div>
+              )}
+
+              {/* Action Buttons for PDF Documents */}
+              {document.originalName && document.status === "submitted" && (
+                <div className="flex items-center gap-2 pt-2">
+                  <button
+                    onClick={() => handleApproveDocument(teamId, docKey)}
+                    disabled={actionLoading === `approve-${docKey}`}
+                    className="flex items-center px-2.5 py-1.5 bg-teal-600 text-white rounded hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium"
+                  >
+                    {actionLoading === `approve-${docKey}` ? (
+                      <>
+                        <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
+                        Approving...
+                      </>
+                    ) : (
+                      <>
+                        <ThumbsUp className="w-3 h-3 mr-1" />
+                        Approve
+                      </>
+                    )}
                   </button>
+                  <button
+                    onClick={() => setShowRejectModal({ teamId, docKey })}
+                    disabled={actionLoading === `reject-${docKey}`}
+                    className="flex items-center px-2.5 py-1.5 bg-red-600 text-white rounded hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium"
+                  >
+                    <ThumbsDown className="w-3 h-3 mr-1" />
+                    Reject
+                  </button>
+                </div>
+              )}
+
+              {/* Approval Status Message */}
+              {document.status === "mentor_approved" && (
+                <div className="bg-teal-50 rounded-lg p-3 border border-teal-200">
+                  <p className="text-teal-800 text-sm font-medium flex items-center">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Approved by you{document.mentorApprovedAt && ` on ${new Date(document.mentorApprovedAt).toLocaleDateString()}`}
+                  </p>
+                </div>
+              )}
+
+              {document.status === "admin_approved" && (
+                <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                  <p className="text-blue-800 text-sm font-medium flex items-center">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Admin Approved
+                  </p>
                 </div>
               )}
             </div>
@@ -713,6 +827,69 @@ const MentorDocumentReview = () => {
           ))}
         </div>
       </div>
+
+      {/* Reject Modal */}
+      {showRejectModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 space-y-4">
+            <div className="flex items-center space-x-3">
+              <div className="bg-red-100 rounded-lg p-2">
+                <MessageSquare className="w-6 h-6 text-red-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">
+                Reject Document
+              </h3>
+            </div>
+
+            <p className="text-gray-600">
+              Please provide a reason for rejection (optional). The team will be notified.
+            </p>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Rejection Reason
+              </label>
+              <textarea
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="Explain why this document is being rejected..."
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+              />
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                onClick={() => handleRejectDocument(showRejectModal.teamId, showRejectModal.docKey)}
+                disabled={actionLoading === `reject-${showRejectModal.docKey}`}
+                className="flex-1 flex items-center justify-center px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              >
+                {actionLoading === `reject-${showRejectModal.docKey}` ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Rejecting...
+                  </>
+                ) : (
+                  <>
+                    <ThumbsDown className="w-4 h-4 mr-2" />
+                    Confirm Rejection
+                  </>
+                )}
+              </button>
+              <button
+                onClick={() => {
+                  setShowRejectModal(null);
+                  setRejectReason("");
+                }}
+                disabled={actionLoading === `reject-${showRejectModal.docKey}`}
+                className="flex-1 px-4 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -922,4 +922,118 @@ router.get(
   })
 );
 
+// Approve document (Mentor only)
+router.put(
+  "/mentor/team/:teamId/document/:documentType/approve",
+  authenticate,
+  authorizeRoles("mentor"),
+  asyncHandler(async (req, res) => {
+    const { teamId, documentType } = req.params;
+
+    // Find the team
+    const team = await Team.findById(teamId);
+    if (!team) {
+      return res.status(404).json({ message: "Team not found" });
+    }
+
+    // Check if mentor is assigned to this team
+    if (!team.mentor?.assigned || team.mentor.assigned.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "You are not assigned to this team" });
+    }
+
+    // Check if document exists
+    if (!team.pdfDocuments?.[documentType]) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    const document = team.pdfDocuments[documentType];
+
+    // Check if document has been uploaded
+    if (!document.path) {
+      return res.status(400).json({ message: "No document uploaded yet" });
+    }
+
+    // Check if already admin approved
+    if (document.status === "admin_approved") {
+      return res.status(400).json({ message: "Document is already admin approved" });
+    }
+
+    // Update document status
+    document.status = "mentor_approved";
+    document.mentorApproval = true;
+    document.mentorApprovedBy = req.user._id;
+    document.mentorApprovedAt = new Date();
+    document.rejectionReason = undefined; // Clear any previous rejection reason
+
+    await team.save();
+
+    res.status(200).json({
+      message: `Document approved successfully`,
+      document: {
+        type: documentType,
+        status: document.status,
+        mentorApproval: document.mentorApproval,
+        mentorApprovedAt: document.mentorApprovedAt,
+      },
+    });
+  })
+);
+
+// Reject document (Mentor only)
+router.put(
+  "/mentor/team/:teamId/document/:documentType/reject",
+  authenticate,
+  authorizeRoles("mentor"),
+  asyncHandler(async (req, res) => {
+    const { teamId, documentType } = req.params;
+    const { reason } = req.body;
+
+    // Find the team
+    const team = await Team.findById(teamId);
+    if (!team) {
+      return res.status(404).json({ message: "Team not found" });
+    }
+
+    // Check if mentor is assigned to this team
+    if (!team.mentor?.assigned || team.mentor.assigned.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "You are not assigned to this team" });
+    }
+
+    // Check if document exists
+    if (!team.pdfDocuments?.[documentType]) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    const document = team.pdfDocuments[documentType];
+
+    // Check if document has been uploaded
+    if (!document.path) {
+      return res.status(400).json({ message: "No document uploaded yet" });
+    }
+
+    // Check if already admin approved
+    if (document.status === "admin_approved") {
+      return res.status(400).json({ message: "Cannot reject admin approved document" });
+    }
+
+    // Update document status
+    document.status = "rejected";
+    document.mentorApproval = false;
+    document.mentorApprovedBy = req.user._id;
+    document.mentorApprovedAt = new Date();
+    document.rejectionReason = reason ? reason.trim() : "Document rejected by mentor";
+
+    await team.save();
+
+    res.status(200).json({
+      message: `Document rejected successfully`,
+      document: {
+        type: documentType,
+        status: document.status,
+        rejectionReason: document.rejectionReason,
+      },
+    });
+  })
+);
+
 module.exports = router;
