@@ -29,6 +29,7 @@ const ProgressTracking = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [filterWeek, setFilterWeek] = useState("all");
   const [actionLoading, setActionLoading] = useState(null);
   const [showRejectModal, setShowRejectModal] = useState(null);
   const [rejectReason, setRejectReason] = useState("");
@@ -167,7 +168,7 @@ const ProgressTracking = () => {
   };
 
   // Weekly Status Card
-  const WeeklyStatusCard = ({ weekData, teamId }) => {
+  const WeeklyStatusCard = ({ weekData, teamId, teamMembers = [], teamLeader = null }) => {
     const isExpanded = expandedWeeks.has(weekData._id);
     const hasScore =
       weekData.mentorScore !== null && weekData.mentorScore !== undefined;
@@ -442,13 +443,25 @@ const ProgressTracking = () => {
             <div className="flex items-center justify-between text-sm text-gray-600 pt-4 border-t">
               <div className="flex items-center space-x-4">
                 <span>
-                  Submitted by:{" "}
+                  Submitted by: {" "}
                   <span className="font-medium">
-                    {weekData.submittedBy?.name}
+                    {(() => {
+                      // weekData.submittedBy may be populated (object) or just an id string
+                      const sb = weekData.submittedBy;
+                      if (!sb) return teamLeader?.name || "Unknown";
+                      if (typeof sb === "string") {
+                        const member = teamMembers.find(
+                          (m) => String(m.student?._id || m.student) === sb
+                        );
+                        return member?.student?.name || member?.name || "Unknown";
+                      }
+                      // Object case (populated)
+                      return sb.name || sb.studentName || teamLeader?.name || "Unknown";
+                    })()}
                   </span>
                 </span>
                 <span>•</span>
-                <span>{new Date(weekData.submittedAt).toLocaleString()}</span>
+                <span>{weekData.submittedAt ? new Date(weekData.submittedAt).toLocaleString() : "-"}</span>
               </div>
             </div>
           </div>
@@ -460,10 +473,12 @@ const ProgressTracking = () => {
   // Team Progress View
   const TeamProgressView = ({ team }) => {
     const weeklyStatus = team.weeklyStatus || [];
-    const filteredWeeks =
-      filterStatus === "all"
-        ? weeklyStatus
-        : weeklyStatus.filter((w) => w.status === filterStatus);
+    // compute available weeks from the team's weeklyStatus
+    const weeks = Array.from(new Set(weeklyStatus.map((w) => w.week))).sort((a, b) => a - b);
+
+    let filteredWeeks = weeklyStatus;
+    if (filterStatus !== "all") filteredWeeks = filteredWeeks.filter((w) => w.status === filterStatus);
+    if (filterWeek !== "all") filteredWeeks = filteredWeeks.filter((w) => Number(w.week) === Number(filterWeek));
 
     const stats = {
       total: weeklyStatus.length,
@@ -561,22 +576,34 @@ const ProgressTracking = () => {
             <div className="flex items-center space-x-2">
               <Filter className="w-4 h-4 text-gray-600" />
               <label className="text-sm font-medium text-gray-700">
-                Filter by Status:
+                Filters:
               </label>
             </div>
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-            >
-              <option value="all">All Reports ({weeklyStatus.length})</option>
-              <option value="submitted">
-                Pending Review ({stats.pending})
-              </option>
-              <option value="mentor_approved">
-                Approved ({stats.approved})
-              </option>
-            </select>
+
+            <div className="flex items-center gap-3">
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              >
+                <option value="all">All Reports ({weeklyStatus.length})</option>
+                <option value="submitted">Pending Review ({stats.pending})</option>
+                <option value="mentor_approved">Approved ({stats.approved})</option>
+              </select>
+
+              <select
+                value={filterWeek}
+                onChange={(e) => setFilterWeek(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              >
+                <option value="all">All Weeks</option>
+                {weeks.map((w) => (
+                  <option key={w} value={w}>
+                    Week {w} ({weeklyStatus.filter((x) => Number(x.week) === Number(w)).length})
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 
@@ -601,6 +628,8 @@ const ProgressTracking = () => {
                 weekData={weekData}
                 teamId={team._id}
                 teamCode={team.code}
+                teamMembers={team.members}
+                teamLeader={team.leader}
               />
             ))
           )}

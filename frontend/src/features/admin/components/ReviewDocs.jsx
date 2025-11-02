@@ -35,7 +35,9 @@ const ReviewDocs = () => {
 
   // UI states
   const [expandedTeams, setExpandedTeams] = useState(new Set());
-  const [deleteLoading, setDeleteLoading] = useState({});
+  const [actionLoading, setActionLoading] = useState({});
+  const [rejectModal, setRejectModal] = useState({ show: false, teamId: null, docKey: null });
+  const [rejectReason, setRejectReason] = useState("");
 
   // Handle document download
   const handleDownload = async (teamId, documentType, originalName) => {
@@ -61,6 +63,60 @@ const ReviewDocs = () => {
     }
   };
 
+  // Handle document approve
+  const handleApprove = async (teamId, docKey) => {
+    try {
+      setActionLoading({ ...actionLoading, [`approve-${teamId}-${docKey}`]: true });
+      setError("");
+
+      await axios.put(`/admin/team/${teamId}/document/${docKey}/approve`);
+
+      // Refresh data
+      await fetchDocumentData();
+    } catch (err) {
+      console.error("Error approving document:", err);
+      setError(err.response?.data?.message || "Failed to approve document");
+    } finally {
+      setActionLoading({ ...actionLoading, [`approve-${teamId}-${docKey}`]: false });
+    }
+  };
+
+  // Handle document reject (opens modal)
+  const handleRejectClick = (teamId, docKey) => {
+    setRejectModal({ show: true, teamId, docKey });
+    setRejectReason("");
+  };
+
+  // Confirm reject
+  const confirmReject = async () => {
+    const { teamId, docKey } = rejectModal;
+    setRejectModal({ show: false, teamId: null, docKey: null });
+
+    try {
+      setActionLoading({ ...actionLoading, [`reject-${teamId}-${docKey}`]: true });
+      setError("");
+
+      await axios.put(`/admin/team/${teamId}/document/${docKey}/reject`, {
+        reason: rejectReason.trim() || "Document rejected by admin",
+      });
+
+      // Refresh data
+      await fetchDocumentData();
+      setRejectReason("");
+    } catch (err) {
+      console.error("Error rejecting document:", err);
+      setError(err.response?.data?.message || "Failed to reject document");
+    } finally {
+      setActionLoading({ ...actionLoading, [`reject-${teamId}-${docKey}`]: false });
+    }
+  };
+
+  // Cancel reject
+  const cancelReject = () => {
+    setRejectModal({ show: false, teamId: null, docKey: null });
+    setRejectReason("");
+  };
+
   // Handle document delete
   const handleDelete = async (teamId, documentType, documentName) => {
     if (
@@ -72,9 +128,9 @@ const ReviewDocs = () => {
     }
 
     try {
-      setDeleteLoading({
-        ...deleteLoading,
-        [`${teamId}-${documentType}`]: true,
+      setActionLoading({
+        ...actionLoading,
+        [`delete-${teamId}-${documentType}`]: true,
       });
       setError("");
 
@@ -86,9 +142,9 @@ const ReviewDocs = () => {
       console.error("Error deleting document:", err);
       setError(err.response?.data?.message || "Failed to delete document");
     } finally {
-      setDeleteLoading({
-        ...deleteLoading,
-        [`${teamId}-${documentType}`]: false,
+      setActionLoading({
+        ...actionLoading,
+        [`delete-${teamId}-${documentType}`]: false,
       });
     }
   };
@@ -273,7 +329,8 @@ const ReviewDocs = () => {
   // Document card component
   const DocumentCard = ({ document, docKey, teamId }) => {
     const isWeeklyStatus = docKey === "weeklyStatus";
-    const isDeleting = deleteLoading[`${teamId}-${docKey}`];
+    const isApproving = actionLoading[`approve-${teamId}-${docKey}`];
+    const isRejecting = actionLoading[`reject-${teamId}-${docKey}`];
 
     return (
       <div className="bg-gray-50 rounded-lg p-4 border">
@@ -323,73 +380,113 @@ const ReviewDocs = () => {
               )}
             </>
           ) : (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600">Submitted:</span>
-                <span
-                  className={`font-medium ${
-                    document.submitted ? "text-teal-600" : "text-gray-400"
-                  }`}
-                >
-                  {document.submitted ? "Yes" : "No"}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600">Has Data:</span>
-                <span
-                  className={`font-medium ${
-                    document.hasData ? "text-teal-600" : "text-gray-400"
-                  }`}
-                >
-                  {document.hasData ? "Yes" : "No"}
-                </span>
-              </div>
-              {document.submittedAt && (
-                <div className="col-span-2 flex justify-between">
-                  <span className="text-gray-600">Submitted At:</span>
-                  <span className="font-medium">
-                    {new Date(document.submittedAt).toLocaleDateString()}
+            <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Submitted:</span>
+                  <span
+                    className={`font-medium ${document.submitted ? "text-teal-600" : "text-gray-400"
+                      }`}
+                  >
+                    {document.submitted ? "Yes" : "No"}
                   </span>
                 </div>
-              )}
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Has Data:</span>
+                  <span
+                    className={`font-medium ${document.hasData ? "text-teal-600" : "text-gray-400"
+                      }`}
+                  >
+                    {document.hasData ? "Yes" : "No"}
+                  </span>
+                </div>
+                {document.submittedAt && (
+                  <div className="col-span-2 flex justify-between">
+                    <span className="text-gray-600">Submitted At:</span>
+                    <span className="font-medium">
+                      {new Date(document.submittedAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                )}
+              </div>
+
               {document.originalName && (
-                <div className="col-span-2 space-y-2">
+                <div className="space-y-2 pt-2 border-t">
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">File:</span>
                     <span className="font-medium text-sm truncate max-w-[180px]">
                       {document.originalName}
                     </span>
                   </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() =>
-                        handleDownload(teamId, docKey, document.originalName)
-                      }
-                      className="flex-1 flex items-center justify-center px-3 py-1.5 bg-teal-600 text-white rounded text-xs font-medium hover:bg-teal-700 transition-colors"
-                    >
-                      <Download className="w-3 h-3 mr-1" />
-                      Download
-                    </button>
-                    <button
-                      onClick={() =>
-                        handleDelete(teamId, docKey, document.name)
-                      }
-                      disabled={isDeleting}
-                      className="flex-1 flex items-center justify-center px-3 py-1.5 bg-red-600 text-white rounded text-xs font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isDeleting ? (
-                        <>
-                          <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
-                          Deleting...
-                        </>
-                      ) : (
-                        <>
-                          <XCircle className="w-3 h-3 mr-1" />
-                          Delete
-                        </>
-                      )}
-                    </button>
-                  </div>
+
+                  {/* Download Button */}
+                  <button
+                    onClick={() =>
+                      handleDownload(teamId, docKey, document.originalName)
+                    }
+                    className="w-full flex items-center justify-center px-3 py-1.5 bg-teal-600 text-white rounded text-xs font-medium hover:bg-teal-700 transition-colors"
+                  >
+                    <Download className="w-3 h-3 mr-1" />
+                    Download
+                  </button>
+
+                  {/* Approve/Reject Buttons - only for submitted or mentor_approved documents */}
+                  {(document.status === "submitted" || document.status === "mentor_approved") && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleApprove(teamId, docKey)}
+                        disabled={isApproving || isRejecting}
+                        className="flex-1 flex items-center justify-center px-3 py-1.5 bg-green-600 text-white rounded text-xs font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isApproving ? (
+                          <>
+                            <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
+                            Approving...
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Approve
+                          </>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => handleRejectClick(teamId, docKey)}
+                        disabled={isApproving || isRejecting}
+                        className="flex-1 flex items-center justify-center px-3 py-1.5 bg-red-600 text-white rounded text-xs font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isRejecting ? (
+                          <>
+                            <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
+                            Rejecting...
+                          </>
+                        ) : (
+                          <>
+                            <XCircle className="w-3 h-3 mr-1" />
+                            Reject
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Show rejection reason if rejected */}
+                  {document.status === "rejected" && document.rejectionReason && (
+                    <div className="bg-red-50 border border-red-200 rounded p-2">
+                      <p className="text-xs text-red-800 font-medium">Rejection Reason:</p>
+                      <p className="text-xs text-red-700">{document.rejectionReason}</p>
+                    </div>
+                  )}
+
+                  {/* Show admin approval message */}
+                  {document.status === "admin_approved" && (
+                    <div className="bg-green-50 border border-green-200 rounded p-2">
+                      <p className="text-xs text-green-800 font-medium flex items-center">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Approved by Admin
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -541,6 +638,67 @@ const ReviewDocs = () => {
               </div>
             )}
 
+            {/* Per-team Document Type Statistics (moved from global stats) */}
+            <div>
+              <h4 className="font-medium text-gray-900 mb-4 flex items-center">
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Document Type Statistics (This Team)
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                {Object.entries(team.documents).map(([docKey, document]) => {
+                  const isWeekly = docKey === "weeklyStatus";
+                  const submitted = isWeekly
+                    ? document.totalReports || 0
+                    : document.submitted
+                      ? 1
+                      : 0;
+                  const mentorApproved = isWeekly
+                    ? document.approvedReports || 0
+                    : document.mentorApproved
+                      ? 1
+                      : 0;
+                  const adminApproved = isWeekly
+                    ? 0
+                    : document.adminApproved
+                      ? 1
+                      : 0;
+                  const pending = isWeekly
+                    ? Math.max((document.totalReports || 0) - (document.approvedReports || 0), 0)
+                    : (document.status === "submitted" || document.status === "mentor_approved")
+                      ? 1
+                      : 0;
+
+                  return (
+                    <div key={docKey} className="bg-white rounded-lg p-3 border">
+                      <h5 className="font-medium text-sm text-gray-800 mb-2">{document.name}</h5>
+                      <div className="text-sm space-y-1">
+                        <div className="flex justify-between text-gray-600">
+                          <span>Submitted</span>
+                          <span className="font-medium text-teal-600">{submitted}</span>
+                        </div>
+                        <div className="flex justify-between text-gray-600">
+                          <span>Mentor Approved</span>
+                          <span className="font-medium text-teal-600">{mentorApproved}</span>
+                        </div>
+                        {!isWeekly && (
+                          <div className="flex justify-between text-gray-600">
+                            <span>Admin Approved</span>
+                            <span className="font-medium text-teal-600">{adminApproved}</span>
+                          </div>
+                        )}
+                        {pending > 0 && (
+                          <div className="flex justify-between text-gray-600">
+                            <span>Pending Review</span>
+                            <span className="font-medium text-yellow-600">{pending}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Documents */}
             <div>
               <h4 className="font-medium text-gray-900 mb-4 flex items-center">
@@ -684,52 +842,7 @@ const ReviewDocs = () => {
           </div>
         )}
 
-        {/* Document Type Statistics */}
-        {statistics?.documentTypeStats && (
-          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <BarChart3 className="w-5 h-5 mr-2" />
-              Document Type Statistics
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {statistics.documentTypeStats.map((stat) => (
-                <div key={stat.key} className="space-y-3">
-                  <h4 className="font-medium text-gray-800">{stat.name}</h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Submitted</span>
-                      <span className="font-medium text-teal-600">
-                        {stat.submitted}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Mentor Approved</span>
-                      <span className="font-medium text-teal-600">
-                        {stat.mentorApproved}
-                      </span>
-                    </div>
-                    {stat.key !== "weeklyStatus" && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Admin Approved</span>
-                        <span className="font-medium text-teal-600">
-                          {stat.adminApproved}
-                        </span>
-                      </div>
-                    )}
-                    {stat.pending > 0 && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Pending Review</span>
-                        <span className="font-medium text-yellow-600">
-                          {stat.pending}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Document Type Statistics moved: per-team stats are shown inside each team's expanded card */}
 
         {/* Filters and Search */}
         <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
@@ -851,6 +964,41 @@ const ReviewDocs = () => {
           )}
         </div>
       </div>
+
+      {/* Reject Modal */}
+      {rejectModal.show && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Reject Document
+            </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Please provide a reason for rejection (optional):
+            </p>
+            <textarea
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="Enter rejection reason..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+              rows={4}
+            />
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={confirmReject}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+              >
+                Confirm Reject
+              </button>
+              <button
+                onClick={cancelReject}
+                className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

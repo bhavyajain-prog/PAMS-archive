@@ -726,15 +726,23 @@ router.post(
       team.evaluation = { weeklyStatus: [] };
     }
 
-    const existingSubmission = team.evaluation.weeklyStatus.find(
-      (status) =>
-        parseInt(status.week) === weekNumber && status.module === module.trim()
-    );
+    // Find any existing submission for the same week+module by THIS user
+    const existingSubmission = team.evaluation.weeklyStatus.find((status) => {
+      try {
+        return (
+          parseInt(status.week) === weekNumber &&
+          status.module === module.trim() &&
+          String(status.submittedBy) === String(req.user._id)
+        );
+      } catch (e) {
+        return false;
+      }
+    });
 
     if (existingSubmission) {
-      // If the existing submission was rejected, allow resubmission by updating
-      // the same entry instead of creating a new one. This prevents duplicate
-      // blocks for the same week+module.
+      // If the existing submission (by this user) was rejected, allow resubmission
+      // by updating the same entry instead of creating a new one. This prevents
+      // duplicate blocks for the same week+module for the same student.
       if (existingSubmission.status === "rejected") {
         // Prepare updated fields
         existingSubmission.dateRange = {
@@ -808,7 +816,7 @@ router.post(
         fs.unlink(req.file.path, () => { });
       }
       return res.status(400).json({
-        message: `Week ${weekNumber} status for module "${module}" has already been submitted. You cannot submit multiple times for the same week and module combination.`,
+        message: `You have already submitted Week ${weekNumber} status for module "${module}". If you need to update it, please edit your existing submission or resubmit after rejection.`,
       });
     }
 
@@ -1031,10 +1039,12 @@ router.put(
     // Find the weekly status to update. Prefer matching both week and module
     // when module is provided to avoid ambiguities when multiple modules are
     // submitted in the same week.
+    // Prefer matching this student's own submission for the given week/module
     const weeklyStatusIndex = team.evaluation?.weeklyStatus?.findIndex(
       (status) =>
         status.week === parseInt(week) &&
-        (!module || !String(module).trim() || status.module === String(module).trim())
+        (!module || !String(module).trim() || status.module === String(module).trim()) &&
+        String(status.submittedBy) === String(req.user._id)
     );
 
     if (weeklyStatusIndex === -1) {

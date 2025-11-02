@@ -15,6 +15,7 @@ import {
   FaCommentDots,
 } from "react-icons/fa";
 import axios from "../../../services/axios";
+import { useAuth } from "../../../contexts/AuthContext";
 
 const WeeklyStatusMatrix = () => {
   const [submitting, setSubmitting] = useState(false);
@@ -28,6 +29,7 @@ const WeeklyStatusMatrix = () => {
   const [zipFile, setZipFile] = useState(null);
   const [zipFileName, setZipFileName] = useState("");
 
+  const { user } = useAuth();
   const initialFormState = {
     week: 1,
     dateRange: {
@@ -130,14 +132,17 @@ const WeeklyStatusMatrix = () => {
 
             // Get modules that have been submitted for the CURRENT week only
             // Since backend now allows multiple submissions per week (but not same week+module combo)
+            // Only consider submissions made by the current user for computing
+            // which modules they've already submitted for the current week.
             const currentWeekSubmissions =
-              statusResponse.data.weeklyStatus.filter(
-                (s) => s.week === currentWeekInfo.currentWeek
-              );
+              statusResponse.data.weeklyStatus.filter((s) => {
+                if (s.week !== currentWeekInfo.currentWeek) return false;
+                const submittedBy = s.submittedBy;
+                const submittedId = typeof submittedBy === "string" ? submittedBy : submittedBy?._id;
+                return submittedId && user && user._id && submittedId === user._id;
+              });
 
-            const currentWeekModules = currentWeekSubmissions.map(
-              (s) => s.module
-            );
+            const currentWeekModules = currentWeekSubmissions.map((s) => s.module);
 
             // Filter out modules already submitted for current week
             const availableModulesFiltered = allModules.filter(
@@ -932,67 +937,84 @@ const WeeklyStatusMatrix = () => {
             </div>
 
             {/* All Weekly Submissions */}
-            {allSubmissions.length > 0 && (
-              <div className="bg-linear-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  All Weekly Submissions ({allSubmissions.length})
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {allSubmissions
-                    .sort((a, b) => a.week - b.week)
-                    .map((submission, index) => (
-                      <div
-                        key={submission._id || index}
-                        className={`bg-white rounded-lg p-4 border-2 shadow-sm ${submission.status === "mentor_approved"
-                          ? "border-green-300 bg-green-50"
-                          : submission.status === "submitted"
-                            ? "border-yellow-300 bg-yellow-50"
-                            : "border-gray-200"
-                          }`}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-semibold text-gray-800 flex items-center gap-2">
-                            Week {submission.week}
-                            {submission.status === "mentor_approved" && (
-                              <FaCheckCircle className="text-green-600 text-sm" />
-                            )}
-                            {submission.status === "submitted" && (
-                              <FaClock className="text-yellow-600 text-sm" />
-                            )}
-                          </span>
-                          <span className="text-xs text-gray-600">
-                            {new Date(
-                              submission.submittedAt
-                            ).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <div className="text-sm text-gray-600 space-y-1">
-                          <p>
-                            <strong>Module:</strong> {submission.module}
-                          </p>
-                          <p>
-                            <strong>Status:</strong>{" "}
-                            <span
-                              className={`font-semibold ${submission.status === "mentor_approved"
-                                ? "text-green-600"
-                                : submission.status === "rejected"
-                                  ? "text-red-600"
-                                  : "text-yellow-600"
-                                }`}
-                            >
-                              {submission.status === "mentor_approved"
-                                ? "Approved"
-                                : submission.status === "rejected"
-                                  ? "Rejected"
-                                  : "Pending"}
-                            </span>
-                          </p>
-                          {/* Score hidden on Weekly Status page — view scores on the View Score page */}
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </div>
+            {/**
+             * Show only submissions made by the logged-in student in the
+             * "All Weekly Submissions" section. Keep team-level data (allSubmissions)
+             * intact for internal logic like module availability, but restrict the
+             * visible list to the current user's submissions.
+             */}
+            {user && (
+              (() => {
+                const mySubmissions = allSubmissions.filter((s) => {
+                  if (!s) return false;
+                  const submittedBy = s.submittedBy;
+                  const submittedId = typeof submittedBy === "string" ? submittedBy : submittedBy?._id;
+                  return submittedId && user && user._id && submittedId === user._id;
+                });
+
+                if (mySubmissions.length === 0) return null;
+
+                return (
+                  <div className="bg-linear-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                      My Weekly Submissions ({mySubmissions.length})
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {mySubmissions
+                        .sort((a, b) => a.week - b.week)
+                        .map((submission, index) => (
+                          <div
+                            key={submission._id || index}
+                            className={`bg-white rounded-lg p-4 border-2 shadow-sm ${submission.status === "mentor_approved"
+                              ? "border-green-300 bg-green-50"
+                              : submission.status === "submitted"
+                                ? "border-yellow-300 bg-yellow-50"
+                                : "border-gray-200"
+                              }`}
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-semibold text-gray-800 flex items-center gap-2">
+                                Week {submission.week}
+                                {submission.status === "mentor_approved" && (
+                                  <FaCheckCircle className="text-green-600 text-sm" />
+                                )}
+                                {submission.status === "submitted" && (
+                                  <FaClock className="text-yellow-600 text-sm" />
+                                )}
+                              </span>
+                              <span className="text-xs text-gray-600">
+                                {submission.submittedAt ? new Date(submission.submittedAt).toLocaleDateString() : "-"}
+                              </span>
+                            </div>
+                            <div className="text-sm text-gray-600 space-y-1">
+                              <p>
+                                <strong>Module:</strong> {submission.module}
+                              </p>
+                              <p>
+                                <strong>Status:</strong>{" "}
+                                <span
+                                  className={`font-semibold ${submission.status === "mentor_approved"
+                                    ? "text-green-600"
+                                    : submission.status === "rejected"
+                                      ? "text-red-600"
+                                      : "text-yellow-600"
+                                    }`}
+                                >
+                                  {submission.status === "mentor_approved"
+                                    ? "Approved"
+                                    : submission.status === "rejected"
+                                      ? "Rejected"
+                                      : "Pending"}
+                                </span>
+                              </p>
+                              {/* Score hidden on Weekly Status page — view scores on the View Score page */}
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                );
+              })()
             )}
           </div>
         </div>

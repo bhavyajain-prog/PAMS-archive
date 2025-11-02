@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "../../../contexts/AuthContext";
 import axios from "../../../services/axios";
 import {
     FaStar,
@@ -28,6 +29,7 @@ export default function ViewScore() {
     });
 
     const navigate = useNavigate();
+    const { user } = useAuth();
 
     useEffect(() => {
         fetchWeeklyScores();
@@ -40,8 +42,16 @@ export default function ViewScore() {
 
             const scores = response.data.weeklyStatus || [];
 
+            // Filter to only the logged-in student's submissions
+            const myScores = scores.filter((s) => {
+                if (!user) return false;
+                const submittedBy = s.submittedBy;
+                const submittedId = typeof submittedBy === "string" ? submittedBy : submittedBy?._id;
+                return submittedId && user._id && String(submittedId) === String(user._id);
+            });
+
             // Calculate statistics
-            const scoredSubmissions = scores.filter(
+            const scoredSubmissions = myScores.filter(
                 (s) => s.mentorScore !== null && s.mentorScore !== undefined
             );
 
@@ -51,7 +61,7 @@ export default function ViewScore() {
             );
 
             const stats = {
-                totalWeeks: scores.length,
+                totalWeeks: myScores.length,
                 scoredWeeks: scoredSubmissions.length,
                 totalScore: totalScore,
                 averageScore:
@@ -69,7 +79,7 @@ export default function ViewScore() {
             };
 
             setStatistics(stats);
-            setWeeklyScores(scores);
+            setWeeklyScores(myScores);
             setError(null);
         } catch (err) {
             console.error("Error fetching weekly scores:", err);

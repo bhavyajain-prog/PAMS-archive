@@ -34,6 +34,130 @@ router.get(
   })
 );
 
+// Admin: Approve a team PDF document (except weeklyStatus)
+router.put(
+  "/team/:teamId/document/:documentType/approve",
+  authenticate,
+  authorizeRoles("admin", "sub-admin"),
+  asyncHandler(async (req, res) => {
+    try {
+      const { teamId, documentType } = req.params;
+
+      if (documentType === "weeklyStatus") {
+        return res
+          .status(400)
+          .json({ message: "Admin cannot approve weekly status reports" });
+      }
+
+      const team = await Team.findById(teamId);
+      if (!team) {
+        return res.status(404).json({ message: "Team not found" });
+      }
+
+      const document = team.pdfDocuments?.[documentType];
+      if (!document || !document.path) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+
+      // Update admin approval metadata
+      document.status = "admin_approved";
+      document.adminApproval = true;
+      document.adminApprovedBy = req.user._id;
+      document.adminApprovedAt = new Date();
+      // Clear previous rejection reason
+      document.rejectionReason = undefined;
+
+      // Add feedback for visibility to students/mentor
+      team.feedback = team.feedback || [];
+      team.feedback.push({
+        message: `${document.originalName || documentType} approved by Admin.`,
+        byUser: req.user._id,
+        at: new Date(),
+      });
+
+      await team.save();
+
+      res.status(200).json({
+        message: "Document approved by admin",
+        document: {
+          type: documentType,
+          status: document.status,
+          adminApproval: document.adminApproval,
+          adminApprovedAt: document.adminApprovedAt,
+        },
+      });
+    } catch (error) {
+      console.error("Error approving document as admin:", error);
+      res.status(500).json({ message: "Failed to approve document" });
+    }
+  })
+);
+
+// Admin: Reject a team PDF document (except weeklyStatus)
+router.put(
+  "/team/:teamId/document/:documentType/reject",
+  authenticate,
+  authorizeRoles("admin", "sub-admin"),
+  asyncHandler(async (req, res) => {
+    try {
+      const { teamId, documentType } = req.params;
+      const { reason } = req.body;
+
+      if (documentType === "weeklyStatus") {
+        return res
+          .status(400)
+          .json({ message: "Admin cannot reject weekly status reports" });
+      }
+
+      const team = await Team.findById(teamId);
+      if (!team) {
+        return res.status(404).json({ message: "Team not found" });
+      }
+
+      const document = team.pdfDocuments?.[documentType];
+      if (!document || !document.path) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+
+      // Prevent rejecting admin approved documents
+      if (document.status === "admin_approved") {
+        return res
+          .status(400)
+          .json({ message: "Cannot reject an admin-approved document" });
+      }
+
+      // Update admin rejection metadata
+      document.status = "rejected";
+      document.adminApproval = false;
+      document.adminRejectedBy = req.user._id;
+      document.adminRejectedAt = new Date();
+      document.rejectionReason = reason ? reason.trim() : "Document rejected by admin";
+
+      // Add feedback for visibility to students/mentor
+      team.feedback = team.feedback || [];
+      team.feedback.push({
+        message: document.rejectionReason,
+        byUser: req.user._id,
+        at: new Date(),
+      });
+
+      await team.save();
+
+      res.status(200).json({
+        message: "Document rejected by admin",
+        document: {
+          type: documentType,
+          status: document.status,
+          rejectionReason: document.rejectionReason,
+        },
+      });
+    } catch (error) {
+      console.error("Error rejecting document as admin:", error);
+      res.status(500).json({ message: "Failed to reject document" });
+    }
+  })
+);
+
 router.get(
   "/mentors",
   authenticate,
