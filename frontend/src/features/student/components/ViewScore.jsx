@@ -477,19 +477,7 @@ export default function ViewScore() {
                     </div>
                 )}
 
-                {/* Excellent Performance */}
-                {statistics.averageScore >= 9 && (
-                    <div className="mt-8 bg-green-50 border border-green-200 rounded-lg p-6">
-                        <h3 className="text-lg font-bold text-green-800 mb-3">
-                            🎉 Excellent Work!
-                        </h3>
-                        <p className="text-sm text-green-700">
-                            You&apos;re maintaining an outstanding average score. Keep up the
-                            great work and continue demonstrating this level of commitment to
-                            your project!
-                        </p>
-                    </div>
-                )}
+                {/* 'Excellent Performance' message removed as requested */}
             </div>
         </div>
     );

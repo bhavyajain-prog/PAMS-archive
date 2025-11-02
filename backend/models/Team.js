@@ -180,7 +180,7 @@ const teamSchema = new mongoose.Schema(
           // Status for approval workflow
           status: {
             type: String,
-            enum: ["draft", "submitted", "mentor_approved"],
+            enum: ["draft", "submitted", "mentor_approved", "rejected"],
             default: "draft",
           },
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "../../../services/axios";
 import {
   Calendar,
@@ -59,19 +59,21 @@ const ProgressTracking = () => {
   }, []);
 
   // Handle approve weekly status
-  const handleApprove = async (teamId, submissionId) => {
+  const handleApprove = async (teamId, submissionId, score, mentorComments) => {
+    setActionLoading(`approve-${submissionId}`);
     try {
-      setActionLoading(`approve-${submissionId}`);
-      await axios.put(`/team/${teamId}/weekly-status/${submissionId}/approve`);
+      // send score and optional comments
+      const resp = await axios.put(`/team/${teamId}/weekly-status/${submissionId}/approve`, {
+        score,
+        mentorComments,
+      });
 
       // Refresh data
       await fetchProgressData();
-      setError("");
+      return resp;
     } catch (err) {
-      console.error("Error approving weekly status:", err);
-      setError(
-        err.response?.data?.message || "Failed to approve weekly status"
-      );
+      // Propagate error to caller so UI can show inline validation instead of global error
+      throw err;
     } finally {
       setActionLoading(null);
     }
@@ -169,6 +171,14 @@ const ProgressTracking = () => {
     const isExpanded = expandedWeeks.has(weekData._id);
     const hasScore =
       weekData.mentorScore !== null && weekData.mentorScore !== undefined;
+    const [scoreInput, setScoreInput] = useState(
+      hasScore ? String(weekData.mentorScore) : ""
+    );
+    const [commentInput, setCommentInput] = useState(
+      weekData.mentorComments || ""
+    );
+    const [scoreError, setScoreError] = useState("");
+    const scoreRef = useRef(null);
 
     return (
       <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
@@ -198,7 +208,37 @@ const ProgressTracking = () => {
               {weekData.status === "submitted" && (
                 <>
                   <button
-                    onClick={() => handleApprove(teamId, weekData._id)}
+                    onClick={async () => {
+                      setScoreError("");
+                      // client-side validation: require a score before approving
+                      if (scoreInput === "" || scoreInput === null) {
+                        setScoreError("Score is required before approving");
+                        // scroll to score input
+                        scoreRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+                        return;
+                      }
+
+                      const numeric = Number(scoreInput);
+                      if (Number.isNaN(numeric) || numeric < 0 || numeric > 10) {
+                        setScoreError("Score must be a number between 0 and 10");
+                        scoreRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+                        return;
+                      }
+
+                      try {
+                        await handleApprove(teamId, weekData._id, numeric, commentInput);
+                        setScoreError("");
+                      } catch (err) {
+                        const msg = err?.response?.data?.message;
+                        if (msg) {
+                          // show server validation inline
+                          setScoreError(msg);
+                          scoreRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+                        } else {
+                          setError(msg || "Failed to approve weekly status");
+                        }
+                      }
+                    }}
                     disabled={actionLoading === `approve-${weekData._id}`}
                     className="flex items-center px-3 py-1.5 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
                   >
@@ -358,22 +398,45 @@ const ProgressTracking = () => {
             )}
 
             {/* Mentor Feedback */}
-            {weekData.mentorComments && (
-              <div className="bg-indigo-50 rounded-lg p-4 border border-indigo-100">
-                <h4 className="font-semibold text-gray-900 mb-2 flex items-center">
-                  <Target className="w-4 h-4 mr-2 text-indigo-600" />
-                  Mentor Feedback
-                </h4>
-                <p className="text-gray-700 whitespace-pre-wrap">
-                  {weekData.mentorComments}
-                </p>
-                {weekData.scoredAt && (
-                  <p className="text-xs text-gray-500 mt-2">
-                    Reviewed on {new Date(weekData.scoredAt).toLocaleString()}
-                  </p>
-                )}
+            <div className="bg-indigo-50 rounded-lg p-4 border border-indigo-100">
+              <h4 className="font-semibold text-gray-900 mb-2 flex items-center">
+                <Target className="w-4 h-4 mr-2 text-indigo-600" />
+                Mentor Feedback / Scoring
+              </h4>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+                <div ref={scoreRef}>
+                  <label className="text-sm font-medium text-gray-700">Score (0-10) <span className="text-red-500">*</span></label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="10"
+                    step="0.5"
+                    value={scoreInput}
+                    onChange={(e) => setScoreInput(e.target.value)}
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg"
+                  />
+                  {scoreError && (
+                    <p className="text-sm text-red-600 mt-1">{scoreError}</p>
+                  )}
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-sm font-medium text-gray-700">Comments (optional)</label>
+                  <textarea
+                    value={commentInput}
+                    onChange={(e) => setCommentInput(e.target.value)}
+                    rows={3}
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg"
+                  />
+                </div>
               </div>
-            )}
+
+              {weekData.scoredAt && (
+                <p className="text-xs text-gray-500 mt-2">
+                  Reviewed on {new Date(weekData.scoredAt).toLocaleString()}
+                </p>
+              )}
+            </div>
 
             {/* Submission Info */}
             <div className="flex items-center justify-between text-sm text-gray-600 pt-4 border-t">
@@ -410,9 +473,9 @@ const ProgressTracking = () => {
       avgScore:
         weeklyStatus.filter((w) => w.mentorScore !== null).length > 0
           ? (
-              weeklyStatus.reduce((sum, w) => sum + (w.mentorScore || 0), 0) /
-              weeklyStatus.filter((w) => w.mentorScore !== null).length
-            ).toFixed(1)
+            weeklyStatus.reduce((sum, w) => sum + (w.mentorScore || 0), 0) /
+            weeklyStatus.filter((w) => w.mentorScore !== null).length
+          ).toFixed(1)
           : "N/A",
     };
 

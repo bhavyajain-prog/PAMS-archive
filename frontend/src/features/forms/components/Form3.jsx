@@ -181,13 +181,7 @@ const WeeklyStatusMatrix = () => {
               if (mostRecentSubmission.status === "mentor_approved") {
                 showMessage(
                   "success",
-                  `Week ${
-                    mostRecentSubmission.week
-                  } status has been approved by your mentor!${
-                    mostRecentSubmission.mentorScore
-                      ? ` Score: ${mostRecentSubmission.mentorScore}/10`
-                      : ""
-                  }`
+                  `Week ${mostRecentSubmission.week} status has been approved by your mentor!`
                 );
               }
             }
@@ -342,11 +336,25 @@ const WeeklyStatusMatrix = () => {
         submitData.append("projectFile", zipFile);
       }
 
-      const response = await axios.post("/team/weekly-status", submitData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      let response;
+      // If there is an existing submission that was rejected, update it (allow resubmit)
+      if (existingData && existingData.status === "rejected") {
+        response = await axios.put(
+          `/team/weekly-status/${formData.week}`,
+          submitData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+      } else {
+        response = await axios.post("/team/weekly-status", submitData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      }
 
       showMessage(
         "success",
@@ -372,13 +380,13 @@ const WeeklyStatusMatrix = () => {
       week: currentWeekInfo?.currentWeek || 1,
       dateRange: currentWeekInfo?.dateRange
         ? {
-            from: new Date(currentWeekInfo.dateRange.from)
-              .toISOString()
-              .slice(0, 10),
-            to: new Date(currentWeekInfo.dateRange.to)
-              .toISOString()
-              .slice(0, 10),
-          }
+          from: new Date(currentWeekInfo.dateRange.from)
+            .toISOString()
+            .slice(0, 10),
+          to: new Date(currentWeekInfo.dateRange.to)
+            .toISOString()
+            .slice(0, 10),
+        }
         : { from: "", to: "" },
     });
     setZipFile(null);
@@ -425,11 +433,10 @@ const WeeklyStatusMatrix = () => {
               </div>
               {message.text && (
                 <div
-                  className={`p-4 rounded-lg border ${
-                    message.type === "success"
-                      ? "bg-green-50 border-green-200 text-green-800"
-                      : "bg-red-50 border-red-200 text-red-800"
-                  }`}
+                  className={`p-4 rounded-lg border ${message.type === "success"
+                    ? "bg-green-50 border-green-200 text-green-800"
+                    : "bg-red-50 border-red-200 text-red-800"
+                    }`}
                 >
                   {message.text}
                 </div>
@@ -502,19 +509,18 @@ const WeeklyStatusMatrix = () => {
                 <div>
                   <span className="font-medium text-gray-700">Status:</span>{" "}
                   <span
-                    className={`font-semibold ${
-                      existingData.status === "mentor_approved"
-                        ? "text-green-600"
-                        : existingData.status === "rejected"
+                    className={`font-semibold ${existingData.status === "mentor_approved"
+                      ? "text-green-600"
+                      : existingData.status === "rejected"
                         ? "text-red-600"
                         : "text-yellow-600"
-                    }`}
+                      }`}
                   >
                     {existingData.status === "mentor_approved"
                       ? "✓ Approved"
                       : existingData.status === "rejected"
-                      ? "✗ Rejected"
-                      : "⏳ Pending Review"}
+                        ? "✗ Rejected"
+                        : "⏳ Pending Review"}
                   </span>
                 </div>
                 <div>
@@ -527,14 +533,7 @@ const WeeklyStatusMatrix = () => {
                   <span className="font-medium text-gray-700">Module:</span>{" "}
                   {existingData.module}
                 </div>
-                {existingData.mentorScore && (
-                  <div>
-                    <span className="font-medium text-gray-700">Score:</span>{" "}
-                    <span className="font-semibold text-teal-600">
-                      {existingData.mentorScore}/10
-                    </span>
-                  </div>
-                )}
+                {/* Mentor score intentionally not shown on this page; visible only on View Score page */}
               </div>
               {!isEditable && (
                 <div className="mt-4 p-3 bg-white rounded border border-gray-200">
@@ -554,11 +553,10 @@ const WeeklyStatusMatrix = () => {
         {message.text && (
           <div className="mt-4 mb-4 w-full px-6 sm:px-8 md:px-10">
             <div
-              className={`p-4 sm:p-5 rounded-lg border flex items-start gap-2 ${
-                message.type === "success"
-                  ? "bg-green-50 border-green-200 text-green-800"
-                  : "bg-red-50 border-red-200 text-red-800"
-              }`}
+              className={`p-4 sm:p-5 rounded-lg border flex items-start gap-2 ${message.type === "success"
+                ? "bg-green-50 border-green-200 text-green-800"
+                : "bg-red-50 border-red-200 text-red-800"
+                }`}
             >
               {message.type === "success" ? (
                 <FaCheckCircle className="mt-0.5 shrink-0" />
@@ -576,13 +574,12 @@ const WeeklyStatusMatrix = () => {
             {/* Current Submission Status Banner */}
             {existingData && (
               <div
-                className={`rounded-lg p-4 border-2 ${
-                  existingData.status === "mentor_approved"
-                    ? "bg-green-50 border-green-300"
-                    : existingData.status === "rejected"
+                className={`rounded-lg p-4 border-2 ${existingData.status === "mentor_approved"
+                  ? "bg-green-50 border-green-300"
+                  : existingData.status === "rejected"
                     ? "bg-red-50 border-red-300"
                     : "bg-yellow-50 border-yellow-300"
-                }`}
+                  }`}
               >
                 <div className="flex items-start gap-3">
                   {existingData.status === "mentor_approved" ? (
@@ -594,40 +591,36 @@ const WeeklyStatusMatrix = () => {
                   )}
                   <div className="flex-1">
                     <h3
-                      className={`font-semibold text-lg mb-1 ${
-                        existingData.status === "mentor_approved"
-                          ? "text-green-800"
-                          : existingData.status === "rejected"
+                      className={`font-semibold text-lg mb-1 ${existingData.status === "mentor_approved"
+                        ? "text-green-800"
+                        : existingData.status === "rejected"
                           ? "text-red-800"
                           : "text-yellow-800"
-                      }`}
+                        }`}
                     >
                       {existingData.status === "mentor_approved"
                         ? "✓ Week Approved"
                         : existingData.status === "rejected"
-                        ? "Needs Resubmission"
-                        : "Pending Mentor Review"}
+                          ? "Needs Resubmission"
+                          : "Pending Mentor Review"}
                     </h3>
                     <p
-                      className={`text-sm ${
-                        existingData.status === "mentor_approved"
-                          ? "text-green-700"
-                          : existingData.status === "rejected"
+                      className={`text-sm ${existingData.status === "mentor_approved"
+                        ? "text-green-700"
+                        : existingData.status === "rejected"
                           ? "text-red-700"
                           : "text-yellow-700"
-                      }`}
+                        }`}
                     >
                       {existingData.status === "mentor_approved"
-                        ? `Your Week ${
-                            existingData.week
-                          } submission has been approved by your mentor.${
-                            existingData.mentorScore
-                              ? ` Score: ${existingData.mentorScore}/10`
-                              : ""
-                          }`
+                        ? `Your Week ${existingData.week
+                        } submission has been approved by your mentor.${existingData.mentorScore
+                          ? ` Score: ${existingData.mentorScore}/10`
+                          : ""
+                        }`
                         : existingData.status === "rejected"
-                        ? `Your Week ${existingData.week} submission was rejected. Please review the feedback and resubmit.`
-                        : `Your Week ${existingData.week} submission is awaiting mentor review.`}
+                          ? `Your Week ${existingData.week} submission was rejected. Please review the feedback and resubmit.`
+                          : `Your Week ${existingData.week} submission is awaiting mentor review.`}
                     </p>
                     {existingData.mentorComments && (
                       <div className="mt-2 p-3 bg-white rounded border border-gray-200">
@@ -950,13 +943,12 @@ const WeeklyStatusMatrix = () => {
                     .map((submission, index) => (
                       <div
                         key={submission._id || index}
-                        className={`bg-white rounded-lg p-4 border-2 shadow-sm ${
-                          submission.status === "mentor_approved"
-                            ? "border-green-300 bg-green-50"
-                            : submission.status === "submitted"
+                        className={`bg-white rounded-lg p-4 border-2 shadow-sm ${submission.status === "mentor_approved"
+                          ? "border-green-300 bg-green-50"
+                          : submission.status === "submitted"
                             ? "border-yellow-300 bg-yellow-50"
                             : "border-gray-200"
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center justify-between mb-2">
                           <span className="font-semibold text-gray-800 flex items-center gap-2">
@@ -981,25 +973,21 @@ const WeeklyStatusMatrix = () => {
                           <p>
                             <strong>Status:</strong>{" "}
                             <span
-                              className={`font-semibold ${
-                                submission.status === "mentor_approved"
-                                  ? "text-green-600"
+                              className={`font-semibold ${submission.status === "mentor_approved"
+                                ? "text-green-600"
+                                : submission.status === "rejected"
+                                  ? "text-red-600"
                                   : "text-yellow-600"
-                              }`}
+                                }`}
                             >
                               {submission.status === "mentor_approved"
                                 ? "Approved"
-                                : "Pending"}
+                                : submission.status === "rejected"
+                                  ? "Rejected"
+                                  : "Pending"}
                             </span>
                           </p>
-                          {submission.mentorScore && (
-                            <p>
-                              <strong>Score:</strong>{" "}
-                              <span className="font-semibold text-teal-600">
-                                {submission.mentorScore}/10
-                              </span>
-                            </p>
-                          )}
+                          {/* Score hidden on Weekly Status page — view scores on the View Score page */}
                         </div>
                       </div>
                     ))}
