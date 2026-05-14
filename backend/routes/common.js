@@ -90,7 +90,6 @@ router.get(
         projectChoices: team.projectChoices,
       };
     });
-    console.log("Fetched teams for mentor:", teams.length, formatTeams);
 
     res.status(200).json(formatTeams);
   })
@@ -148,7 +147,6 @@ router.post(
 
     await user.save();
     await newTeam.save();
-    console.log(newTeam);
 
     res
       .status(201)

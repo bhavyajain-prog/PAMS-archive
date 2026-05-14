@@ -59,7 +59,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
   const handleDownloadFile = async (teamId, week) => {
     try {
       const response = await axios.get(
-        `/api/teams/admin/download/${teamId}/${week}`,
+        `/team/${teamId}/weekly-status/${week}/download`,
         {
           responseType: "blob",
         }
