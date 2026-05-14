@@ -5,8 +5,6 @@ import {
   FaUserPlus,
   FaEdit,
   FaTrash,
-  FaChevronDown,
-  FaChevronUp,
   FaSearch,
   FaUserShield,
   FaUserGraduate,
@@ -31,7 +29,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
         </div>
         {children}
       </div>
-      <style jsx>{`
+      <style>{`
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
         }
@@ -44,12 +42,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
   );
 };
 
-const MentorCard = ({
-  mentor,
-  onToggleExpand,
-  isExpanded,
-  onOpenActionModal,
-}) => {
+const MentorCard = ({ mentor, onToggleExpand }) => {
   const getRoleClass = (role) => {
     if (role === "sub-admin") return "bg-sky-100 text-sky-700";
     if (role === "mentor") return "bg-indigo-100 text-indigo-700";
@@ -115,7 +108,6 @@ export default function ManageMentors() {
   const [mentors, setMentors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [expandedMentorId, setExpandedMentorId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
   const [selectedMentorForAction, setSelectedMentorForAction] = useState(null);
@@ -474,9 +466,7 @@ export default function ManageMentors() {
             <MentorCard
               key={mentor._id}
               mentor={mentor}
-              isExpanded={expandedMentorId === mentor._id}
               onToggleExpand={handleToggleExpand}
-              onOpenActionModal={handleOpenActionModal}
             />
           ))}
         </div>

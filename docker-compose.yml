@@ -1,0 +1,31 @@
+services:
+  database:
+    image: mongo:latest
+    container_name: pams_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build: ./backend
+    container_name: pams_backend
+    env_file:
+      - ./backend/.env
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb://database:27017/pams
+    depends_on:
+      - database
+
+  frontend:
+    build: ./frontend
+    container_name: pams_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  mongo_data:

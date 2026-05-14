@@ -1,16 +1,12 @@
 import { useState, useEffect } from 'react';
 import axios from '../../../services/axios';
-import { useAuth } from '../../../contexts/AuthContext';
 import {
     BarChart,
-    Calendar,
     CheckCircle,
     Clock,
     FileText,
     Users,
     AlertTriangle,
-    GitBranch,
-    BookOpen,
     Target,
 } from 'lucide-react';
 
@@ -126,7 +122,6 @@ export default function MentorDashboard() {
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const { user } = useAuth();
 
     useEffect(() => {
         const fetchTeams = async () => {
@@ -238,7 +233,7 @@ export default function MentorDashboard() {
                         <Users className="mx-auto h-12 w-12 text-muted" />
                         <h3 className="mt-2 text-sm font-medium text-heading">No Teams</h3>
                         <p className="mt-1 text-sm text-muted">
-                            You haven't been assigned any teams yet.
+                            You have not been assigned any teams yet.
                         </p>
                     </div>
                 )}

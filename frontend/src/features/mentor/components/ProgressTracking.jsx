@@ -72,9 +72,6 @@ const ProgressTracking = () => {
       // Refresh data
       await fetchProgressData();
       return resp;
-    } catch (err) {
-      // Propagate error to caller so UI can show inline validation instead of global error
-      throw err;
     } finally {
       setActionLoading(null);
     }

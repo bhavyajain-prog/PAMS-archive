@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
 import axios from "../../../services/axios";
 import {
@@ -6,7 +6,6 @@ import {
     FaCalendarAlt,
     FaTrophy,
     FaChartLine,
-    FaSpinner,
     FaCheckCircle,
     FaClock,
     FaComments,
@@ -31,11 +30,7 @@ export default function ViewScore() {
     const navigate = useNavigate();
     const { user } = useAuth();
 
-    useEffect(() => {
-        fetchWeeklyScores();
-    }, []);
-
-    const fetchWeeklyScores = async () => {
+    const fetchWeeklyScores = useCallback(async () => {
         try {
             setLoading(true);
             const response = await axios.get("/team/weekly-status");
@@ -90,7 +85,11 @@ export default function ViewScore() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user]);
+
+    useEffect(() => {
+        fetchWeeklyScores();
+    }, [fetchWeeklyScores]);
 
     const getScoreColor = (score) => {
         if (score >= 9) return "text-green-600 bg-green-50 border-green-200";

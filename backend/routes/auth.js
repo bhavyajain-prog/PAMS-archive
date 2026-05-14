@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const asyncHandler = require("express-async-handler");
+const rateLimit = require("express-rate-limit");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
@@ -12,6 +13,16 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+});
+
+// Stricter than the global API limiter in index.js: slows credential stuffing /
+// brute-force on this route only. Failed attempts count; successes do not.
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  skipSuccessfulRequests: true,
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 router.get(
@@ -43,6 +54,7 @@ router.get(
 
 router.post(
   "/login",
+  loginLimiter,
   asyncHandler(async (req, res) => {
     const { username, password, rememberMe } = req.body;
 

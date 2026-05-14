@@ -61,13 +61,6 @@ const DocumentUpload = () => {
   const handleFileUpload = async (documentType, file) => {
     if (!file) return;
 
-    // Determine if this document is a presentation (presentations will be uploaded as PDF)
-    const docMeta = documents[documentType] || {};
-    const isPresentationType =
-      String(documentType).toLowerCase().includes("ppt") ||
-      String(documentType).toLowerCase().includes("presentation") ||
-      String(docMeta.name || "").toLowerCase().includes("presentation") ||
-      false;
     // All documents (including presentations) should be uploaded as PDF
     if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith('.pdf')) {
       setError("Only PDF files are allowed");
@@ -293,13 +286,6 @@ const DocumentUpload = () => {
         <div className="flex gap-2 mt-4">
           {/* Upload button (leader only) */}
           {canUpload && (
-            (() => {
-              const isPresentationType =
-                String(docKey).toLowerCase().includes("ppt") ||
-                String(docKey).toLowerCase().includes("presentation") ||
-                String(document.name || "").toLowerCase().includes("presentation");
-
-              return (
                 <label
                   className={`flex-1 flex items-center justify-center px-3 py-1 rounded-lg text-sm font-medium transition-colors cursor-pointer ${isUploading
                     ? "bg-gray-300 text-body cursor-not-allowed"
@@ -331,8 +317,6 @@ const DocumentUpload = () => {
                     }}
                   />
                 </label>
-              );
-            })()
           )}
 
           {/* Download button (all members) */}

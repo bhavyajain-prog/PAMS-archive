@@ -117,38 +117,6 @@ const ReviewDocs = () => {
     setRejectReason("");
   };
 
-  // Handle document delete
-  const handleDelete = async (teamId, documentType, documentName) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to delete "${documentName}"? The team will be able to re-upload.`
-      )
-    ) {
-      return;
-    }
-
-    try {
-      setActionLoading({
-        ...actionLoading,
-        [`delete-${teamId}-${documentType}`]: true,
-      });
-      setError("");
-
-      await axios.delete(`/admin/team/${teamId}/document/${documentType}`);
-
-      // Refresh data
-      await fetchDocumentData();
-    } catch (err) {
-      console.error("Error deleting document:", err);
-      setError(err.response?.data?.message || "Failed to delete document");
-    } finally {
-      setActionLoading({
-        ...actionLoading,
-        [`delete-${teamId}-${documentType}`]: false,
-      });
-    }
-  };
-
   // Fetch teams and document data
   const fetchDocumentData = useCallback(async () => {
     try {
