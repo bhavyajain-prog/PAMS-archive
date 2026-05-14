@@ -17,7 +17,7 @@ import {
 function StatusBadge({ status }) {
   if (!status) {
     return (
-      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
+      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-surface-alt text-body border border-edge">
         <FaClock className="w-3 h-3" />
         Not Started
       </span>
@@ -78,29 +78,29 @@ function FormCard({
   const canEdit = !status || status === "draft" || status === "rejected";
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+    <div className="bg-surface rounded-xl shadow-sm border border-edge p-6 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-teal-100 rounded-lg">
-            <IconComponent className="w-6 h-6 text-teal-600" />
+          <div className="p-2 bg-primary-subtle rounded-lg">
+            <IconComponent className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
-            <p className="text-sm text-gray-600">{description}</p>
+            <h3 className="text-lg font-semibold text-heading">{title}</h3>
+            <p className="text-sm text-body">{description}</p>
           </div>
         </div>
         <StatusBadge status={status} />
       </div>
 
       {submittedAt && (
-        <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-          <p className="text-xs text-gray-600">
+        <div className="mb-4 p-3 bg-surface-alt rounded-lg">
+          <p className="text-xs text-body">
             <strong>Last updated:</strong>{" "}
             {new Date(submittedAt).toLocaleDateString()} at{" "}
             {new Date(submittedAt).toLocaleTimeString()}
           </p>
           {submittedBy && (
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="text-xs text-body mt-1">
               <strong>Updated by:</strong>{" "}
               {submittedBy.name || submittedBy.email}
             </p>
@@ -112,7 +112,7 @@ function FormCard({
         {canEdit ? (
           <Link
             to={linkTo}
-            className="flex items-center gap-2 px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg font-medium transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-primary-subtle0 hover:bg-primary text-white rounded-lg font-medium transition-colors"
           >
             <FaEdit className="w-4 h-4" />
             {status ? "Edit" : "Create"}
@@ -120,7 +120,7 @@ function FormCard({
         ) : (
           <Link
             to={linkTo}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-surface-alt0 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors"
           >
             <FaEye className="w-4 h-4" />
             View
@@ -171,7 +171,7 @@ export default function TeamDetails() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-100 to-sky-100 p-6">
+      <div className="min-h-screen bg-base p-6">
         <div className="max-w-4xl mx-auto">
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <div className="flex items-center gap-2">
@@ -189,7 +189,7 @@ export default function TeamDetails() {
 
   if (!team) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-100 to-sky-100 p-6">
+      <div className="min-h-screen bg-base p-6">
         <div className="max-w-4xl mx-auto">
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <div className="flex items-center gap-2">
@@ -206,27 +206,27 @@ export default function TeamDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-sky-100 p-6">
+    <div className="min-h-screen bg-base p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-surface rounded-xl shadow-sm border border-edge p-6">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                <h1 className="text-3xl font-bold text-heading mb-2">
                   Team Management
                 </h1>
-                <p className="text-gray-600">
+                <p className="text-body">
                   Manage your team&apos;s project documentation and role
                   assignments
                 </p>
               </div>
               <div className="text-right">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 rounded-lg border border-teal-200">
-                  <FaUsers className="w-4 h-4 text-teal-600" />
-                  <span className="font-medium text-teal-800">Team Code:</span>
-                  <span className="font-mono font-bold text-teal-600">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-subtle rounded-lg border border-primary/20">
+                  <FaUsers className="w-4 h-4 text-primary" />
+                  <span className="font-medium text-heading">Team Code:</span>
+                  <span className="font-mono font-bold text-primary">
                     {team.code}
                   </span>
                 </div>
@@ -237,24 +237,24 @@ export default function TeamDetails() {
 
         {/* Progress Overview */}
         <div className="mb-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          <div className="bg-surface rounded-xl shadow-sm border border-edge p-6">
+            <h2 className="text-xl font-semibold text-heading mb-4">
               Documentation Progress
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-surface-alt rounded-lg">
                 <div className="flex items-center gap-3">
-                  <FaFileAlt className="w-5 h-5 text-teal-600" />
-                  <span className="font-medium text-gray-700">
+                  <FaFileAlt className="w-5 h-5 text-primary" />
+                  <span className="font-medium text-body">
                     Project Abstract
                   </span>
                 </div>
                 <StatusBadge status={projectAbstract?.status} />
               </div>
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-surface-alt rounded-lg">
                 <div className="flex items-center gap-3">
-                  <FaTasks className="w-5 h-5 text-teal-600" />
-                  <span className="font-medium text-gray-700">
+                  <FaTasks className="w-5 h-5 text-primary" />
+                  <span className="font-medium text-body">
                     Role Specification
                   </span>
                 </div>
@@ -289,19 +289,19 @@ export default function TeamDetails() {
 
         {/* Team Information */}
         <div className="mt-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          <div className="bg-surface rounded-xl shadow-sm border border-edge p-6">
+            <h2 className="text-xl font-semibold text-heading mb-4">
               Team Information
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h3 className="font-medium text-gray-700 mb-2">Team Leader</h3>
-                <div className="p-3 bg-gray-50 rounded-lg">
-                  <p className="font-medium text-gray-800">
+                <h3 className="font-medium text-body mb-2">Team Leader</h3>
+                <div className="p-3 bg-surface-alt rounded-lg">
+                  <p className="font-medium text-heading">
                     {team.leader?.name}
                   </p>
-                  <p className="text-sm text-gray-600">{team.leader?.email}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-sm text-body">{team.leader?.email}</p>
+                  <p className="text-xs text-muted">
                     {team.leader?.studentData?.rollNumber} •{" "}
                     {team.leader?.studentData?.department}
                   </p>
@@ -309,24 +309,24 @@ export default function TeamDetails() {
               </div>
 
               <div>
-                <h3 className="font-medium text-gray-700 mb-2">Team Members</h3>
+                <h3 className="font-medium text-body mb-2">Team Members</h3>
                 <div className="space-y-2">
                   {team.members?.map((member, index) => (
-                    <div key={index} className="p-3 bg-gray-50 rounded-lg">
-                      <p className="font-medium text-gray-800">
+                    <div key={index} className="p-3 bg-surface-alt rounded-lg">
+                      <p className="font-medium text-heading">
                         {member.student?.name}
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-body">
                         {member.student?.email}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted">
                         {member.student?.studentData?.rollNumber} •{" "}
                         {member.student?.studentData?.department}
                       </p>
                     </div>
                   ))}
                   {(!team.members || team.members.length === 0) && (
-                    <p className="text-gray-500 italic">
+                    <p className="text-muted italic">
                       No additional members
                     </p>
                   )}

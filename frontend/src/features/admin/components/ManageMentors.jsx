@@ -19,12 +19,12 @@ const Modal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center p-4">
-      <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto scrollbar-hide">
+      <div className="bg-surface p-6 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto scrollbar-hide">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
+          <h3 className="text-xl font-semibold text-heading">{title}</h3>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl"
+            className="text-muted hover:text-body text-2xl"
           >
             &times;
           </button>
@@ -53,15 +53,15 @@ const MentorCard = ({
   const getRoleClass = (role) => {
     if (role === "sub-admin") return "bg-sky-100 text-sky-700";
     if (role === "mentor") return "bg-indigo-100 text-indigo-700";
-    return "bg-gray-100 text-gray-700";
+    return "bg-surface-alt text-body";
   };
 
   return (
-    <div className="bg-white shadow-lg rounded-lg p-6 transition-all duration-300 ease-in-out flex flex-col h-full">
+    <div className="bg-surface shadow-lg rounded-lg p-6 transition-all duration-300 ease-in-out flex flex-col h-full">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
         <div className="flex-1 min-w-0">
-          <h2 className="text-2xl font-bold text-teal-700 truncate">{mentor.name}</h2>
-          <p className="text-sm text-gray-600 truncate">{mentor.email}</p>
+          <h2 className="text-2xl font-bold text-primary truncate">{mentor.name}</h2>
+          <p className="text-sm text-body truncate">{mentor.email}</p>
         </div>
         <span
           className={`px-3 py-1 text-sm font-semibold rounded-full ${getRoleClass(
@@ -74,17 +74,17 @@ const MentorCard = ({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 text-sm flex-grow">
         <p className="flex items-start">
-          <span className="text-gray-700 font-semibold min-w-fit">Department:</span>
-          <span className="ml-1 text-gray-900">{mentor.mentorData?.department || "N/A"}</span>
+          <span className="text-body font-semibold min-w-fit">Department:</span>
+          <span className="ml-1 text-heading">{mentor.mentorData?.department || "N/A"}</span>
         </p>
         <p className="flex items-start">
-          <span className="text-gray-700 font-semibold min-w-fit">Designation:</span>
-          <span className="ml-1 text-gray-900">{mentor.mentorData?.designation || "N/A"}</span>
+          <span className="text-body font-semibold min-w-fit">Designation:</span>
+          <span className="ml-1 text-heading">{mentor.mentorData?.designation || "N/A"}</span>
         </p>
         <p className="flex items-center">
-          <FaUsers className="inline mr-2 text-teal-600 flex-shrink-0" />
-          <span className="text-gray-700">Max Teams:</span>
-          <span className="ml-1 text-gray-900">
+          <FaUsers className="inline mr-2 text-primary flex-shrink-0" />
+          <span className="text-body">Max Teams:</span>
+          <span className="ml-1 text-heading">
             {mentor.mentorData?.maxTeams === undefined ||
               mentor.mentorData?.maxTeams === null
               ? "N/A"
@@ -92,16 +92,16 @@ const MentorCard = ({
           </span>
         </p>
         <p className="flex items-center">
-          <FaUsers className="inline mr-2 text-teal-600 flex-shrink-0" />
-          <span className="text-gray-700">Assigned Teams:</span>
-          <span className="ml-1 text-gray-900">{mentor.mentorData?.assignedTeams?.length || 0}</span>
+          <FaUsers className="inline mr-2 text-primary flex-shrink-0" />
+          <span className="text-body">Assigned Teams:</span>
+          <span className="ml-1 text-heading">{mentor.mentorData?.assignedTeams?.length || 0}</span>
         </p>
       </div>
 
       <div className="mt-auto pt-4">
         <button
           onClick={() => onToggleExpand(mentor._id)}
-          className="w-full text-sm bg-teal-600 hover:bg-teal-700 text-white px-6 py-2.5 rounded-md font-medium transition-colors shadow-sm flex items-center justify-center"
+          className="w-full text-sm bg-primary hover:bg-primary-hover text-white px-6 py-2.5 rounded-md font-medium transition-colors shadow-sm flex items-center justify-center"
         >
           <FaEye className="mr-2" />
           View Details
@@ -404,11 +404,11 @@ export default function ManageMentors() {
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-base">
         <div className="w-full max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, idx) => (
-              <div key={idx} className="bg-white rounded-lg shadow p-6 animate-pulse">
+              <div key={idx} className="bg-surface rounded-lg shadow p-6 animate-pulse">
                 <div className="flex items-center mb-4">
                   <div className="h-12 w-12 bg-slate-200 rounded-full mr-4" />
                   <div className="flex-1">
@@ -442,12 +442,12 @@ export default function ManageMentors() {
 
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-      <div className="bg-white shadow-md rounded-lg p-6 mb-8">
+      <div className="bg-surface shadow-md rounded-lg p-6 mb-8">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">Manage Mentors</h1>
+          <h1 className="text-3xl font-bold text-heading">Manage Mentors</h1>
           <button
             onClick={() => handleOpenActionModal(null, "add")}
-            className="mt-4 sm:mt-0 bg-teal-600 hover:bg-teal-700 text-white font-semibold px-6 py-2 rounded-md shadow-sm flex items-center transition-colors"
+            className="mt-4 sm:mt-0 bg-primary hover:bg-primary-hover text-white font-semibold px-6 py-2 rounded-md shadow-sm flex items-center transition-colors"
           >
             <FaUserPlus className="mr-2" /> Add New Mentor
           </button>
@@ -456,16 +456,16 @@ export default function ManageMentors() {
           <input
             type="text"
             placeholder="Search mentors (name, email, emp no, dept, role)..."
-            className="w-full p-3 pl-10 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-shadow"
+            className="w-full p-3 pl-10 border border-edge rounded-md focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-shadow"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted" />
         </div>
       </div>
 
       {filteredMentors.length === 0 ? (
-        <p className="text-center text-gray-600 text-lg">
+        <p className="text-center text-body text-lg">
           No mentors found matching your criteria, or no mentors available.
         </p>
       ) : (
@@ -500,7 +500,7 @@ export default function ManageMentors() {
             <div>
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-body"
               >
                 Full Name
               </label>
@@ -511,13 +511,13 @@ export default function ManageMentors() {
                 value={mentorForm.name}
                 onChange={handleFormChange}
                 required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-edge rounded-md shadow-sm focus:outline-none focus:ring-primary/50 focus:border-primary sm:text-sm"
               />
             </div>
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-body"
               >
                 Email
               </label>
@@ -528,13 +528,13 @@ export default function ManageMentors() {
                 value={mentorForm.email}
                 onChange={handleFormChange}
                 required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-edge rounded-md shadow-sm focus:outline-none focus:ring-primary/50 focus:border-primary sm:text-sm"
               />
             </div>
             <div>
               <label
                 htmlFor="username"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-body"
               >
                 Username (Optional, auto-generated if empty)
               </label>
@@ -545,13 +545,13 @@ export default function ManageMentors() {
                 value={mentorForm.username}
                 onChange={handleFormChange}
                 placeholder="e.g. first.last"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-edge rounded-md shadow-sm focus:outline-none focus:ring-primary/50 focus:border-primary sm:text-sm"
               />
             </div>
             <div>
               <label
                 htmlFor="phone"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-body"
               >
                 Phone
               </label>
@@ -561,13 +561,13 @@ export default function ManageMentors() {
                 id="phone"
                 value={mentorForm.phone}
                 onChange={handleFormChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-edge rounded-md shadow-sm focus:outline-none focus:ring-primary/50 focus:border-primary sm:text-sm"
               />
             </div>
             <div>
               <label
                 htmlFor="empNo"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-body"
               >
                 Employee Number
               </label>
@@ -578,13 +578,13 @@ export default function ManageMentors() {
                 value={mentorForm.empNo}
                 onChange={handleFormChange}
                 required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-edge rounded-md shadow-sm focus:outline-none focus:ring-primary/50 focus:border-primary sm:text-sm"
               />
             </div>
             <div>
               <label
                 htmlFor="department"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-body"
               >
                 Department
               </label>
@@ -594,13 +594,13 @@ export default function ManageMentors() {
                 id="department"
                 value={mentorForm.department}
                 onChange={handleFormChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-edge rounded-md shadow-sm focus:outline-none focus:ring-primary/50 focus:border-primary sm:text-sm"
               />
             </div>
             <div>
               <label
                 htmlFor="designation"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-body"
               >
                 Designation
               </label>
@@ -610,13 +610,13 @@ export default function ManageMentors() {
                 id="designation"
                 value={mentorForm.designation}
                 onChange={handleFormChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-edge rounded-md shadow-sm focus:outline-none focus:ring-primary/50 focus:border-primary sm:text-sm"
               />
             </div>
             <div>
               <label
                 htmlFor="qualifications"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-body"
               >
                 Qualifications (comma-separated)
               </label>
@@ -626,13 +626,13 @@ export default function ManageMentors() {
                 id="qualifications"
                 value={mentorForm.qualifications}
                 onChange={handleFormChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-edge rounded-md shadow-sm focus:outline-none focus:ring-primary/50 focus:border-primary sm:text-sm"
               />
             </div>
             <div>
               <label
                 htmlFor="maxTeams"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-body"
               >
                 Max Teams
               </label>
@@ -643,14 +643,14 @@ export default function ManageMentors() {
                 value={mentorForm.maxTeams}
                 onChange={handleFormChange}
                 min="0"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-edge rounded-md shadow-sm focus:outline-none focus:ring-primary/50 focus:border-primary sm:text-sm"
               />
             </div>
             {actionType === "edit" && ( // Role change is handled by promote/demote, not direct edit here for simplicity, but can be added
               <div>
                 <label
                   htmlFor="role"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-body"
                 >
                   Role
                 </label>
@@ -659,7 +659,7 @@ export default function ManageMentors() {
                   id="role"
                   value={mentorForm.role}
                   onChange={handleFormChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border border-edge rounded-md shadow-sm focus:outline-none focus:ring-primary/50 focus:border-primary sm:text-sm"
                 >
                   <option value="mentor">Mentor</option>
                   <option value="sub-admin">Sub-Admin</option>
@@ -681,14 +681,14 @@ export default function ManageMentors() {
               <button
                 type="button"
                 onClick={handleCloseActionModal}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+                className="px-4 py-2 text-sm font-medium text-body bg-surface-alt hover:bg-gray-200 rounded-md"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={actionLoading}
-                className="px-4 py-2 text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 rounded-md disabled:opacity-50"
+                className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-hover rounded-md disabled:opacity-50"
               >
                 {actionLoading
                   ? "Saving..."
@@ -708,7 +708,7 @@ export default function ManageMentors() {
           onClose={handleCloseActionModal}
           title="Remove Mentor"
         >
-          <p className="text-gray-700 mb-4">
+          <p className="text-body mb-4">
             Are you sure you want to remove mentor{" "}
             <strong className="font-semibold">
               {selectedMentorForAction.name}
@@ -731,7 +731,7 @@ export default function ManageMentors() {
           <div className="flex justify-end space-x-3">
             <button
               onClick={handleCloseActionModal}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+              className="px-4 py-2 text-sm font-medium text-body bg-surface-alt hover:bg-gray-200 rounded-md"
             >
               Cancel
             </button>
@@ -758,7 +758,7 @@ export default function ManageMentors() {
                 : "Demote to Mentor"
             }
           >
-            <p className="text-gray-700 mb-4">
+            <p className="text-body mb-4">
               Are you sure you want to {actionType}{" "}
               <strong className="font-semibold">
                 {selectedMentorForAction.name}
@@ -778,7 +778,7 @@ export default function ManageMentors() {
             <div className="flex justify-end space-x-3">
               <button
                 onClick={handleCloseActionModal}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+                className="px-4 py-2 text-sm font-medium text-body bg-surface-alt hover:bg-gray-200 rounded-md"
               >
                 Cancel
               </button>
@@ -824,14 +824,14 @@ export default function ManageMentors() {
               </div>
             ) : (
               <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-4 pb-3 border-b border-gray-200">
+                <div className="grid grid-cols-2 gap-4 pb-3 border-b border-edge">
                   <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</p>
-                    <p className="text-sm text-gray-900 font-medium mt-1">{selectedMentorForAction.name}</p>
+                    <p className="text-xs font-semibold text-muted uppercase tracking-wider">Name</p>
+                    <p className="text-sm text-heading font-medium mt-1">{selectedMentorForAction.name}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Role</p>
-                    <p className="text-sm text-gray-900 font-medium mt-1">
+                    <p className="text-xs font-semibold text-muted uppercase tracking-wider">Role</p>
+                    <p className="text-sm text-heading font-medium mt-1">
                       <span className={`px-2 py-1 rounded-full text-xs ${selectedMentorForAction.role === "sub-admin"
                         ? "bg-sky-100 text-sky-700"
                         : "bg-indigo-100 text-indigo-700"
@@ -842,48 +842,48 @@ export default function ManageMentors() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-3 border-b border-gray-200">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-3 border-b border-edge">
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</p>
-                    <p className="text-sm text-gray-900 mt-1 break-all">{selectedMentorForAction.email}</p>
+                    <p className="text-xs font-semibold text-muted uppercase tracking-wider">Email</p>
+                    <p className="text-sm text-heading mt-1 break-all">{selectedMentorForAction.email}</p>
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Username</p>
-                    <p className="text-sm text-gray-900 mt-1 break-words">{selectedMentorForAction.username || "N/A"}</p>
+                    <p className="text-xs font-semibold text-muted uppercase tracking-wider">Username</p>
+                    <p className="text-sm text-heading mt-1 break-words">{selectedMentorForAction.username || "N/A"}</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 pb-3 border-b border-gray-200">
+                <div className="grid grid-cols-2 gap-4 pb-3 border-b border-edge">
                   <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Employee No.</p>
-                    <p className="text-sm text-gray-900 mt-1">{selectedMentorForAction.mentorData?.empNo || "N/A"}</p>
+                    <p className="text-xs font-semibold text-muted uppercase tracking-wider">Employee No.</p>
+                    <p className="text-sm text-heading mt-1">{selectedMentorForAction.mentorData?.empNo || "N/A"}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Phone</p>
-                    <p className="text-sm text-gray-900 mt-1">{selectedMentorForAction.phone || "N/A"}</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 pb-3 border-b border-gray-200">
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Department</p>
-                    <p className="text-sm text-gray-900 mt-1">{selectedMentorForAction.mentorData?.department || "N/A"}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Designation</p>
-                    <p className="text-sm text-gray-900 mt-1">{selectedMentorForAction.mentorData?.designation || "N/A"}</p>
+                    <p className="text-xs font-semibold text-muted uppercase tracking-wider">Phone</p>
+                    <p className="text-sm text-heading mt-1">{selectedMentorForAction.phone || "N/A"}</p>
                   </div>
                 </div>
 
-                <div className="pb-3 border-b border-gray-200">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Qualifications</p>
-                  <p className="text-sm text-gray-900 mt-1">{selectedMentorForAction.mentorData?.qualifications || "N/A"}</p>
+                <div className="grid grid-cols-2 gap-4 pb-3 border-b border-edge">
+                  <div>
+                    <p className="text-xs font-semibold text-muted uppercase tracking-wider">Department</p>
+                    <p className="text-sm text-heading mt-1">{selectedMentorForAction.mentorData?.department || "N/A"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-muted uppercase tracking-wider">Designation</p>
+                    <p className="text-sm text-heading mt-1">{selectedMentorForAction.mentorData?.designation || "N/A"}</p>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 pb-3 border-b border-gray-200">
+                <div className="pb-3 border-b border-edge">
+                  <p className="text-xs font-semibold text-muted uppercase tracking-wider">Qualifications</p>
+                  <p className="text-sm text-heading mt-1">{selectedMentorForAction.mentorData?.qualifications || "N/A"}</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 pb-3 border-b border-edge">
                   <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Max Teams</p>
-                    <p className="text-sm text-gray-900 mt-1">
+                    <p className="text-xs font-semibold text-muted uppercase tracking-wider">Max Teams</p>
+                    <p className="text-sm text-heading mt-1">
                       {selectedMentorForAction.mentorData?.maxTeams === undefined ||
                         selectedMentorForAction.mentorData?.maxTeams === null
                         ? "N/A"
@@ -891,8 +891,8 @@ export default function ManageMentors() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">First Login Required</p>
-                    <p className="text-sm text-gray-900 mt-1">
+                    <p className="text-xs font-semibold text-muted uppercase tracking-wider">First Login Required</p>
+                    <p className="text-sm text-heading mt-1">
                       <span className={`px-2 py-1 rounded-full text-xs ${selectedMentorForAction.firstLogin
                         ? "bg-yellow-100 text-yellow-700"
                         : "bg-green-100 text-green-700"
@@ -903,36 +903,36 @@ export default function ManageMentors() {
                   </div>
                 </div>
 
-                <div className="pb-3 border-b border-gray-200">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Assigned Teams</p>
+                <div className="pb-3 border-b border-edge">
+                  <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">Assigned Teams</p>
                   {selectedMentorForAction.mentorData?.assignedTeams &&
                     Array.isArray(selectedMentorForAction.mentorData.assignedTeams) &&
                     selectedMentorForAction.mentorData.assignedTeams.length > 0 ? (
                     <ul className="space-y-1">
                       {selectedMentorForAction.mentorData.assignedTeams.map((team, index) => (
-                        <li key={team?._id || `team-${index}`} className="text-sm text-gray-900 flex items-center">
-                          <span className="w-2 h-2 bg-teal-500 rounded-full mr-2"></span>
+                        <li key={team?._id || `team-${index}`} className="text-sm text-heading flex items-center">
+                          <span className="w-2 h-2 bg-primary-subtle0 rounded-full mr-2"></span>
                           {team?.code || team?.name || (typeof team === 'string' ? `Team ID: ${team}` : "Unknown Team")}
                         </li>
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-sm text-gray-500 italic">No teams assigned</p>
+                    <p className="text-sm text-muted italic">No teams assigned</p>
                   )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Created At</p>
-                    <p className="text-sm text-gray-900 mt-1">
+                    <p className="text-xs font-semibold text-muted uppercase tracking-wider">Created At</p>
+                    <p className="text-sm text-heading mt-1">
                       {selectedMentorForAction.createdAt
                         ? new Date(selectedMentorForAction.createdAt).toLocaleString()
                         : "N/A"}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Updated At</p>
-                    <p className="text-sm text-gray-900 mt-1">
+                    <p className="text-xs font-semibold text-muted uppercase tracking-wider">Updated At</p>
+                    <p className="text-sm text-heading mt-1">
                       {selectedMentorForAction.updatedAt
                         ? new Date(selectedMentorForAction.updatedAt).toLocaleString()
                         : "N/A"}
@@ -942,7 +942,7 @@ export default function ManageMentors() {
               </div>
             )}
 
-            <div className="flex flex-wrap justify-between items-center gap-3 pt-4 border-t border-gray-200">
+            <div className="flex flex-wrap justify-between items-center gap-3 pt-4 border-t border-edge">
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => {
@@ -987,7 +987,7 @@ export default function ManageMentors() {
               </div>
               <button
                 onClick={handleCloseActionModal}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+                className="px-4 py-2 text-sm font-medium text-body bg-surface-alt hover:bg-gray-200 rounded-md"
               >
                 Close
               </button>

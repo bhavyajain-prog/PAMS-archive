@@ -100,6 +100,7 @@ PAMS/
 ### 📋 Document & Form Management
 
 #### Dynamic Document System
+
 - **Configurable Document Types**: Enable/disable document requirements
 - **Required vs Optional**: Flexible document requirements for approval
 - **PDF Document Uploads**: Secure file upload with validation
@@ -107,6 +108,7 @@ PAMS/
 - **Weekly Status Reports**: Recurring submissions with file attachments
 
 #### Document Approval Workflow
+
 - **Two-tier Approval**: Mentor approval followed by Admin approval
 - **Document Review Portal**: Dedicated interfaces for mentors and admins
 - **Status Tracking**: Draft, Submitted, Mentor Approved, Admin Approved, Rejected
@@ -117,6 +119,7 @@ PAMS/
 ### 📊 Evaluation & Progress Tracking
 
 #### Project Abstract (Form 1)
+
 - **Project Track Selection**: R&D, Consultancy, Startup, Project Pool, Hardware
 - **GitHub Repository**: Version control integration
 - **Tools & Technologies**: Detailed tech stack documentation
@@ -124,11 +127,13 @@ PAMS/
 - **Multi-level Approval**: Mentor and admin review workflow
 
 #### Role Specification (Form 2)
+
 - **Member Role Assignment**: Define responsibilities for each team member
 - **Task Distribution**: Clear role definitions and expectations
 - **Approval Workflow**: Mentor and admin validation
 
 #### Weekly Status Updates (Form 3)
+
 - **Timeline-based Tracking**: Automatic week calculation from project start date
 - **Module Progress**: Current module being worked on
 - **Progress Percentage**: Quantifiable progress tracking
@@ -141,6 +146,7 @@ PAMS/
 ### 📈 Dashboard & Analytics
 
 #### Admin Dashboard
+
 - **System-wide Statistics**: Total users, teams, projects, submissions
 - **Document Review Status**: Pending and approved document counts
 - **Team Progress Overview**: Status distribution and completion rates
@@ -149,6 +155,7 @@ PAMS/
 - **Mentor Workload**: Team distribution across mentors
 
 #### Mentor Dashboard
+
 - **Assigned Teams Overview**: Total teams with key metrics
 - **Pending Reviews**: Documents awaiting mentor approval
 - **Completed Reviews**: Approved submissions tracking
@@ -157,6 +164,7 @@ PAMS/
 - **Document Status**: Real-time approval progress per team
 
 #### Student Dashboard
+
 - **Team Status**: Current team membership and approval status
 - **Project Information**: Assigned project details
 - **Document Submission**: Quick access to all forms
@@ -167,8 +175,9 @@ PAMS/
 ### 🔧 System Administration
 
 #### Data Management
+
 - **Flush All Data**: Complete system reset preserving admin accounts
-- **Granular Flush Operations**: 
+- **Granular Flush Operations**:
   - Flush Students (with cascading team and project cleanup)
   - Flush Mentors (with team assignment updates)
   - Flush Projects (with team reference updates)
@@ -177,6 +186,7 @@ PAMS/
 - **Relationship Integrity**: Automatic cascading updates across all entities
 
 #### System Configuration
+
 - **Document Type Management**: Enable/disable document requirements
 - **Academic Calendar**: Project timeline configuration
 - **Team Size Limits**: Configurable maximum team members
@@ -185,6 +195,7 @@ PAMS/
 - **Default Password**: Configurable initial login credentials
 
 #### File Management
+
 - **Secure Upload**: Multer-based file handling
 - **File Type Validation**: Restricted to allowed formats
 - **Size Limits**: Configurable maximum file sizes
@@ -413,12 +424,14 @@ This codebase is designed to be extensible and can support additional modules su
 ## 👨‍💻 User Roles & Capabilities
 
 ### Developer Role
+
 - Full system access and override capabilities
 - Debug mode with extended logging
 - System maintenance and diagnostics
 - Database direct access
 
 ### Admin Role
+
 - Complete user management (create, read, update, delete)
 - Project bank management and approval
 - Team allocation and mentor assignment
@@ -429,6 +442,7 @@ This codebase is designed to be extensible and can support additional modules su
 - Analytics and reporting access
 
 ### Sub-Admin Role
+
 - Limited user management capabilities
 - Team oversight and approval
 - Project approval workflow
@@ -436,6 +450,7 @@ This codebase is designed to be extensible and can support additional modules su
 - Document review (mentor-level approval)
 
 ### Mentor Role
+
 - View assigned teams dashboard
 - Review and approve team documents
 - Score weekly status submissions
@@ -445,6 +460,7 @@ This codebase is designed to be extensible and can support additional modules su
 - Track team progress
 
 ### Student Role
+
 - Create or join teams using unique codes
 - Submit project proposals
 - Select project and mentor preferences
@@ -456,6 +472,7 @@ This codebase is designed to be extensible and can support additional modules su
 ## 🔄 Workflow Overview
 
 ### Project Allocation Flow
+
 1. **Students form teams** → Unique code generation
 2. **Teams select project preferences** → Rank top choices
 3. **Teams select mentor preferences** → Multiple mentor choices
@@ -465,6 +482,7 @@ This codebase is designed to be extensible and can support additional modules su
 7. **Project timeline begins** → Weekly tracking starts
 
 ### Document Approval Flow
+
 1. **Student submits form/document** → Status: Submitted
 2. **Mentor reviews** → Approve/Reject with comments
 3. **If approved by mentor** → Status: Mentor Approved
@@ -473,6 +491,7 @@ This codebase is designed to be extensible and can support additional modules su
 6. **If rejected** → Status: Rejected (resubmission required)
 
 ### Weekly Status Flow
+
 1. **System calculates current week** → Based on project start date
 2. **Team submits weekly report** → With ZIP file attachment
 3. **Mentor reviews and scores** → 0-10 points + comments
@@ -496,12 +515,14 @@ This codebase is designed to be extensible and can support additional modules su
 ## 📊 Database Schema
 
 ### User Model
+
 - Basic info (name, email, username, phone, password)
 - Role-specific data (studentData, mentorData, adminData)
 - Authentication tokens and reset codes
 - Timestamps and versioning
 
 ### Team Model
+
 - Team code, leader, and members
 - Project choices and final project
 - Mentor preferences and assignment
@@ -511,6 +532,7 @@ This codebase is designed to be extensible and can support additional modules su
 - Project timeline configuration
 
 ### Project Bank Model
+
 - Project details (title, description, category)
 - Proposer and approver information
 - Approval status and feedback
@@ -519,6 +541,7 @@ This codebase is designed to be extensible and can support additional modules su
 - TTL for rejected projects
 
 ### System Settings Model
+
 - Academic calendar configuration
 - Document type management
 - System-wide settings

@@ -26,13 +26,13 @@ const Modal = ({ isOpen, onClose, title, children, size = "md" }) => {
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div
-        className={`bg-white rounded-xl shadow-2xl w-full ${sizeClasses[size]} max-h-[90vh] overflow-hidden border border-gray-100`}
+        className={`bg-surface rounded-xl shadow-2xl w-full ${sizeClasses[size]} max-h-[90vh] overflow-hidden border border-edge-subtle`}
       >
-        <div className="flex justify-between items-center px-8 py-6 border-b border-gray-200 bg-gray-50">
-          <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
+        <div className="flex justify-between items-center px-8 py-6 border-b border-edge bg-surface-alt">
+          <h2 className="text-2xl font-bold text-heading">{title}</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center text-xl font-bold transition-all duration-200"
+            className="text-muted hover:text-body hover:bg-surface-alt w-8 h-8 rounded-full flex items-center justify-center text-xl font-bold transition-all duration-200"
           >
             ×
           </button>
@@ -59,28 +59,28 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onAccept, onReject }) => {
       <div className="space-y-8">
         {/* Team Leader */}
         <div>
-          <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            <FaUserGraduate className="mr-2 text-teal-600" />
+          <h4 className="text-lg font-semibold text-heading mb-4 flex items-center">
+            <FaUserGraduate className="mr-2 text-primary" />
             Team Leader
           </h4>
-          <div className="bg-teal-50 p-4 rounded-lg border border-teal-200">
+          <div className="bg-primary-subtle p-4 rounded-lg border border-primary/20">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <p className="text-sm text-gray-600 flex items-center">
+                <p className="text-sm text-body flex items-center">
                   <FaUserGraduate className="mr-1" />
                   Name
                 </p>
                 <p className="font-medium">{team.leader?.name || "N/A"}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 flex items-center">
+                <p className="text-sm text-body flex items-center">
                   <FaIdCard className="mr-1" />
                   ID
                 </p>
                 <p className="font-medium">{team.leader?._id || "N/A"}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 flex items-center">
+                <p className="text-sm text-body flex items-center">
                   <FaEnvelope className="mr-1" />
                   Email
                 </p>
@@ -92,8 +92,8 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onAccept, onReject }) => {
 
         {/* Team Members */}
         <div>
-          <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            <FaUsers className="mr-2 text-teal-600" />
+          <h4 className="text-lg font-semibold text-heading mb-4 flex items-center">
+            <FaUsers className="mr-2 text-primary" />
             Team Members ({team.members?.length || 0})
           </h4>
           {team.members && team.members.length > 0 ? (
@@ -101,25 +101,25 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onAccept, onReject }) => {
               {team.members.map((member, index) => (
                 <div
                   key={member._id || index}
-                  className="bg-gray-50 p-4 rounded-lg border"
+                  className="bg-surface-alt p-4 rounded-lg border"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <p className="text-sm text-gray-600 flex items-center">
+                      <p className="text-sm text-body flex items-center">
                         <FaUserGraduate className="mr-1" />
                         Name
                       </p>
                       <p className="font-medium">{member.name || "N/A"}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600 flex items-center">
+                      <p className="text-sm text-body flex items-center">
                         <FaIdCard className="mr-1" />
                         ID
                       </p>
                       <p className="font-medium">{member._id || "N/A"}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600 flex items-center">
+                      <p className="text-sm text-body flex items-center">
                         <FaEnvelope className="mr-1" />
                         Email
                       </p>
@@ -130,7 +130,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onAccept, onReject }) => {
               ))}
             </div>
           ) : (
-            <div className="bg-gray-50 p-4 rounded-lg border text-center text-gray-500">
+            <div className="bg-surface-alt p-4 rounded-lg border text-center text-muted">
               No other members in this team
             </div>
           )}
@@ -138,8 +138,8 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onAccept, onReject }) => {
 
         {/* Project Choices */}
         <div>
-          <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            <FaProjectDiagram className="mr-2 text-teal-600" />
+          <h4 className="text-lg font-semibold text-heading mb-4 flex items-center">
+            <FaProjectDiagram className="mr-2 text-primary" />
             Project Choices ({team.projectChoices?.length || 0})
           </h4>
           {team.projectChoices && team.projectChoices.length > 0 ? (
@@ -154,10 +154,10 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onAccept, onReject }) => {
                       <p className="font-semibold text-blue-800">
                         Choice {index + 1}: {project.title}
                       </p>
-                      <p className="text-sm text-gray-600 mt-1">
+                      <p className="text-sm text-body mt-1">
                         <strong>Category:</strong> {project.category}
                       </p>
-                      <p className="text-sm text-gray-700 mt-2">
+                      <p className="text-sm text-body mt-2">
                         {project.description}
                       </p>
                     </div>
@@ -166,7 +166,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onAccept, onReject }) => {
               ))}
             </div>
           ) : (
-            <div className="bg-gray-50 p-4 rounded-lg border text-center text-gray-500">
+            <div className="bg-surface-alt p-4 rounded-lg border text-center text-muted">
               No project choices specified
             </div>
           )}
@@ -218,13 +218,13 @@ const AcceptTeamModal = ({ isOpen, onClose, team, onSubmit }) => {
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-body mb-2">
             Select Final Project *
           </label>
           <select
             value={selectedProject}
             onChange={(e) => setSelectedProject(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="w-full px-3 py-2 border border-edge rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
             required
           >
             <option value="">Choose a project from their choices</option>
@@ -237,13 +237,13 @@ const AcceptTeamModal = ({ isOpen, onClose, team, onSubmit }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-body mb-2">
             Feedback (Optional)
           </label>
           <textarea
             value={feedback}
             onChange={(e) => setFeedback(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="w-full px-3 py-2 border border-edge rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
             rows="4"
             placeholder="Provide feedback for the team..."
           />
@@ -253,7 +253,7 @@ const AcceptTeamModal = ({ isOpen, onClose, team, onSubmit }) => {
           <button
             type="button"
             onClick={onClose}
-            className="px-6 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
+            className="px-6 py-2 text-sm font-medium text-body bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
           >
             Cancel
           </button>
@@ -292,13 +292,13 @@ const RejectTeamModal = ({ isOpen, onClose, team, onSubmit }) => {
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-body mb-2">
             Rejection Feedback (Optional)
           </label>
           <textarea
             value={feedback}
             onChange={(e) => setFeedback(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="w-full px-3 py-2 border border-edge rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
             rows="4"
             placeholder="Provide reason for rejection..."
           />
@@ -308,7 +308,7 @@ const RejectTeamModal = ({ isOpen, onClose, team, onSubmit }) => {
           <button
             type="button"
             onClick={onClose}
-            className="px-6 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
+            className="px-6 py-2 text-sm font-medium text-body bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
           >
             Cancel
           </button>
@@ -330,19 +330,19 @@ const TeamCard = ({ team, onOpenDetails, onAccept, onReject }) => {
   const totalMembers = 1 + (team.members?.length || 0); // +1 for leader
 
   return (
-    <div className="bg-white shadow-lg rounded-xl p-6 transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 border border-gray-100 group">
+    <div className="bg-surface shadow-lg rounded-xl p-6 transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 border border-edge-subtle group">
       {/* Header */}
       <div className="flex justify-between items-start mb-6">
         <div className="flex-1">
-          <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-teal-700 transition-colors">
+          <h3 className="text-xl font-bold text-heading mb-2 group-hover:text-primary transition-colors">
             Team Code: {team.code || team._id}
           </h3>
-          <div className="bg-teal-50 px-3 py-2 rounded-lg border border-teal-200">
-            <p className="text-sm text-teal-700 font-medium">
+          <div className="bg-primary-subtle px-3 py-2 rounded-lg border border-primary/20">
+            <p className="text-sm text-primary font-medium">
               <span className="font-semibold">Leader:</span>{" "}
               {team.leader?.name || "N/A"}
             </p>
-            <p className="text-xs text-teal-600">
+            <p className="text-xs text-primary">
               {team.leader?.email || "N/A"}
             </p>
           </div>
@@ -351,22 +351,22 @@ const TeamCard = ({ team, onOpenDetails, onAccept, onReject }) => {
 
       {/* Team Info */}
       <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-gray-50 p-4 rounded-lg border">
+        <div className="bg-surface-alt p-4 rounded-lg border">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <FaUsers className="mr-2 text-gray-600" />
-              <span className="text-sm font-medium text-gray-600">
+              <FaUsers className="mr-2 text-body" />
+              <span className="text-sm font-medium text-body">
                 Team Size:
               </span>
             </div>
-            <span className="font-bold text-gray-800">{totalMembers}</span>
+            <span className="font-bold text-heading">{totalMembers}</span>
           </div>
         </div>
         <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <FaProjectDiagram className="mr-2 text-blue-600" />
-              <span className="text-sm font-medium text-gray-600">
+              <span className="text-sm font-medium text-body">
                 Projects:
               </span>
             </div>
@@ -379,29 +379,29 @@ const TeamCard = ({ team, onOpenDetails, onAccept, onReject }) => {
 
       {/* Project Choices Preview */}
       <div className="mb-6">
-        <h4 className="text-sm font-semibold text-gray-700 mb-3">
+        <h4 className="text-sm font-semibold text-body mb-3">
           Project Choices:
         </h4>
         {team.projectChoices && team.projectChoices.length > 0 ? (
           <div className="space-y-2">
             {team.projectChoices.slice(0, 2).map((project, index) => (
-              <div key={project._id} className="bg-gray-50 p-2 rounded border">
-                <p className="text-xs font-medium text-gray-800 truncate">
+              <div key={project._id} className="bg-surface-alt p-2 rounded border">
+                <p className="text-xs font-medium text-heading truncate">
                   {index + 1}. {project.title}
                 </p>
-                <p className="text-xs text-gray-500 truncate">
+                <p className="text-xs text-muted truncate">
                   {project.category}
                 </p>
               </div>
             ))}
             {team.projectChoices.length > 2 && (
-              <p className="text-xs text-gray-500 text-center">
+              <p className="text-xs text-muted text-center">
                 +{team.projectChoices.length - 2} more...
               </p>
             )}
           </div>
         ) : (
-          <p className="text-xs text-gray-500 text-center py-2">
+          <p className="text-xs text-muted text-center py-2">
             No projects selected
           </p>
         )}
@@ -411,7 +411,7 @@ const TeamCard = ({ team, onOpenDetails, onAccept, onReject }) => {
       <div className="flex flex-wrap gap-3">
         <button
           onClick={() => onOpenDetails(team)}
-          className="flex-1 min-w-fit bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-md font-medium transition-colors flex items-center justify-center"
+          className="flex-1 min-w-fit bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-md font-medium transition-colors flex items-center justify-center"
         >
           <FaInfoCircle className="mr-2" />
           View Details
@@ -509,11 +509,11 @@ export default function TeamSelection() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-base">
         <div className="w-full max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 4 }).map((_, idx) => (
-              <div key={idx} className="bg-white rounded-lg shadow p-6 animate-pulse">
+              <div key={idx} className="bg-surface rounded-lg shadow p-6 animate-pulse">
                 <div className="flex items-center mb-4">
                   <div className="h-12 w-12 bg-slate-200 rounded-full mr-4" />
                   <div className="flex-1">
@@ -544,38 +544,38 @@ export default function TeamSelection() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
+        <div className="bg-surface rounded-xl shadow-lg p-8 border border-edge">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
             <div className="flex items-center mb-4 sm:mb-0">
-              <div className="bg-teal-600 p-3 rounded-lg mr-4">
+              <div className="bg-primary p-3 rounded-lg mr-4">
                 <FaUsers className="text-white text-2xl" />
               </div>
               <div>
-                <h1 className="text-4xl font-bold text-gray-800 mb-1">
+                <h1 className="text-4xl font-bold text-heading mb-1">
                   Team Selection
                 </h1>
-                <p className="text-gray-600">
+                <p className="text-body">
                   Choose teams that have selected you as their mentor preference
                 </p>
               </div>
             </div>
-            <div className="bg-teal-50 px-6 py-3 rounded-lg border border-teal-200">
-              <p className="text-sm text-gray-600 mb-1">Available Teams</p>
-              <p className="text-2xl font-bold text-teal-700">{teams.length}</p>
+            <div className="bg-primary-subtle px-6 py-3 rounded-lg border border-primary/20">
+              <p className="text-sm text-body mb-1">Available Teams</p>
+              <p className="text-2xl font-bold text-primary">{teams.length}</p>
             </div>
           </div>
         </div>
 
         {/* Teams Grid */}
         {teams.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-lg p-12 text-center border border-gray-200">
-            <div className="bg-gray-100 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
-              <FaUsers className="h-12 w-12 text-gray-400" />
+          <div className="bg-surface rounded-xl shadow-lg p-12 text-center border border-edge">
+            <div className="bg-surface-alt rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
+              <FaUsers className="h-12 w-12 text-muted" />
             </div>
-            <h3 className="text-xl font-bold text-gray-800 mb-3">
+            <h3 className="text-xl font-bold text-heading mb-3">
               No Teams Available
             </h3>
-            <p className="text-gray-600 max-w-md mx-auto leading-relaxed">
+            <p className="text-body max-w-md mx-auto leading-relaxed">
               There are currently no teams that have selected you as their
               mentor preference. Teams will appear here once they choose you in
               their mentor preferences.

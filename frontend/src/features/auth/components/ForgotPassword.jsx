@@ -25,14 +25,14 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="bg-[#f1f2f7] py-8 min-h-screen flex items-center justify-center">
-      <div className="max-w-md w-full p-8 bg-white rounded-2xl shadow-lg">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
+    <div className="bg-base py-8 min-h-screen flex items-center justify-center">
+      <div className="max-w-md w-full p-8 bg-surface backdrop-blur-md rounded-2xl shadow-lg border border-edge">
+        <h2 className="text-2xl font-semibold text-heading mb-6 text-center">
           Forgot Password
         </h2>
 
         <form onSubmit={handleSubmit}>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-body mb-2">
             Email
           </label>
           <input
@@ -40,26 +40,26 @@ export default function ForgotPassword() {
             placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-4"
+            className="w-full px-4 py-2 bg-input border border-edge rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 text-heading mb-4"
             required
           />
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 disabled:bg-gray-400"
+            className="w-full bg-primary hover:bg-primary-hover text-white font-semibold py-2 px-4 rounded-lg transition duration-200 disabled:opacity-50"
           >
             {loading ? "Sending..." : "Submit"}
           </button>
         </form>
 
         {message && (
-          <p className="text-green-600 font-medium text-center mt-4 bg-green-100 p-3 rounded-md">
+          <p className="text-green-500 font-medium text-center mt-4 bg-green-500/10 p-3 rounded-md">
             {message}
           </p>
         )}
         {error && (
-          <p className="text-red-600 font-medium text-center mt-4 bg-red-100 p-3 rounded-md">
+          <p className="text-red-500 font-medium text-center mt-4 bg-red-500/10 p-3 rounded-md">
             {error}
           </p>
         )}

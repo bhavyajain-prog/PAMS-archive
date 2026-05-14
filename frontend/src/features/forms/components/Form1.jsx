@@ -218,25 +218,25 @@ const ProjectAbstractForm = () => {
 
   if (loadingStatus) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-slate-50 via-teal-50 to-cyan-50 flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center">
-          <FaSpinner className="animate-spin text-4xl text-teal-600 mb-4" />
-          <p className="text-gray-600">Loading project abstract form...</p>
+      <div className="min-h-screen bg-base flex items-center justify-center">
+        <div className="bg-surface rounded-xl shadow-lg p-8 flex flex-col items-center">
+          <FaSpinner className="animate-spin text-4xl text-primary mb-4" />
+          <p className="text-body">Loading project abstract form...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-teal-50 to-cyan-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-base py-8 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-none mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-t-xl shadow-lg border-b border-gray-200 p-6 sm:p-8 md:p-10">
+        <div className="bg-surface rounded-t-xl shadow-lg border-b border-edge p-6 sm:p-8 md:p-10">
           <div className="text-center mx-auto max-w-3xl">
-            <h1 className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent mb-1 sm:mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-500 to-cyan-500 bg-clip-text text-transparent mb-1 sm:mb-2">
               Project Abstract Submission
             </h1>
-            <h2 className="text-base sm:text-lg font-medium text-gray-700">
+            <h2 className="text-base sm:text-lg font-medium text-body">
               MAJOR / MINOR PROJECT ABSTRACT (2024-25)
             </h2>
             {existingData && (
@@ -279,7 +279,7 @@ const ProjectAbstractForm = () => {
                             : "Unknown"}
                 </span>
                 {existingData.submittedAt && (
-                  <span className="text-gray-700 text-xs sm:text-sm">
+                  <span className="text-body text-xs sm:text-sm">
                     • Last updated:{" "}
                     {new Date(existingData.submittedAt).toLocaleDateString()}
                   </span>
@@ -309,11 +309,11 @@ const ProjectAbstractForm = () => {
         )}
 
         {/* Form Content */}
-        <div className="bg-white rounded-b-xl shadow-lg p-8">
+        <div className="bg-surface rounded-b-xl shadow-lg p-8">
           <div className="space-y-8">
             {/* Project Track */}
-            <div className="bg-gray-50 rounded-lg p-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
+            <div className="bg-surface-alt rounded-lg p-6">
+              <label className="block text-sm font-semibold text-body mb-3">
                 Project Track <span className="text-red-500">*</span>
               </label>
               <select
@@ -322,9 +322,9 @@ const ProjectAbstractForm = () => {
                 onChange={handleInputChange}
                 disabled={!isEditable}
                 required
-                className={`w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none transition-all ${isEditable
-                    ? "focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                    : "bg-gray-100 cursor-not-allowed"
+                className={`w-full border border-edge rounded-lg px-4 py-3 focus:outline-none transition-all ${isEditable
+                    ? "focus:ring-2 focus:ring-primary/50 focus:border-transparent"
+                    : "bg-surface-alt cursor-not-allowed"
                   }`}
               >
                 <option value="">Select project track</option>
@@ -343,25 +343,25 @@ const ProjectAbstractForm = () => {
                   <FaGithub className="text-white text-xl" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800">
+                  <h3 className="text-lg font-semibold text-heading">
                     GitHub Repository
                   </h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-body">
                     Link your project repository for code management
                   </p>
                 </div>
               </div>
 
               {/* GitHub Setup Guide */}
-              <div className="bg-white rounded-lg p-5 mb-4 border border-blue-200">
+              <div className="bg-surface rounded-lg p-5 mb-4 border border-blue-200">
                 <div className="flex items-center gap-2 mb-3">
                   <FaInfoCircle className="text-blue-600 text-lg" />
-                  <h4 className="font-semibold text-gray-800">
+                  <h4 className="font-semibold text-heading">
                     How to Set Up Your GitHub Repository
                   </h4>
                 </div>
 
-                <div className="space-y-4 text-sm text-gray-700">
+                <div className="space-y-4 text-sm text-body">
                   <div className="bg-yellow-50 rounded-lg p-4">
                     <h5 className="font-semibold text-yellow-800 mb-2">
                       ⚠️ Important Notes:
@@ -392,7 +392,7 @@ const ProjectAbstractForm = () => {
 
               {/* GitHub Repository URL Input */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                <label className="block text-sm font-semibold text-body mb-3">
                   <FaGithub className="inline mr-2" />
                   GitHub Repository URL <span className="text-red-500">*</span>
                 </label>
@@ -404,12 +404,12 @@ const ProjectAbstractForm = () => {
                   disabled={!isEditable}
                   placeholder="https://github.com/username/repository-name"
                   required
-                  className={`w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none transition-all ${isEditable
-                      ? "focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                      : "bg-gray-100 cursor-not-allowed"
+                  className={`w-full border border-edge rounded-lg px-4 py-3 focus:outline-none transition-all ${isEditable
+                      ? "focus:ring-2 focus:ring-primary/50 focus:border-transparent"
+                      : "bg-surface-alt cursor-not-allowed"
                     }`}
                 />
-                <p className="mt-2 text-xs text-gray-600">
+                <p className="mt-2 text-xs text-body">
                   Paste the full URL of your GitHub repository (e.g.,
                   https://github.com/username/project-name)
                 </p>
@@ -430,16 +430,16 @@ const ProjectAbstractForm = () => {
             </div>
 
             {/* Tools Section */}
-            <div className="bg-gray-50 rounded-lg p-6">
+            <div className="bg-surface-alt rounded-lg p-6">
               <div className="flex justify-between items-center mb-4">
-                <label className="block text-sm font-semibold text-gray-700">
+                <label className="block text-sm font-semibold text-body">
                   Tools / Technologies <span className="text-red-500">*</span>
                 </label>
                 {isEditable && (
                   <button
                     type="button"
                     onClick={addTool}
-                    className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-200 transform hover:scale-105"
+                    className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-200 transform hover:scale-105"
                   >
                     <FaPlus className="w-3 h-3" />
                     Add Tool
@@ -451,10 +451,10 @@ const ProjectAbstractForm = () => {
                 {formData.tools.map((tool, index) => (
                   <div
                     key={index}
-                    className="grid grid-cols-1 lg:grid-cols-4 gap-4 p-5 border border-gray-200 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow"
+                    className="grid grid-cols-1 lg:grid-cols-4 gap-4 p-5 border border-edge rounded-lg bg-surface shadow-sm hover:shadow-md transition-shadow"
                   >
                     <div>
-                      <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+                      <label className="block text-xs font-semibold text-body mb-2 uppercase tracking-wide">
                         Name <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -466,14 +466,14 @@ const ProjectAbstractForm = () => {
                         }
                         disabled={!isEditable}
                         required
-                        className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${isEditable
-                            ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                            : "bg-gray-100 cursor-not-allowed"
+                        className={`w-full border border-edge rounded-lg px-3 py-2 transition-all ${isEditable
+                            ? "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent"
+                            : "bg-surface-alt cursor-not-allowed"
                           }`}
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+                      <label className="block text-xs font-semibold text-body mb-2 uppercase tracking-wide">
                         Version
                       </label>
                       <input
@@ -484,14 +484,14 @@ const ProjectAbstractForm = () => {
                           handleToolChange(index, "version", e.target.value)
                         }
                         disabled={!isEditable}
-                        className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${isEditable
-                            ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                            : "bg-gray-100 cursor-not-allowed"
+                        className={`w-full border border-edge rounded-lg px-3 py-2 transition-all ${isEditable
+                            ? "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent"
+                            : "bg-surface-alt cursor-not-allowed"
                           }`}
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+                      <label className="block text-xs font-semibold text-body mb-2 uppercase tracking-wide">
                         Type
                       </label>
                       <input
@@ -502,14 +502,14 @@ const ProjectAbstractForm = () => {
                           handleToolChange(index, "type", e.target.value)
                         }
                         disabled={!isEditable}
-                        className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${isEditable
-                            ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                            : "bg-gray-100 cursor-not-allowed"
+                        className={`w-full border border-edge rounded-lg px-3 py-2 transition-all ${isEditable
+                            ? "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent"
+                            : "bg-surface-alt cursor-not-allowed"
                           }`}
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+                      <label className="block text-xs font-semibold text-body mb-2 uppercase tracking-wide">
                         Purpose
                       </label>
                       <div className="flex gap-2">
@@ -521,9 +521,9 @@ const ProjectAbstractForm = () => {
                             handleToolChange(index, "purpose", e.target.value)
                           }
                           disabled={!isEditable}
-                          className={`flex-1 border border-gray-300 rounded-lg px-3 py-2 transition-all ${isEditable
-                              ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                              : "bg-gray-100 cursor-not-allowed"
+                          className={`flex-1 border border-edge rounded-lg px-3 py-2 transition-all ${isEditable
+                              ? "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent"
+                              : "bg-surface-alt cursor-not-allowed"
                             }`}
                         />
                         {formData.tools.length > 1 && isEditable && (
@@ -544,16 +544,16 @@ const ProjectAbstractForm = () => {
             </div>
 
             {/* Modules Section */}
-            <div className="bg-gray-50 rounded-lg p-6">
+            <div className="bg-surface-alt rounded-lg p-6">
               <div className="flex justify-between items-center mb-4">
-                <label className="block text-sm font-semibold text-gray-700">
+                <label className="block text-sm font-semibold text-body">
                   Modules <span className="text-red-500">*</span>
                 </label>
                 {isEditable && (
                   <button
                     type="button"
                     onClick={addModule}
-                    className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-200 transform hover:scale-105"
+                    className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-200 transform hover:scale-105"
                   >
                     <FaPlus className="w-3 h-3" />
                     Add Module
@@ -565,10 +565,10 @@ const ProjectAbstractForm = () => {
                 {formData.modules.map((module, index) => (
                   <div
                     key={index}
-                    className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-5 border border-gray-200 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow"
+                    className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-5 border border-edge rounded-lg bg-surface shadow-sm hover:shadow-md transition-shadow"
                   >
                     <div>
-                      <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+                      <label className="block text-xs font-semibold text-body mb-2 uppercase tracking-wide">
                         Module Name <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -580,14 +580,14 @@ const ProjectAbstractForm = () => {
                         }
                         disabled={!isEditable}
                         required
-                        className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${isEditable
-                            ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                            : "bg-gray-100 cursor-not-allowed"
+                        className={`w-full border border-edge rounded-lg px-3 py-2 transition-all ${isEditable
+                            ? "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent"
+                            : "bg-surface-alt cursor-not-allowed"
                           }`}
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+                      <label className="block text-xs font-semibold text-body mb-2 uppercase tracking-wide">
                         Functionality
                       </label>
                       <div className="flex gap-2">
@@ -603,9 +603,9 @@ const ProjectAbstractForm = () => {
                             )
                           }
                           disabled={!isEditable}
-                          className={`flex-1 border border-gray-300 rounded-lg px-3 py-2 transition-all ${isEditable
-                              ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                              : "bg-gray-100 cursor-not-allowed"
+                          className={`flex-1 border border-edge rounded-lg px-3 py-2 transition-all ${isEditable
+                              ? "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent"
+                              : "bg-surface-alt cursor-not-allowed"
                             }`}
                         />
                         {formData.modules.length > 1 && isEditable && (
@@ -621,8 +621,8 @@ const ProjectAbstractForm = () => {
                       </div>
                       {/* Optional Description for the module */}
                       <div className="mt-3">
-                        <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
-                          Description <span className="text-xs text-gray-500">(optional)</span>
+                        <label className="block text-xs font-semibold text-body mb-2 uppercase tracking-wide">
+                          Description <span className="text-xs text-muted">(optional)</span>
                         </label>
                         <textarea
                           placeholder="Optional: Describe the module in more detail (responsibilities, constraints, dependencies)"
@@ -632,9 +632,9 @@ const ProjectAbstractForm = () => {
                           }
                           disabled={!isEditable}
                           rows={3}
-                          className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${isEditable
-                              ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                              : "bg-gray-100 cursor-not-allowed"
+                          className={`w-full border border-edge rounded-lg px-3 py-2 transition-all ${isEditable
+                              ? "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent"
+                              : "bg-surface-alt cursor-not-allowed"
                             }`}
                         />
                       </div>
@@ -645,12 +645,12 @@ const ProjectAbstractForm = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6 border-t border-gray-200">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6 border-t border-edge">
               {isEditable && (
                 <button
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="px-8 py-3 bg-linear-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold rounded-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
+                  className="px-8 py-3 bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white font-semibold rounded-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
                 >
                   {submitting ? (
                     <>
@@ -677,14 +677,14 @@ const ProjectAbstractForm = () => {
               )}
               {!isEditable && (
                 <div className="text-center py-4">
-                  <p className="text-gray-600 text-sm">
+                  <p className="text-body text-sm">
                     This form is in read-only mode. Status:{" "}
                     <span className="font-semibold capitalize">
                       {existingData?.status || "Unknown"}
                     </span>
                   </p>
                   {existingData?.status === "submitted" && (
-                    <p className="text-gray-500 text-xs mt-1">
+                    <p className="text-muted text-xs mt-1">
                       The form will become editable again if rejected by
                       mentor/admin.
                     </p>

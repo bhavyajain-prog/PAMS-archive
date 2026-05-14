@@ -70,17 +70,17 @@ export default function JoinTeam() {
 
   if (success) {
     return (
-      <div className="bg-gray-50 py-12">
-        <div className="max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg text-center">
+      <div className="bg-surface-alt py-12">
+        <div className="max-w-md mx-auto bg-surface p-8 rounded-xl shadow-lg text-center">
           <FaCheckCircle className="text-6xl text-green-500 mx-auto mb-4" />
-          <h2 className="text-3xl font-bold text-gray-800 mb-2">
+          <h2 className="text-3xl font-bold text-heading mb-2">
             Successfully Joined!
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-body mb-6">
             Welcome to the team! Redirecting you to your dashboard...
           </p>
           <div className="flex justify-center">
-            <FaSpinner className="animate-spin text-2xl text-teal-600" />
+            <FaSpinner className="animate-spin text-2xl text-primary" />
           </div>
         </div>
       </div>
@@ -88,24 +88,24 @@ export default function JoinTeam() {
   }
 
   return (
-    <div className="bg-gray-50 py-10 px-4">
+    <div className="bg-surface-alt py-10 px-4">
       <div className="max-w-2xl mx-auto">
         <header className="text-center mb-10">
-          <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
+          <h1 className="text-4xl font-extrabold text-heading tracking-tight">
             Join a Team
           </h1>
-          <p className="mt-3 text-lg text-gray-600">
+          <p className="mt-3 text-lg text-body">
             Enter the team code shared by your team leader to join their team.
           </p>
         </header>
 
         <form
           onSubmit={joinTeam}
-          className="bg-white p-8 rounded-2xl shadow-lg space-y-6"
+          className="bg-surface p-8 rounded-2xl shadow-lg space-y-6"
         >
           {/* Team Code Input */}
           <div className="space-y-2">
-            <label className="block text-lg font-semibold text-gray-800">
+            <label className="block text-lg font-semibold text-heading">
               Team Code
             </label>
             <div className="relative">
@@ -115,17 +115,17 @@ export default function JoinTeam() {
                 value={code}
                 onChange={handleCodeChange}
                 maxLength={6}
-                className={`w-full p-4 text-lg font-mono border rounded-lg focus:ring-2 focus:ring-teal-400 transition-colors ${
+                className={`w-full p-4 text-lg font-mono border rounded-lg focus:ring-2 focus:ring-primary/40 transition-colors ${
                   error
                     ? "border-red-300 focus:border-red-400"
-                    : "border-gray-300 focus:border-teal-400"
+                    : "border-edge focus:border-primary/40"
                 }`}
                 disabled={loading}
                 autoFocus
               />
-              <FaUsers className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <FaUsers className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted" />
             </div>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted">
               Team codes are exactly 6 characters long and contain only letters
               and numbers.
             </p>
@@ -143,7 +143,7 @@ export default function JoinTeam() {
           <button
             type="submit"
             disabled={loading || code.length !== 6}
-            className="w-full bg-teal-500 hover:bg-teal-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
+            className="w-full bg-primary-subtle0 hover:bg-primary disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
           >
             {loading ? (
               <>
@@ -159,12 +159,12 @@ export default function JoinTeam() {
           </button>
 
           {/* Additional Info */}
-          <div className="mt-8 p-6 bg-teal-50 rounded-lg border border-teal-100">
-            <h3 className="text-lg font-semibold text-teal-800 mb-3 flex items-center">
+          <div className="mt-8 p-6 bg-primary-subtle rounded-lg border border-primary/20">
+            <h3 className="text-lg font-semibold text-heading mb-3 flex items-center">
               <FaInfoCircle className="mr-2" />
               How to Join a Team
             </h3>
-            <ul className="text-sm text-teal-700 space-y-2">
+            <ul className="text-sm text-primary space-y-2">
               <li>• Ask your team leader for the team code</li>
               <li>
                 • Team codes are exactly 6 characters (letters and numbers only)
@@ -180,11 +180,11 @@ export default function JoinTeam() {
 
         {/* Navigation Helper */}
         <div className="text-center mt-8">
-          <p className="text-gray-600">
+          <p className="text-body">
             Don&apos;t have a team code?{" "}
             <button
               onClick={() => navigate("/create-team")}
-              className="text-teal-600 hover:text-teal-700 font-semibold underline"
+              className="text-primary hover:text-primary font-semibold underline"
             >
               Create your own team
             </button>

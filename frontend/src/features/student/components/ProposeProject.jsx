@@ -17,12 +17,12 @@ const Modal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center p-4">
-      <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-surface p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-2xl font-semibold text-gray-800">{title}</h3>
+          <h3 className="text-2xl font-semibold text-heading">{title}</h3>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl"
+            className="text-muted hover:text-body text-2xl"
           >
             &times;
           </button>
@@ -35,11 +35,11 @@ const Modal = ({ isOpen, onClose, title, children }) => {
 
 // Card for displaying projects from the project bank
 const ProjectBankCard = ({ project }) => (
-  <div className="bg-white p-5 rounded-lg shadow-md border-l-4 border-teal-500">
-    <h4 className="text-xl font-bold text-teal-700">{project.title}</h4>
-    <p className="text-sm text-gray-500 mb-2">Category: {project.category}</p>
-    <p className="text-gray-700 text-sm mb-3">{project.description}</p>
-    <div className="text-xs text-gray-500">
+  <div className="bg-surface p-5 rounded-lg shadow-md border-l-4 border-primary">
+    <h4 className="text-xl font-bold text-primary">{project.title}</h4>
+    <p className="text-sm text-muted mb-2">Category: {project.category}</p>
+    <p className="text-body text-sm mb-3">{project.description}</p>
+    <div className="text-xs text-muted">
       <p>Proposed by: {project.proposedBy?.name || "Admin"}</p>
       <p>
         Teams Assigned: {project.assignedTeamCount || 0} / {project.maxTeams || 1}
@@ -87,12 +87,12 @@ const MyProposalCard = ({ project, onWithdraw, onEdit }) => {
 
   return (
     <div
-      className={`bg-white p-5 rounded-lg shadow-md border-l-4 border-${status.color}-500`}
+      className={`bg-surface p-5 rounded-lg shadow-md border-l-4 border-${status.color}-500`}
     >
       <div className="flex justify-between items-start">
         <div>
-          <h4 className="text-xl font-bold text-gray-800">{project.title}</h4>
-          <p className="text-sm text-gray-500 mb-2">
+          <h4 className="text-xl font-bold text-heading">{project.title}</h4>
+          <p className="text-sm text-muted mb-2">
             Category: {project.category}
           </p>
         </div>
@@ -101,17 +101,17 @@ const MyProposalCard = ({ project, onWithdraw, onEdit }) => {
           <span>{status.text}</span>
         </div>
       </div>
-      <p className="text-gray-700 text-sm mb-4">{project.description}</p>
+      <p className="text-body text-sm mb-4">{project.description}</p>
 
       {project.feedback && project.feedback.length > 0 && (
-        <div className="mt-4 pt-3 border-t border-gray-200">
-          <h5 className="text-sm font-semibold text-gray-600 mb-2">
+        <div className="mt-4 pt-3 border-t border-edge">
+          <h5 className="text-sm font-semibold text-body mb-2">
             Feedback:
           </h5>
           {project.feedback.map((fb, index) => (
-            <div key={index} className="bg-gray-50 p-2 rounded-md text-xs mb-2">
+            <div key={index} className="bg-surface-alt p-2 rounded-md text-xs mb-2">
               <p className="italic">&quot;{fb.message}&quot;</p>
-              <p className="text-right text-gray-500 mt-1">
+              <p className="text-right text-muted mt-1">
                 - {fb.byUser?.name || "Admin"}
               </p>
             </div>
@@ -304,21 +304,21 @@ export default function ProposeProject() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-slate-50">
-        <FaSpinner className="animate-spin text-4xl text-teal-600" />
-        <p className="ml-3 text-lg text-gray-700">Loading Projects...</p>
+      <div className="flex justify-center items-center min-h-screen bg-base">
+        <FaSpinner className="animate-spin text-4xl text-primary" />
+        <p className="ml-3 text-lg text-body">Loading Projects...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center p-4">
+      <div className="min-h-screen bg-base flex flex-col justify-center items-center p-4">
         <FaInfoCircle className="text-4xl text-red-500 mb-4" />
         <p className="text-lg text-red-600 text-center">{error}</p>
         <button
           onClick={fetchData}
-          className="mt-6 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-4 rounded shadow"
+          className="mt-6 bg-primary-subtle0 hover:bg-primary text-white font-semibold py-2 px-4 rounded shadow"
         >
           Retry
         </button>
@@ -327,7 +327,7 @@ export default function ProposeProject() {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen p-4 sm:p-6 lg:p-8">
+    <div className="bg-surface-alt min-h-screen p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Global message display */}
         {actionMessage.text && (
@@ -340,25 +340,25 @@ export default function ProposeProject() {
         )}
 
         <header className="flex flex-col sm:flex-row justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4 sm:mb-0">
+          <h1 className="text-4xl font-bold text-heading mb-4 sm:mb-0">
             Project Bank
           </h1>
           <button
             onClick={openModalForCreate}
-            className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg flex items-center shadow-md hover:shadow-lg transition-transform transform hover:-translate-y-1"
+            className="bg-primary hover:bg-primary-hover text-white font-bold py-2 px-4 rounded-lg flex items-center shadow-md hover:shadow-lg transition-transform transform hover:-translate-y-1"
           >
             <FaPlus className="mr-2" /> Propose New Project
           </button>
         </header>
 
         {/* Tabs */}
-        <div className="mb-6 border-b border-gray-200">
+        <div className="mb-6 border-b border-edge">
           <nav className="-mb-px flex space-x-6">
             <button
               onClick={() => setView("bank")}
               className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg ${view === "bank"
-                  ? "border-teal-500 text-teal-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted hover:text-body hover:border-edge"
                 }`}
             >
               <FaBook className="inline mr-2" /> Project Bank
@@ -366,8 +366,8 @@ export default function ProposeProject() {
             <button
               onClick={() => setView("myProposals")}
               className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg ${view === "myProposals"
-                  ? "border-teal-500 text-teal-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted hover:text-body hover:border-edge"
                 }`}
             >
               <FaLightbulb className="inline mr-2" /> My Proposals
@@ -382,7 +382,7 @@ export default function ProposeProject() {
               placeholder="Search by title or category..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+              className="w-full p-3 mb-6 border border-edge rounded-lg focus:ring-2 focus:ring-primary/50"
             />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProjectBank.length > 0 ? (
@@ -391,10 +391,10 @@ export default function ProposeProject() {
                 ))
               ) : (
                 <div className="md:col-span-2 lg:col-span-3 text-center py-10">
-                  <p className="text-gray-500 text-lg mb-4">
+                  <p className="text-muted text-lg mb-4">
                     {searchTerm ? "No projects match your search." : "No approved projects are available yet."}
                   </p>
-                  <p className="text-gray-400 text-sm">
+                  <p className="text-muted text-sm">
                     {!searchTerm && "Be the first to propose a project by clicking the button above!"}
                   </p>
                 </div>
@@ -414,15 +414,15 @@ export default function ProposeProject() {
               ))
             ) : (
               <div className="text-center py-10">
-                <p className="text-gray-500 text-lg mb-4">
+                <p className="text-muted text-lg mb-4">
                   You haven&apos;t proposed any projects yet.
                 </p>
-                <p className="text-gray-400 text-sm mb-6">
+                <p className="text-muted text-sm mb-6">
                   Start by proposing a project that interests you or your team!
                 </p>
                 <button
                   onClick={openModalForCreate}
-                  className="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center mx-auto shadow-md hover:shadow-lg transition-transform transform hover:-translate-y-1"
+                  className="bg-primary hover:bg-primary-hover text-white font-semibold py-2 px-4 rounded-lg flex items-center mx-auto shadow-md hover:shadow-lg transition-transform transform hover:-translate-y-1"
                 >
                   <FaPlus className="mr-2" /> Propose Your First Project
                 </button>
@@ -485,7 +485,7 @@ export default function ProposeProject() {
             <button
               type="submit"
               disabled={actionLoading}
-              className="px-4 py-2 bg-teal-600 text-white rounded disabled:bg-gray-400"
+              className="px-4 py-2 bg-primary text-white rounded disabled:bg-gray-400"
             >
               {actionLoading ? (
                 <FaSpinner className="animate-spin" />

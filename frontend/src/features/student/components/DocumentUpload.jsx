@@ -198,12 +198,12 @@ const DocumentUpload = () => {
         text: "Rejected",
       },
       draft: {
-        color: "bg-gray-100 text-gray-800 border-gray-200",
+        color: "bg-surface-alt text-heading border-edge",
         icon: FileText,
         text: "Draft",
       },
       not_submitted: {
-        color: "bg-gray-100 text-gray-600 border-gray-200",
+        color: "bg-surface-alt text-body border-edge",
         icon: AlertCircle,
         text: "Not Submitted",
       },
@@ -230,39 +230,39 @@ const DocumentUpload = () => {
     const canDelete = isLeader && hasFile && !document.adminApproved;
 
     return (
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 flex flex-col h-full">
+      <div className="bg-surface rounded-lg shadow-md border border-edge p-6 flex flex-col h-full">
         <div className="flex-1">
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">
+              <h3 className="text-lg font-semibold text-heading mb-1">
                 {document.name}
               </h3>
-              <p className="text-sm text-gray-600 mb-3">{document.description}</p>
+              <p className="text-sm text-body mb-3">{document.description}</p>
               <StatusBadge status={document.status} />
             </div>
             <div className="ml-4">
-              <FileText className="w-8 h-8 text-gray-400" />
+              <FileText className="w-8 h-8 text-muted" />
             </div>
           </div>
 
           {/* File info */}
           {hasFile && (
-            <div className="bg-gray-50 rounded-lg p-4 mb-4 space-y-2">
+            <div className="bg-surface-alt rounded-lg p-4 mb-4 space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">File:</span>
-                <span className="font-medium text-gray-900">
+                <span className="text-body">File:</span>
+                <span className="font-medium text-heading">
                   {document.originalName}
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Size:</span>
-                <span className="font-medium text-gray-900">
+                <span className="text-body">Size:</span>
+                <span className="font-medium text-heading">
                   {(document.size / 1024).toFixed(2)} KB
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Uploaded:</span>
-                <span className="font-medium text-gray-900">
+                <span className="text-body">Uploaded:</span>
+                <span className="font-medium text-heading">
                   {new Date(document.uploadedAt).toLocaleDateString()}
                 </span>
               </div>
@@ -302,8 +302,8 @@ const DocumentUpload = () => {
               return (
                 <label
                   className={`flex-1 flex items-center justify-center px-3 py-1 rounded-lg text-sm font-medium transition-colors cursor-pointer ${isUploading
-                    ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                    : "bg-teal-600 text-white hover:bg-teal-700"
+                    ? "bg-gray-300 text-body cursor-not-allowed"
+                    : "bg-primary text-white hover:bg-primary-hover"
                     }`}
                 >
                   {isUploading ? (
@@ -339,7 +339,7 @@ const DocumentUpload = () => {
           {hasFile && (
             <button
               onClick={() => handleDownload(docKey)}
-              className="flex items-center justify-center px-3 py-1 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors"
+              className="flex items-center justify-center px-3 py-1 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-hover transition-colors"
             >
               <Download className="w-4 h-4 mr-2" />
               Download
@@ -359,7 +359,7 @@ const DocumentUpload = () => {
 
           {/* View only for non-leaders with uploaded files */}
           {!isLeader && hasFile && (
-            <div className="flex-1 flex items-center justify-center px-4 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm font-medium">
+            <div className="flex-1 flex items-center justify-center px-4 py-2 bg-surface-alt text-body rounded-lg text-sm font-medium">
               <Eye className="w-4 h-4 mr-2" />
               View Only (Not Leader)
             </div>
@@ -368,7 +368,7 @@ const DocumentUpload = () => {
 
         {/* Leader only indicator */}
         {!hasFile && !isLeader && (
-          <div className="mt-4 flex items-center justify-center text-sm text-gray-500 bg-gray-50 rounded-lg p-3">
+          <div className="mt-4 flex items-center justify-center text-sm text-muted bg-surface-alt rounded-lg p-3">
             <Shield className="w-4 h-4 mr-2" />
             Only team leader can upload documents
           </div>
@@ -379,11 +379,11 @@ const DocumentUpload = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-base py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center py-12">
-            <RefreshCw className="w-8 h-8 animate-spin text-teal-600 mx-auto mb-4" />
-            <p className="text-lg text-gray-600">Loading documents...</p>
+            <RefreshCw className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+            <p className="text-lg text-body">Loading documents...</p>
           </div>
         </div>
       </div>
@@ -392,17 +392,17 @@ const DocumentUpload = () => {
 
   if (error && !teamData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-base py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center py-12">
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            <h2 className="text-xl font-semibold text-heading mb-2">
               Error Loading Documents
             </h2>
-            <p className="text-gray-600 mb-4">{error}</p>
+            <p className="text-body mb-4">{error}</p>
             <button
               onClick={fetchDocuments}
-              className="inline-flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+              className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
               Retry
@@ -414,14 +414,14 @@ const DocumentUpload = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-base py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-heading mb-2">
             Team Document Management
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-body">
             Upload and manage your team&apos;s project documents
           </p>
         </div>
@@ -447,24 +447,24 @@ const DocumentUpload = () => {
 
         {/* Team Info Card */}
         {teamData && (
-          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+          <div className="bg-surface rounded-xl shadow-lg p-6 border border-edge-subtle">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="bg-teal-100 rounded-lg p-3">
-                  <Users className="w-6 h-6 text-teal-600" />
+                <div className="bg-primary-subtle rounded-lg p-3">
+                  <Users className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900">
+                  <h2 className="text-xl font-semibold text-heading">
                     Team {teamData.code}
                   </h2>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-body">
                     {teamData.members.length + 1} members •{" "}
                     {isLeader ? (
-                      <span className="text-teal-600 font-medium">
+                      <span className="text-primary font-medium">
                         You are the team leader
                       </span>
                     ) : (
-                      <span className="text-gray-600">
+                      <span className="text-body">
                         Leader: {teamData.leader.name}
                       </span>
                     )}
@@ -473,7 +473,7 @@ const DocumentUpload = () => {
               </div>
               <button
                 onClick={fetchDocuments}
-                className="flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+                className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors"
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Refresh
@@ -481,15 +481,15 @@ const DocumentUpload = () => {
             </div>
 
             {/* Role indicator */}
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+            <div className="mt-4 p-4 bg-surface-alt rounded-lg">
               {isLeader ? (
                 <div className="flex items-start space-x-3">
-                  <Shield className="w-5 h-5 text-teal-600 mt-0.5" />
+                  <Shield className="w-5 h-5 text-primary mt-0.5" />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-heading">
                       Team Leader Permissions
                     </p>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-body mt-1">
                       As the team leader, you can upload, replace, and delete
                       documents. Make sure to upload all required documents in
                       PDF format only.
@@ -498,12 +498,12 @@ const DocumentUpload = () => {
                 </div>
               ) : (
                 <div className="flex items-start space-x-3">
-                  <User className="w-5 h-5 text-gray-600 mt-0.5" />
+                  <User className="w-5 h-5 text-body mt-0.5" />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-heading">
                       Team Member View
                     </p>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-body mt-1">
                       You can view and download uploaded documents. Only your
                       team leader can upload or modify documents.
                     </p>
@@ -516,7 +516,7 @@ const DocumentUpload = () => {
 
         {/* Documents Grid */}
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <h2 className="text-xl font-semibold text-heading mb-4">
             Required Documents
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
@@ -531,37 +531,37 @@ const DocumentUpload = () => {
         </div>
 
         {/* Instructions */}
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+        <div className="bg-surface rounded-xl shadow-lg p-6 border border-edge-subtle">
           <div className="flex items-center space-x-3 mb-4">
-            <div className="bg-teal-100 rounded-lg p-2">
-              <AlertCircle className="w-5 h-5 text-teal-600" />
+            <div className="bg-primary-subtle rounded-lg p-2">
+              <AlertCircle className="w-5 h-5 text-primary" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-heading">
               Upload Guidelines
             </h3>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4">
-            <ul className="space-y-3 text-sm text-gray-700">
+          <div className="bg-surface-alt rounded-lg p-4">
+            <ul className="space-y-3 text-sm text-body">
               <li className="flex items-start">
-                <CheckCircle className="w-4 h-4 text-teal-600 mr-3 mt-0.5 flex-shrink-0" />
+                <CheckCircle className="w-4 h-4 text-primary mr-3 mt-0.5 flex-shrink-0" />
                 <span>All documents must be in PDF format</span>
               </li>
               <li className="flex items-start">
-                <CheckCircle className="w-4 h-4 text-teal-600 mr-3 mt-0.5 flex-shrink-0" />
+                <CheckCircle className="w-4 h-4 text-primary mr-3 mt-0.5 flex-shrink-0" />
                 <span>Maximum file size is 10MB per document</span>
               </li>
               <li className="flex items-start">
-                <CheckCircle className="w-4 h-4 text-teal-600 mr-3 mt-0.5 flex-shrink-0" />
+                <CheckCircle className="w-4 h-4 text-primary mr-3 mt-0.5 flex-shrink-0" />
                 <span>Only the team leader can upload or modify documents</span>
               </li>
               <li className="flex items-start">
-                <CheckCircle className="w-4 h-4 text-teal-600 mr-3 mt-0.5 flex-shrink-0" />
+                <CheckCircle className="w-4 h-4 text-primary mr-3 mt-0.5 flex-shrink-0" />
                 <span>
                   All team members can view and download uploaded documents
                 </span>
               </li>
               <li className="flex items-start">
-                <CheckCircle className="w-4 h-4 text-teal-600 mr-3 mt-0.5 flex-shrink-0" />
+                <CheckCircle className="w-4 h-4 text-primary mr-3 mt-0.5 flex-shrink-0" />
                 <span>Documents cannot be deleted once approved by admin</span>
               </li>
             </ul>
@@ -571,21 +571,21 @@ const DocumentUpload = () => {
 
       {/* Delete Confirmation Modal */}
       {deleteModal.show && (
-        <div className="fixed inset-0 backdrop-blur-md bg-white/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transform transition-all">
+        <div className="fixed inset-0 backdrop-blur-md bg-surface/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-surface rounded-xl shadow-2xl max-w-md w-full p-6 transform transition-all">
             <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
               <AlertCircle className="w-6 h-6 text-red-600" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 text-center mb-2">
+            <h3 className="text-xl font-semibold text-heading text-center mb-2">
               Delete Document
             </h3>
-            <p className="text-gray-600 text-center mb-6">
-              Are you sure you want to delete <span className="font-semibold text-gray-900">{deleteModal.documentName}</span>? This action cannot be undone.
+            <p className="text-body text-center mb-6">
+              Are you sure you want to delete <span className="font-semibold text-heading">{deleteModal.documentName}</span>? This action cannot be undone.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={cancelDelete}
-                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                className="flex-1 px-4 py-2 bg-surface-alt text-body rounded-lg font-medium hover:bg-gray-200 transition-colors"
               >
                 Cancel
               </button>

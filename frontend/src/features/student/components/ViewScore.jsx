@@ -119,7 +119,7 @@ export default function ViewScore() {
                 text: "Pending Review",
             },
             draft: {
-                color: "bg-gray-100 text-gray-700 border-gray-300",
+                color: "bg-surface-alt text-body border-edge",
                 icon: FaClock,
                 text: "Draft",
             },
@@ -140,7 +140,7 @@ export default function ViewScore() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-sky-100 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="min-h-screen bg-base py-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto">
                     <div className="mb-8">
                         <div className="h-8 w-48 bg-slate-200 rounded mb-4 animate-pulse" />
@@ -149,7 +149,7 @@ export default function ViewScore() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                         {Array.from({ length: 4 }).map((_, i) => (
-                            <div key={i} className="bg-white rounded-lg p-6 shadow animate-pulse">
+                            <div key={i} className="bg-surface rounded-lg p-6 shadow animate-pulse">
                                 <div className="h-6 w-32 bg-slate-200 rounded mb-4" />
                                 <div className="h-10 w-20 bg-slate-200 rounded" />
                             </div>
@@ -158,7 +158,7 @@ export default function ViewScore() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {Array.from({ length: 3 }).map((_, idx) => (
-                            <div key={idx} className="bg-white rounded-lg shadow p-6 animate-pulse">
+                            <div key={idx} className="bg-surface rounded-lg shadow p-6 animate-pulse">
                                 <div className="flex items-center mb-4">
                                     <div className="h-12 w-12 bg-slate-200 rounded-full mr-4" />
                                     <div className="flex-1">
@@ -187,7 +187,7 @@ export default function ViewScore() {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-sky-100 py-12 px-4">
+            <div className="min-h-screen bg-base py-12 px-4">
                 <div className="max-w-4xl mx-auto">
                     <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
                         <p className="text-red-600 mb-4">{error}</p>
@@ -204,21 +204,21 @@ export default function ViewScore() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-sky-100 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-base py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="mb-8">
                     <button
                         onClick={() => navigate("/home")}
-                        className="mb-4 inline-flex items-center text-teal-600 hover:text-teal-700 font-medium"
+                        className="mb-4 inline-flex items-center text-primary hover:text-primary font-medium"
                     >
                         <FaArrowLeft className="mr-2" />
                         Back to Home
                     </button>
-                    <h1 className="text-4xl font-extrabold text-gray-900 mb-2">
+                    <h1 className="text-4xl font-extrabold text-heading mb-2">
                         Weekly Scores
                     </h1>
-                    <p className="text-gray-600">
+                    <p className="text-body">
                         Track your weekly performance and mentor feedback
                     </p>
                 </div>
@@ -226,30 +226,30 @@ export default function ViewScore() {
                 {/* Statistics Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     {/* Total Submissions */}
-                    <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-teal-500">
+                    <div className="bg-surface rounded-xl shadow-lg p-6 border-l-4 border-primary">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">
+                                <p className="text-sm font-medium text-body uppercase tracking-wide">
                                     Total Weeks
                                 </p>
-                                <p className="text-3xl font-bold text-gray-900 mt-2">
+                                <p className="text-3xl font-bold text-heading mt-2">
                                     {statistics.totalWeeks}
                                 </p>
                             </div>
-                            <div className="bg-teal-100 p-3 rounded-full">
-                                <FaCalendarAlt className="text-2xl text-teal-600" />
+                            <div className="bg-primary-subtle p-3 rounded-full">
+                                <FaCalendarAlt className="text-2xl text-primary" />
                             </div>
                         </div>
                     </div>
 
                     {/* Scored Weeks */}
-                    <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+                    <div className="bg-surface rounded-xl shadow-lg p-6 border-l-4 border-green-500">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">
+                                <p className="text-sm font-medium text-body uppercase tracking-wide">
                                     Scored Weeks
                                 </p>
-                                <p className="text-3xl font-bold text-gray-900 mt-2">
+                                <p className="text-3xl font-bold text-heading mt-2">
                                     {statistics.scoredWeeks}
                                 </p>
                             </div>
@@ -260,15 +260,15 @@ export default function ViewScore() {
                     </div>
 
                     {/* Average Score */}
-                    <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+                    <div className="bg-surface rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">
+                                <p className="text-sm font-medium text-body uppercase tracking-wide">
                                     Average Score
                                 </p>
-                                <p className="text-3xl font-bold text-gray-900 mt-2">
+                                <p className="text-3xl font-bold text-heading mt-2">
                                     {statistics.averageScore}
-                                    <span className="text-lg text-gray-500">/10</span>
+                                    <span className="text-lg text-muted">/10</span>
                                 </p>
                             </div>
                             <div className="bg-blue-100 p-3 rounded-full">
@@ -278,13 +278,13 @@ export default function ViewScore() {
                     </div>
 
                     {/* Total Score */}
-                    <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
+                    <div className="bg-surface rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">
+                                <p className="text-sm font-medium text-body uppercase tracking-wide">
                                     Total Score
                                 </p>
-                                <p className="text-3xl font-bold text-gray-900 mt-2">
+                                <p className="text-3xl font-bold text-heading mt-2">
                                     {statistics.totalScore}
                                 </p>
                             </div>
@@ -297,28 +297,28 @@ export default function ViewScore() {
 
                 {/* Score Range */}
                 {statistics.scoredWeeks > 0 && (
-                    <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-                        <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                    <div className="bg-surface rounded-xl shadow-lg p-6 mb-8">
+                        <h2 className="text-xl font-bold text-heading mb-4 flex items-center">
                             <FaStar className="text-yellow-500 mr-2" />
                             Score Range
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                                <p className="text-sm font-medium text-gray-600 mb-2">
+                                <p className="text-sm font-medium text-body mb-2">
                                     Highest Score
                                 </p>
                                 <p className="text-4xl font-bold text-green-600">
                                     {statistics.highestScore}
-                                    <span className="text-lg text-gray-500">/10</span>
+                                    <span className="text-lg text-muted">/10</span>
                                 </p>
                             </div>
                             <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
-                                <p className="text-sm font-medium text-gray-600 mb-2">
+                                <p className="text-sm font-medium text-body mb-2">
                                     Lowest Score
                                 </p>
                                 <p className="text-4xl font-bold text-orange-600">
                                     {statistics.lowestScore}
-                                    <span className="text-lg text-gray-500">/10</span>
+                                    <span className="text-lg text-muted">/10</span>
                                 </p>
                             </div>
                         </div>
@@ -326,17 +326,17 @@ export default function ViewScore() {
                 )}
 
                 {/* Weekly Scores List */}
-                <div className="bg-white rounded-xl shadow-lg p-6">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-                        <FaCalendarAlt className="text-teal-600 mr-3" />
+                <div className="bg-surface rounded-xl shadow-lg p-6">
+                    <h2 className="text-2xl font-bold text-heading mb-6 flex items-center">
+                        <FaCalendarAlt className="text-primary mr-3" />
                         Weekly Performance
                     </h2>
 
                     {weeklyScores.length === 0 ? (
-                        <div className="text-center py-12 bg-gray-50 rounded-lg">
-                            <FaCalendarAlt className="text-5xl text-gray-300 mx-auto mb-4" />
-                            <p className="text-gray-600 text-lg">No weekly submissions yet</p>
-                            <p className="text-gray-500 text-sm mt-2">
+                        <div className="text-center py-12 bg-surface-alt rounded-lg">
+                            <FaCalendarAlt className="text-5xl text-muted mx-auto mb-4" />
+                            <p className="text-body text-lg">No weekly submissions yet</p>
+                            <p className="text-muted text-sm mt-2">
                                 Your weekly scores will appear here once you start submitting
                                 weekly status reports
                             </p>
@@ -348,33 +348,33 @@ export default function ViewScore() {
                                 .map((score, index) => (
                                     <div
                                         key={score._id || index}
-                                        className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+                                        className="border border-edge rounded-lg p-6 hover:shadow-md transition-shadow"
                                     >
                                         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                                             {/* Week Info */}
                                             <div className="flex-1">
                                                 <div className="flex items-center gap-3 mb-2">
-                                                    <h3 className="text-xl font-bold text-gray-900">
+                                                    <h3 className="text-xl font-bold text-heading">
                                                         Week {score.week}
                                                     </h3>
                                                     {getStatusBadge(score.status)}
                                                 </div>
 
                                                 {score.dateRange && (
-                                                    <p className="text-sm text-gray-600 flex items-center mb-2">
-                                                        <FaCalendarAlt className="mr-2 text-gray-400" />
+                                                    <p className="text-sm text-body flex items-center mb-2">
+                                                        <FaCalendarAlt className="mr-2 text-muted" />
                                                         {new Date(score.dateRange.from).toLocaleDateString()}{" "}
                                                         - {new Date(score.dateRange.to).toLocaleDateString()}
                                                     </p>
                                                 )}
 
-                                                <p className="text-sm text-gray-700">
+                                                <p className="text-sm text-body">
                                                     <span className="font-semibold">Module:</span>{" "}
                                                     {score.module}
                                                 </p>
 
                                                 {score.submittedAt && (
-                                                    <p className="text-xs text-gray-500 mt-2">
+                                                    <p className="text-xs text-muted mt-2">
                                                         Submitted:{" "}
                                                         {new Date(score.submittedAt).toLocaleString()}
                                                     </p>
@@ -418,23 +418,23 @@ export default function ViewScore() {
                                                                         key={i}
                                                                         className={`text-sm ${i < score.mentorScore
                                                                             ? "text-yellow-400"
-                                                                            : "text-gray-300"
+                                                                            : "text-muted"
                                                                             }`}
                                                                     />
                                                                 ))}
                                                             </div>
-                                                            <p className="text-xs text-gray-500 mt-1">
+                                                            <p className="text-xs text-muted mt-1">
                                                                 {score.mentorScore}/10 stars
                                                             </p>
                                                         </div>
                                                     </>
                                                 ) : (
-                                                    <div className="text-center bg-gray-50 rounded-lg p-4 border border-gray-200">
-                                                        <FaClock className="text-3xl text-gray-400 mx-auto mb-2" />
-                                                        <p className="text-sm font-medium text-gray-600">
+                                                    <div className="text-center bg-surface-alt rounded-lg p-4 border border-edge">
+                                                        <FaClock className="text-3xl text-muted mx-auto mb-2" />
+                                                        <p className="text-sm font-medium text-body">
                                                             Not Scored Yet
                                                         </p>
-                                                        <p className="text-xs text-gray-500 mt-1">
+                                                        <p className="text-xs text-muted mt-1">
                                                             Waiting for mentor review
                                                         </p>
                                                     </div>
@@ -444,15 +444,15 @@ export default function ViewScore() {
 
                                         {/* Mentor Comments */}
                                         {score.mentorComments && (
-                                            <div className="mt-4 pt-4 border-t border-gray-200">
+                                            <div className="mt-4 pt-4 border-t border-edge">
                                                 <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
                                                     <div className="flex items-start gap-3">
                                                         <FaComments className="text-blue-600 text-xl mt-1 flex-shrink-0" />
                                                         <div className="flex-1">
-                                                            <p className="text-sm font-semibold text-gray-700 mb-2">
+                                                            <p className="text-sm font-semibold text-body mb-2">
                                                                 Mentor Feedback:
                                                             </p>
-                                                            <p className="text-sm text-gray-700 leading-relaxed">
+                                                            <p className="text-sm text-body leading-relaxed">
                                                                 {score.mentorComments}
                                                             </p>
                                                         </div>

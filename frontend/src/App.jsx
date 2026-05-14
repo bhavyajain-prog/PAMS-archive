@@ -6,6 +6,8 @@ import {
   useLocation,
 } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -55,7 +57,7 @@ const AppLayout = () => {
   return (
     <div className="flex flex-col min-h-screen">
       {!hideHeaderFooter && <Header />}
-      <main className="flex-grow">
+      <main className="grow">
         <Routes>
           {/* Redirect root to login */}
           <Route path="/" element={<Navigate to="/login" />} />
@@ -264,6 +266,7 @@ const AppLayout = () => {
           <Route
             path="/weekly-status-matrix"
             element={
+              // wrapping
               <RoleBasedRoute roles={["student"]}>
                 <WeeklyStatusMatrix />
               </RoleBasedRoute>
@@ -291,11 +294,15 @@ const AppLayout = () => {
 
 export default function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <AppLayout />
-      </AuthProvider>
-    </Router>
+    <ThemeProvider>
+      <Router>
+        <AuthProvider>
+          <ErrorBoundary>
+            <AppLayout />
+          </ErrorBoundary>
+        </AuthProvider>
+      </Router>
+    </ThemeProvider>
   );
 }
 // TODO: Global variables for timing of particular stages

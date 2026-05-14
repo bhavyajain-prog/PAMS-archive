@@ -143,13 +143,13 @@ const MentorDocumentReview = () => {
       switch (status) {
         case "admin_approved":
           return {
-            color: "bg-teal-100 text-teal-800 border-teal-200",
+            color: "bg-primary-subtle text-heading border-primary/20",
             icon: CheckCircle,
             text: "Admin Approved",
           };
         case "mentor_approved":
           return {
-            color: "bg-teal-100 text-teal-800 border-teal-200",
+            color: "bg-primary-subtle text-heading border-primary/20",
             icon: CheckCircle,
             text: "Mentor Approved",
           };
@@ -167,19 +167,19 @@ const MentorDocumentReview = () => {
           };
         case "draft":
           return {
-            color: "bg-gray-100 text-gray-800 border-gray-200",
+            color: "bg-surface-alt text-heading border-edge",
             icon: FileText,
             text: "Draft",
           };
         case "not_submitted":
           return {
-            color: "bg-gray-100 text-gray-600 border-gray-200",
+            color: "bg-surface-alt text-body border-edge",
             icon: AlertCircle,
             text: "Not Submitted",
           };
         default:
           return {
-            color: "bg-gray-100 text-gray-600 border-gray-200",
+            color: "bg-surface-alt text-body border-edge",
             icon: AlertCircle,
             text: status || "Unknown",
           };
@@ -206,14 +206,14 @@ const MentorDocumentReview = () => {
     const isRoleSpecification = docKey === "roleSpecification";
 
     return (
-      <div className="bg-gray-50 rounded-lg p-4 border">
+      <div className="bg-surface-alt rounded-lg p-4 border">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-2">
-            <FileText className="w-4 h-4 text-gray-500" />
-            <h4 className="font-medium text-gray-900">{document.name}</h4>
+            <FileText className="w-4 h-4 text-muted" />
+            <h4 className="font-medium text-heading">{document.name}</h4>
           </div>
           {isWeeklyStatus ? (
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <div className="flex items-center space-x-2 text-sm text-body">
               <span>
                 {document.approvedReports}/{document.totalReports} approved
               </span>
@@ -237,11 +237,11 @@ const MentorDocumentReview = () => {
             <>
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Total Reports:</span>
+                  <span className="text-body">Total Reports:</span>
                   <span className="font-medium">{document.totalReports}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">With Files:</span>
+                  <span className="text-body">With Files:</span>
                   <span className="font-medium">
                     {document.reportsWithFiles}
                   </span>
@@ -249,7 +249,7 @@ const MentorDocumentReview = () => {
               </div>
               {document.latestSubmission && (
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Latest:</span>
+                  <span className="text-body">Latest:</span>
                   <span className="font-medium">
                     {new Date(document.latestSubmission).toLocaleDateString()}
                   </span>
@@ -259,47 +259,47 @@ const MentorDocumentReview = () => {
           ) : isProjectAbstract && document.data ? (
             // Display Project Abstract form details
             <div className="space-y-3">
-              <div className="bg-white p-3 rounded border">
-                <h5 className="font-semibold text-gray-800 mb-2">
+              <div className="bg-surface p-3 rounded border">
+                <h5 className="font-semibold text-heading mb-2">
                   Project Information
                 </h5>
                 <div className="space-y-1.5">
                   <div>
-                    <span className="text-gray-600 font-medium">Title: </span>
-                    <span className="text-gray-900">
+                    <span className="text-body font-medium">Title: </span>
+                    <span className="text-heading">
                       {document.data.projectTitle || "N/A"}
                     </span>
                   </div>
                   <div>
-                    <span className="text-gray-600 font-medium">Track: </span>
-                    <span className="text-gray-900">
+                    <span className="text-body font-medium">Track: </span>
+                    <span className="text-heading">
                       {document.data.projectTrack || "N/A"}
                     </span>
                   </div>
                   <div>
-                    <span className="text-gray-600 font-medium">
+                    <span className="text-body font-medium">
                       Category:{" "}
                     </span>
-                    <span className="text-gray-900">
+                    <span className="text-heading">
                       {document.data.projectCategory || "N/A"}
                     </span>
                   </div>
                   <div>
-                    <span className="text-gray-600 font-medium">Modules: </span>
-                    <span className="text-gray-900">
+                    <span className="text-body font-medium">Modules: </span>
+                    <span className="text-heading">
                       {document.data.numberOfModules || "N/A"}
                     </span>
                   </div>
                   {document.data.githubRepo && (
                     <div>
-                      <span className="text-gray-600 font-medium">
+                      <span className="text-body font-medium">
                         GitHub:{" "}
                       </span>
                       <a
                         href={document.data.githubRepo}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-teal-600 hover:underline break-all"
+                        className="text-primary hover:underline break-all"
                       >
                         {document.data.githubRepo}
                       </a>
@@ -309,15 +309,15 @@ const MentorDocumentReview = () => {
               </div>
 
               {document.data.tools && document.data.tools.length > 0 && (
-                <div className="bg-white p-3 rounded border">
-                  <h5 className="font-semibold text-gray-800 mb-2">
+                <div className="bg-surface p-3 rounded border">
+                  <h5 className="font-semibold text-heading mb-2">
                     Tools & Technologies
                   </h5>
                   <div className="flex flex-wrap gap-1.5">
                     {document.data.tools.map((tool, idx) => (
                       <span
                         key={idx}
-                        className="px-2 py-1 bg-teal-100 text-teal-800 rounded text-xs"
+                        className="px-2 py-1 bg-primary-subtle text-heading rounded text-xs"
                       >
                         {typeof tool === "string"
                           ? tool
@@ -329,17 +329,17 @@ const MentorDocumentReview = () => {
               )}
 
               {document.data.modules && document.data.modules.length > 0 && (
-                <div className="bg-white p-3 rounded border">
-                  <h5 className="font-semibold text-gray-800 mb-2">
+                <div className="bg-surface p-3 rounded border">
+                  <h5 className="font-semibold text-heading mb-2">
                     Project Modules
                   </h5>
                   <div className="space-y-2">
                     {document.data.modules.map((module, idx) => (
-                      <div key={idx} className="p-2 bg-gray-50 rounded">
-                        <div className="font-medium text-gray-900">
+                      <div key={idx} className="p-2 bg-surface-alt rounded">
+                        <div className="font-medium text-heading">
                           {module.moduleName}
                         </div>
-                        <div className="text-xs text-gray-600 mt-1">
+                        <div className="text-xs text-body mt-1">
                           {module.description}
                         </div>
                       </div>
@@ -349,22 +349,22 @@ const MentorDocumentReview = () => {
               )}
 
               {document.data.objectives && (
-                <div className="bg-white p-3 rounded border">
-                  <h5 className="font-semibold text-gray-800 mb-2">
+                <div className="bg-surface p-3 rounded border">
+                  <h5 className="font-semibold text-heading mb-2">
                     Objectives
                   </h5>
-                  <p className="text-gray-700 text-sm whitespace-pre-wrap">
+                  <p className="text-body text-sm whitespace-pre-wrap">
                     {document.data.objectives}
                   </p>
                 </div>
               )}
 
               {document.data.scopeOfWork && (
-                <div className="bg-white p-3 rounded border">
-                  <h5 className="font-semibold text-gray-800 mb-2">
+                <div className="bg-surface p-3 rounded border">
+                  <h5 className="font-semibold text-heading mb-2">
                     Scope of Work
                   </h5>
-                  <p className="text-gray-700 text-sm whitespace-pre-wrap">
+                  <p className="text-body text-sm whitespace-pre-wrap">
                     {document.data.scopeOfWork}
                   </p>
                 </div>
@@ -372,8 +372,8 @@ const MentorDocumentReview = () => {
 
               {document.data.teamMembers &&
                 document.data.teamMembers.length > 0 && (
-                  <div className="bg-white p-3 rounded border">
-                    <h5 className="font-semibold text-gray-800 mb-2">
+                  <div className="bg-surface p-3 rounded border">
+                    <h5 className="font-semibold text-heading mb-2">
                       Team Member Roles
                     </h5>
                     <div className="space-y-1.5">
@@ -382,8 +382,8 @@ const MentorDocumentReview = () => {
                           key={idx}
                           className="flex justify-between items-start"
                         >
-                          <span className="text-gray-900">{member.name}</span>
-                          <span className="text-gray-600 text-xs">
+                          <span className="text-heading">{member.name}</span>
+                          <span className="text-body text-xs">
                             {member.role}
                           </span>
                         </div>
@@ -395,37 +395,37 @@ const MentorDocumentReview = () => {
           ) : isRoleSpecification && document.data ? (
             // Display Role Specification form details
             <div className="space-y-3">
-              <div className="bg-white p-3 rounded border">
-                <h5 className="font-semibold text-gray-800 mb-2">
+              <div className="bg-surface p-3 rounded border">
+                <h5 className="font-semibold text-heading mb-2">
                   Project Title
                 </h5>
-                <p className="text-gray-900">
+                <p className="text-heading">
                   {document.data.projectTitle || "N/A"}
                 </p>
               </div>
 
               {document.data.assignments &&
                 document.data.assignments.length > 0 && (
-                  <div className="bg-white p-3 rounded border">
-                    <h5 className="font-semibold text-gray-800 mb-2">
+                  <div className="bg-surface p-3 rounded border">
+                    <h5 className="font-semibold text-heading mb-2">
                       Role Assignments
                     </h5>
                     <div className="space-y-3">
                       {document.data.assignments.map((assignment, idx) => (
                         <div
                           key={idx}
-                          className="p-3 bg-gray-50 rounded border-l-4 border-teal-500"
+                          className="p-3 bg-surface-alt rounded border-l-4 border-primary"
                         >
                           <div className="flex justify-between items-start mb-2">
                             <div>
-                              <div className="font-medium text-gray-900">
+                              <div className="font-medium text-heading">
                                 {assignment.memberName}
                               </div>
-                              <div className="text-xs text-gray-600">
+                              <div className="text-xs text-body">
                                 {assignment.memberEmail}
                               </div>
                             </div>
-                            <span className="px-2 py-1 bg-teal-100 text-teal-800 rounded text-xs font-medium">
+                            <span className="px-2 py-1 bg-primary-subtle text-heading rounded text-xs font-medium">
                               {assignment.role}
                             </span>
                           </div>
@@ -433,10 +433,10 @@ const MentorDocumentReview = () => {
                           {assignment.responsibilities &&
                             assignment.responsibilities.length > 0 && (
                               <div className="mt-2">
-                                <div className="text-xs font-semibold text-gray-700 mb-1">
+                                <div className="text-xs font-semibold text-body mb-1">
                                   Responsibilities:
                                 </div>
-                                <ul className="list-disc list-inside space-y-0.5 text-xs text-gray-700">
+                                <ul className="list-disc list-inside space-y-0.5 text-xs text-body">
                                   {assignment.responsibilities.map(
                                     (resp, rIdx) => (
                                       <li key={rIdx}>{resp}</li>
@@ -449,7 +449,7 @@ const MentorDocumentReview = () => {
                           {assignment.technologies &&
                             assignment.technologies.length > 0 && (
                               <div className="mt-2">
-                                <div className="text-xs font-semibold text-gray-700 mb-1">
+                                <div className="text-xs font-semibold text-body mb-1">
                                   Technologies:
                                 </div>
                                 <div className="flex flex-wrap gap-1">
@@ -468,7 +468,7 @@ const MentorDocumentReview = () => {
                           {assignment.modules &&
                             assignment.modules.length > 0 && (
                               <div className="mt-2">
-                                <div className="text-xs font-semibold text-gray-700 mb-1">
+                                <div className="text-xs font-semibold text-body mb-1">
                                   Assigned Modules:
                                 </div>
                                 <div className="flex flex-wrap gap-1">
@@ -493,20 +493,20 @@ const MentorDocumentReview = () => {
             <div className="space-y-3">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-gray-600 text-xs">Submitted:</span>
+                  <span className="text-body text-xs">Submitted:</span>
                   <span
                     className={`font-medium text-xs ${
-                      document.submitted ? "text-teal-600" : "text-gray-400"
+                      document.submitted ? "text-primary" : "text-muted"
                     }`}
                   >
                     {document.submitted ? "Yes" : "No"}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-gray-600 text-xs">Has Data:</span>
+                  <span className="text-body text-xs">Has Data:</span>
                   <span
                     className={`font-medium text-xs ${
-                      document.hasData ? "text-teal-600" : "text-gray-400"
+                      document.hasData ? "text-primary" : "text-muted"
                     }`}
                   >
                     {document.hasData ? "Yes" : "No"}
@@ -514,7 +514,7 @@ const MentorDocumentReview = () => {
                 </div>
                 {document.uploadedAt && (
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-600 text-xs">Uploaded At:</span>
+                    <span className="text-body text-xs">Uploaded At:</span>
                     <span className="font-medium text-xs">
                       {new Date(document.uploadedAt).toLocaleDateString()}
                     </span>
@@ -522,12 +522,12 @@ const MentorDocumentReview = () => {
                 )}
                 {document.originalName && (
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-600 text-xs">File:</span>
+                    <span className="text-body text-xs">File:</span>
                     <button
                       onClick={() =>
                         handleDownload(teamId, docKey, document.originalName)
                       }
-                      className="font-medium text-teal-600 hover:text-teal-800 flex items-center transition-colors text-xs"
+                      className="font-medium text-primary hover:text-heading flex items-center transition-colors text-xs"
                     >
                       <Download className="w-3 h-3 mr-1" />
                       {document.originalName}
@@ -555,7 +555,7 @@ const MentorDocumentReview = () => {
                   <button
                     onClick={() => handleApproveDocument(teamId, docKey)}
                     disabled={actionLoading === `approve-${docKey}`}
-                    className="flex items-center px-2.5 py-1.5 bg-teal-600 text-white rounded hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium"
+                    className="flex items-center px-2.5 py-1.5 bg-primary text-white rounded hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium"
                   >
                     {actionLoading === `approve-${docKey}` ? (
                       <>
@@ -582,8 +582,8 @@ const MentorDocumentReview = () => {
 
               {/* Approval Status Message */}
               {document.status === "mentor_approved" && (
-                <div className="bg-teal-50 rounded-lg p-3 border border-teal-200">
-                  <p className="text-teal-800 text-sm font-medium flex items-center">
+                <div className="bg-primary-subtle rounded-lg p-3 border border-primary/20">
+                  <p className="text-heading text-sm font-medium flex items-center">
                     <CheckCircle className="w-4 h-4 mr-2" />
                     Approved by you
                     {document.mentorApprovedAt &&
@@ -618,23 +618,23 @@ const MentorDocumentReview = () => {
     );
 
     return (
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+      <div className="bg-surface rounded-lg shadow-md border border-edge overflow-hidden">
         {/* Team Header */}
-        <div className="p-6 border-b border-gray-100">
+        <div className="p-6 border-b border-edge-subtle">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="bg-teal-100 rounded-lg p-3">
-                <Users className="w-6 h-6 text-teal-600" />
+              <div className="bg-primary-subtle rounded-lg p-3">
+                <Users className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
+                <h3 className="text-lg font-semibold text-heading flex items-center space-x-2">
                   <span>{team.code}</span>
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-body mt-1">
                   {team.batch} • {team.department} • {team.teamSize} members
                 </p>
                 {team.finalProject && (
-                  <p className="text-sm text-teal-600 mt-1 flex items-center">
+                  <p className="text-sm text-primary mt-1 flex items-center">
                     <BookOpen className="w-3 h-3 mr-1" />
                     {team.finalProject.title}
                   </p>
@@ -643,24 +643,24 @@ const MentorDocumentReview = () => {
             </div>
             <div className="flex items-center space-x-3">
               <div className="text-right">
-                <div className="text-sm font-medium text-gray-900">
+                <div className="text-sm font-medium text-heading">
                   {approvedDocuments}/{totalDocuments} Approved
                 </div>
                 <div className="w-24 bg-gray-200 rounded-full h-2 mt-1">
                   <div
-                    className="bg-teal-500 h-2 rounded-full transition-all duration-300"
+                    className="bg-primary-subtle0 h-2 rounded-full transition-all duration-300"
                     style={{ width: `${completionPercentage}%` }}
                   ></div>
                 </div>
               </div>
               <button
                 onClick={() => toggleTeamExpansion(team._id)}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-lg hover:bg-surface-alt transition-colors"
               >
                 {isExpanded ? (
-                  <ChevronUp className="w-5 h-5 text-gray-500" />
+                  <ChevronUp className="w-5 h-5 text-muted" />
                 ) : (
-                  <ChevronDown className="w-5 h-5 text-gray-500" />
+                  <ChevronDown className="w-5 h-5 text-muted" />
                 )}
               </button>
             </div>
@@ -672,26 +672,26 @@ const MentorDocumentReview = () => {
           <div className="p-6 space-y-6">
             {/* Team Members */}
             <div>
-              <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+              <h4 className="font-medium text-heading mb-3 flex items-center">
                 <Users className="w-4 h-4 mr-2" />
                 Team Members
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {/* Leader */}
-                <div className="flex items-center space-x-3 p-3 bg-teal-50 rounded-lg border border-teal-100">
-                  <div className="bg-teal-100 rounded-full p-2">
-                    <User className="w-5 h-5 text-teal-600" />
+                <div className="flex items-center space-x-3 p-3 bg-primary-subtle rounded-lg border border-primary/20">
+                  <div className="bg-primary-subtle rounded-full p-2">
+                    <User className="w-5 h-5 text-primary" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-medium text-teal-900">
+                    <p className="font-medium text-heading">
                       {team.leader.name} (Leader)
                     </p>
-                    <p className="text-sm text-teal-600 flex items-center">
+                    <p className="text-sm text-primary flex items-center">
                       <Mail className="w-3 h-3 mr-1" />
                       {team.leader.email}
                     </p>
                     {team.leader.rollNumber && (
-                      <p className="text-sm text-teal-600 flex items-center">
+                      <p className="text-sm text-primary flex items-center">
                         <Hash className="w-3 h-3 mr-1" />
                         {team.leader.rollNumber}
                       </p>
@@ -703,19 +703,19 @@ const MentorDocumentReview = () => {
                 {team.members.map((member) => (
                   <div
                     key={member._id}
-                    className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border"
+                    className="flex items-center space-x-3 p-3 bg-surface-alt rounded-lg border"
                   >
-                    <div className="bg-gray-100 rounded-full p-2">
-                      <User className="w-4 h-4 text-gray-600" />
+                    <div className="bg-surface-alt rounded-full p-2">
+                      <User className="w-4 h-4 text-body" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="font-medium text-gray-900">{member.name}</p>
-                      <p className="text-sm text-gray-600 flex items-center">
+                      <p className="font-medium text-heading">{member.name}</p>
+                      <p className="text-sm text-body flex items-center">
                         <Mail className="w-3 h-3 mr-1" />
                         {member.email}
                       </p>
                       {member.rollNumber && (
-                        <p className="text-sm text-gray-600 flex items-center">
+                        <p className="text-sm text-body flex items-center">
                           <Hash className="w-3 h-3 mr-1" />
                           {member.rollNumber}
                         </p>
@@ -728,7 +728,7 @@ const MentorDocumentReview = () => {
 
             {/* Documents */}
             <div>
-              <h4 className="font-medium text-gray-900 mb-4 flex items-center">
+              <h4 className="font-medium text-heading mb-4 flex items-center">
                 <FileText className="w-4 h-4 mr-2" />
                 Document Status
               </h4>
@@ -765,8 +765,8 @@ const MentorDocumentReview = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center py-12">
-            <RefreshCw className="w-8 h-8 animate-spin text-teal-600 mx-auto mb-4" />
-            <p className="text-lg text-gray-600">
+            <RefreshCw className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+            <p className="text-lg text-body">
               Loading document review data...
             </p>
           </div>
@@ -781,13 +781,13 @@ const MentorDocumentReview = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center py-12">
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            <h2 className="text-xl font-semibold text-heading mb-2">
               Error Loading Data
             </h2>
-            <p className="text-gray-600 mb-4">{error}</p>
+            <p className="text-body mb-4">{error}</p>
             <button
               onClick={fetchDocumentData}
-              className="inline-flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+              className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
               Retry
@@ -803,11 +803,11 @@ const MentorDocumentReview = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center py-12">
-            <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            <AlertCircle className="w-12 h-12 text-muted mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-heading mb-2">
               No Teams Assigned
             </h2>
-            <p className="text-gray-600">
+            <p className="text-body">
               You don&apos;t have any teams assigned to you yet.
             </p>
           </div>
@@ -825,10 +825,10 @@ const MentorDocumentReview = () => {
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-heading mb-2">
             Document Review Dashboard
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-body">
             Review and monitor your assigned teams&apos; document submissions
           </p>
         </div>
@@ -836,45 +836,45 @@ const MentorDocumentReview = () => {
         {/* Statistics Cards */}
         {statistics && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+            <div className="bg-surface rounded-xl shadow-lg p-6 border border-edge-subtle">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">
+                  <p className="text-sm font-medium text-body">
                     Assigned Teams
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-2xl font-bold text-heading">
                     {statistics.totalTeams}
                   </p>
                 </div>
-                <div className="bg-teal-100 rounded-lg p-3">
-                  <Users className="w-6 h-6 text-teal-600" />
+                <div className="bg-primary-subtle rounded-lg p-3">
+                  <Users className="w-6 h-6 text-primary" />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+            <div className="bg-surface rounded-xl shadow-lg p-6 border border-edge-subtle">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">
+                  <p className="text-sm font-medium text-body">
                     Teams with Submissions
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-2xl font-bold text-heading">
                     {statistics.teamsWithDocuments}
                   </p>
                 </div>
-                <div className="bg-teal-100 rounded-lg p-3">
-                  <FileText className="w-6 h-6 text-teal-600" />
+                <div className="bg-primary-subtle rounded-lg p-3">
+                  <FileText className="w-6 h-6 text-primary" />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+            <div className="bg-surface rounded-xl shadow-lg p-6 border border-edge-subtle">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">
+                  <p className="text-sm font-medium text-body">
                     Pending Review
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-2xl font-bold text-heading">
                     {statistics.pendingReviewCount}
                   </p>
                 </div>
@@ -887,16 +887,16 @@ const MentorDocumentReview = () => {
         )}
 
         {/* Team Selector */}
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+        <div className="bg-surface rounded-xl shadow-lg p-6 border border-edge-subtle">
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-body">
               Select Team:
             </label>
             <div className="flex gap-3 flex-1 max-w-md w-full">
               <select
                 value={selectedTeam || ""}
                 onChange={(e) => setSelectedTeam(e.target.value || null)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="flex-1 px-4 py-2 border border-edge rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               >
                 <option value="">All Teams</option>
                 {teams.map((team) => (
@@ -907,7 +907,7 @@ const MentorDocumentReview = () => {
               </select>
               <button
                 onClick={fetchDocumentData}
-                className="flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+                className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors"
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Refresh
@@ -927,23 +927,23 @@ const MentorDocumentReview = () => {
       {/* Reject Modal */}
       {showRejectModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 space-y-4">
+          <div className="bg-surface rounded-xl shadow-2xl max-w-md w-full p-6 space-y-4">
             <div className="flex items-center space-x-3">
               <div className="bg-red-100 rounded-lg p-2">
                 <MessageSquare className="w-6 h-6 text-red-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900">
+              <h3 className="text-xl font-bold text-heading">
                 Reject Document
               </h3>
             </div>
 
-            <p className="text-gray-600">
+            <p className="text-body">
               Please provide a reason for rejection (optional). The team will be
               notified.
             </p>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-body mb-2">
                 Rejection Reason
               </label>
               <textarea
@@ -951,7 +951,7 @@ const MentorDocumentReview = () => {
                 onChange={(e) => setRejectReason(e.target.value)}
                 placeholder="Explain why this document is being rejected..."
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                className="w-full px-3 py-2 border border-edge rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
               />
             </div>
 
@@ -984,7 +984,7 @@ const MentorDocumentReview = () => {
                   setRejectReason("");
                 }}
                 disabled={actionLoading === `reject-${showRejectModal.docKey}`}
-                className="flex-1 px-4 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                className="flex-1 px-4 py-3 bg-gray-200 text-heading rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
               >
                 Cancel
               </button>

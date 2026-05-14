@@ -258,13 +258,13 @@ const ReviewDocs = () => {
       switch (status) {
         case "admin_approved":
           return {
-            color: "bg-teal-100 text-teal-800 border-teal-200",
+            color: "bg-primary-subtle text-heading border-primary/20",
             icon: CheckCircle,
             text: "Admin Approved",
           };
         case "mentor_approved":
           return {
-            color: "bg-teal-100 text-teal-800 border-teal-200",
+            color: "bg-primary-subtle text-heading border-primary/20",
             icon: CheckCircle,
             text: "Mentor Approved",
           };
@@ -282,19 +282,19 @@ const ReviewDocs = () => {
           };
         case "draft":
           return {
-            color: "bg-gray-100 text-gray-800 border-gray-200",
+            color: "bg-surface-alt text-heading border-edge",
             icon: FileText,
             text: "Draft",
           };
         case "not_submitted":
           return {
-            color: "bg-gray-100 text-gray-600 border-gray-200",
+            color: "bg-surface-alt text-body border-edge",
             icon: AlertCircle,
             text: "Not Submitted",
           };
         case "approved":
           return {
-            color: "bg-teal-100 text-teal-800 border-teal-200",
+            color: "bg-primary-subtle text-heading border-primary/20",
             icon: CheckCircle,
             text: "Approved",
           };
@@ -306,7 +306,7 @@ const ReviewDocs = () => {
           };
         default:
           return {
-            color: "bg-gray-100 text-gray-600 border-gray-200",
+            color: "bg-surface-alt text-body border-edge",
             icon: AlertCircle,
             text: status || "Unknown",
           };
@@ -333,14 +333,14 @@ const ReviewDocs = () => {
     const isRejecting = actionLoading[`reject-${teamId}-${docKey}`];
 
     return (
-      <div className="bg-gray-50 rounded-lg p-4 border">
+      <div className="bg-surface-alt rounded-lg p-4 border">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-2">
-            <FileText className="w-4 h-4 text-gray-500" />
-            <h4 className="font-medium text-gray-900">{document.name}</h4>
+            <FileText className="w-4 h-4 text-muted" />
+            <h4 className="font-medium text-heading">{document.name}</h4>
           </div>
           {isWeeklyStatus ? (
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <div className="flex items-center space-x-2 text-sm text-body">
               <span>
                 {document.approvedReports}/{document.totalReports} approved
               </span>
@@ -360,11 +360,11 @@ const ReviewDocs = () => {
             <>
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Total Reports:</span>
+                  <span className="text-body">Total Reports:</span>
                   <span className="font-medium">{document.totalReports}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">With Files:</span>
+                  <span className="text-body">With Files:</span>
                   <span className="font-medium">
                     {document.reportsWithFiles}
                   </span>
@@ -372,7 +372,7 @@ const ReviewDocs = () => {
               </div>
               {document.latestSubmission && (
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Latest:</span>
+                  <span className="text-body">Latest:</span>
                   <span className="font-medium">
                     {new Date(document.latestSubmission).toLocaleDateString()}
                   </span>
@@ -383,18 +383,18 @@ const ReviewDocs = () => {
             <div className="space-y-2">
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Submitted:</span>
+                  <span className="text-body">Submitted:</span>
                   <span
-                    className={`font-medium ${document.submitted ? "text-teal-600" : "text-gray-400"
+                    className={`font-medium ${document.submitted ? "text-primary" : "text-muted"
                       }`}
                   >
                     {document.submitted ? "Yes" : "No"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Has Data:</span>
+                  <span className="text-body">Has Data:</span>
                   <span
-                    className={`font-medium ${document.hasData ? "text-teal-600" : "text-gray-400"
+                    className={`font-medium ${document.hasData ? "text-primary" : "text-muted"
                       }`}
                   >
                     {document.hasData ? "Yes" : "No"}
@@ -402,7 +402,7 @@ const ReviewDocs = () => {
                 </div>
                 {document.submittedAt && (
                   <div className="col-span-2 flex justify-between">
-                    <span className="text-gray-600">Submitted At:</span>
+                    <span className="text-body">Submitted At:</span>
                     <span className="font-medium">
                       {new Date(document.submittedAt).toLocaleDateString()}
                     </span>
@@ -413,7 +413,7 @@ const ReviewDocs = () => {
               {document.originalName && (
                 <div className="space-y-2 pt-2 border-t">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">File:</span>
+                    <span className="text-body">File:</span>
                     <span className="font-medium text-sm truncate max-w-[180px]">
                       {document.originalName}
                     </span>
@@ -424,7 +424,7 @@ const ReviewDocs = () => {
                     onClick={() =>
                       handleDownload(teamId, docKey, document.originalName)
                     }
-                    className="w-full flex items-center justify-center px-3 py-1.5 bg-teal-600 text-white rounded text-xs font-medium hover:bg-teal-700 transition-colors"
+                    className="w-full flex items-center justify-center px-3 py-1.5 bg-primary text-white rounded text-xs font-medium hover:bg-primary-hover transition-colors"
                   >
                     <Download className="w-3 h-3 mr-1" />
                     Download
@@ -505,24 +505,24 @@ const ReviewDocs = () => {
     );
 
     return (
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+      <div className="bg-surface rounded-lg shadow-md border border-edge overflow-hidden">
         {/* Team Header */}
-        <div className="p-6 border-b border-gray-100">
+        <div className="p-6 border-b border-edge-subtle">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="bg-teal-100 rounded-lg p-3">
-                <Users className="w-6 h-6 text-teal-600" />
+              <div className="bg-primary-subtle rounded-lg p-3">
+                <Users className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
+                <h3 className="text-lg font-semibold text-heading flex items-center space-x-2">
                   <span>{team.code}</span>
                   <StatusBadge status={team.status} />
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-body mt-1">
                   {team.batch} • {team.department} • {team.teamSize} members
                 </p>
                 {team.finalProject && (
-                  <p className="text-sm text-teal-600 mt-1 flex items-center">
+                  <p className="text-sm text-primary mt-1 flex items-center">
                     <BookOpen className="w-3 h-3 mr-1" />
                     {team.finalProject.title}
                   </p>
@@ -531,24 +531,24 @@ const ReviewDocs = () => {
             </div>
             <div className="flex items-center space-x-3">
               <div className="text-right">
-                <div className="text-sm font-medium text-gray-900">
+                <div className="text-sm font-medium text-heading">
                   {approvedDocuments}/{totalDocuments} Approved
                 </div>
                 <div className="w-24 bg-gray-200 rounded-full h-2 mt-1">
                   <div
-                    className="bg-teal-500 h-2 rounded-full transition-all duration-300"
+                    className="bg-primary-subtle0 h-2 rounded-full transition-all duration-300"
                     style={{ width: `${completionPercentage}%` }}
                   ></div>
                 </div>
               </div>
               <button
                 onClick={() => toggleTeamExpansion(team._id)}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-lg hover:bg-surface-alt transition-colors"
               >
                 {isExpanded ? (
-                  <ChevronUp className="w-5 h-5 text-gray-500" />
+                  <ChevronUp className="w-5 h-5 text-muted" />
                 ) : (
-                  <ChevronDown className="w-5 h-5 text-gray-500" />
+                  <ChevronDown className="w-5 h-5 text-muted" />
                 )}
               </button>
             </div>
@@ -560,26 +560,26 @@ const ReviewDocs = () => {
           <div className="p-6 space-y-6">
             {/* Team Members */}
             <div>
-              <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+              <h4 className="font-medium text-heading mb-3 flex items-center">
                 <Users className="w-4 h-4 mr-2" />
                 Team Members
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {/* Leader */}
-                <div className="flex items-center space-x-3 p-3 bg-teal-50 rounded-lg border border-teal-100">
-                  <div className="bg-teal-100 rounded-full p-2">
-                    <User className="w-4 h-4 text-teal-600" />
+                <div className="flex items-center space-x-3 p-3 bg-primary-subtle rounded-lg border border-primary/20">
+                  <div className="bg-primary-subtle rounded-full p-2">
+                    <User className="w-4 h-4 text-primary" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-medium text-teal-900">
+                    <p className="font-medium text-heading">
                       {team.leader.name} (Leader)
                     </p>
-                    <p className="text-sm text-teal-600 flex items-center">
+                    <p className="text-sm text-primary flex items-center">
                       <Mail className="w-3 h-3 mr-1" />
                       {team.leader.email}
                     </p>
                     {team.leader.rollNumber && (
-                      <p className="text-sm text-teal-600 flex items-center">
+                      <p className="text-sm text-primary flex items-center">
                         <Hash className="w-3 h-3 mr-1" />
                         {team.leader.rollNumber}
                       </p>
@@ -591,19 +591,19 @@ const ReviewDocs = () => {
                 {team.members.map((member) => (
                   <div
                     key={member._id}
-                    className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border"
+                    className="flex items-center space-x-3 p-3 bg-surface-alt rounded-lg border"
                   >
-                    <div className="bg-gray-100 rounded-full p-2">
-                      <User className="w-4 h-4 text-gray-600" />
+                    <div className="bg-surface-alt rounded-full p-2">
+                      <User className="w-4 h-4 text-body" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="font-medium text-gray-900">{member.name}</p>
-                      <p className="text-sm text-gray-600 flex items-center">
+                      <p className="font-medium text-heading">{member.name}</p>
+                      <p className="text-sm text-body flex items-center">
                         <Mail className="w-3 h-3 mr-1" />
                         {member.email}
                       </p>
                       {member.rollNumber && (
-                        <p className="text-sm text-gray-600 flex items-center">
+                        <p className="text-sm text-body flex items-center">
                           <Hash className="w-3 h-3 mr-1" />
                           {member.rollNumber}
                         </p>
@@ -617,19 +617,19 @@ const ReviewDocs = () => {
             {/* Mentor Information */}
             {team.mentor && (
               <div>
-                <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+                <h4 className="font-medium text-heading mb-3 flex items-center">
                   <User className="w-4 h-4 mr-2" />
                   Assigned Mentor
                 </h4>
-                <div className="flex items-center space-x-3 p-3 bg-teal-50 rounded-lg border border-teal-100">
-                  <div className="bg-teal-100 rounded-full p-2">
-                    <User className="w-4 h-4 text-teal-600" />
+                <div className="flex items-center space-x-3 p-3 bg-primary-subtle rounded-lg border border-primary/20">
+                  <div className="bg-primary-subtle rounded-full p-2">
+                    <User className="w-4 h-4 text-primary" />
                   </div>
                   <div>
-                    <p className="font-medium text-teal-900">
+                    <p className="font-medium text-heading">
                       {team.mentor.name}
                     </p>
-                    <p className="text-sm text-teal-600 flex items-center">
+                    <p className="text-sm text-primary flex items-center">
                       <Mail className="w-3 h-3 mr-1" />
                       {team.mentor.email}
                     </p>
@@ -640,7 +640,7 @@ const ReviewDocs = () => {
 
             {/* Per-team Document Type Statistics (moved from global stats) */}
             <div>
-              <h4 className="font-medium text-gray-900 mb-4 flex items-center">
+              <h4 className="font-medium text-heading mb-4 flex items-center">
                 <BarChart3 className="w-4 h-4 mr-2" />
                 Document Type Statistics (This Team)
               </h4>
@@ -669,25 +669,25 @@ const ReviewDocs = () => {
                       : 0;
 
                   return (
-                    <div key={docKey} className="bg-white rounded-lg p-3 border">
-                      <h5 className="font-medium text-sm text-gray-800 mb-2">{document.name}</h5>
+                    <div key={docKey} className="bg-surface rounded-lg p-3 border">
+                      <h5 className="font-medium text-sm text-heading mb-2">{document.name}</h5>
                       <div className="text-sm space-y-1">
-                        <div className="flex justify-between text-gray-600">
+                        <div className="flex justify-between text-body">
                           <span>Submitted</span>
-                          <span className="font-medium text-teal-600">{submitted}</span>
+                          <span className="font-medium text-primary">{submitted}</span>
                         </div>
-                        <div className="flex justify-between text-gray-600">
+                        <div className="flex justify-between text-body">
                           <span>Mentor Approved</span>
-                          <span className="font-medium text-teal-600">{mentorApproved}</span>
+                          <span className="font-medium text-primary">{mentorApproved}</span>
                         </div>
                         {!isWeekly && (
-                          <div className="flex justify-between text-gray-600">
+                          <div className="flex justify-between text-body">
                             <span>Admin Approved</span>
-                            <span className="font-medium text-teal-600">{adminApproved}</span>
+                            <span className="font-medium text-primary">{adminApproved}</span>
                           </div>
                         )}
                         {pending > 0 && (
-                          <div className="flex justify-between text-gray-600">
+                          <div className="flex justify-between text-body">
                             <span>Pending Review</span>
                             <span className="font-medium text-yellow-600">{pending}</span>
                           </div>
@@ -701,7 +701,7 @@ const ReviewDocs = () => {
 
             {/* Documents */}
             <div>
-              <h4 className="font-medium text-gray-900 mb-4 flex items-center">
+              <h4 className="font-medium text-heading mb-4 flex items-center">
                 <FileText className="w-4 h-4 mr-2" />
                 Document Status
               </h4>
@@ -727,8 +727,8 @@ const ReviewDocs = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center py-12">
-            <RefreshCw className="w-8 h-8 animate-spin text-teal-600 mx-auto mb-4" />
-            <p className="text-lg text-gray-600">
+            <RefreshCw className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+            <p className="text-lg text-body">
               Loading document review data...
             </p>
           </div>
@@ -743,13 +743,13 @@ const ReviewDocs = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center py-12">
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            <h2 className="text-xl font-semibold text-heading mb-2">
               Error Loading Data
             </h2>
-            <p className="text-gray-600 mb-4">{error}</p>
+            <p className="text-body mb-4">{error}</p>
             <button
               onClick={fetchDocumentData}
-              className="inline-flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+              className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
               Retry
@@ -765,10 +765,10 @@ const ReviewDocs = () => {
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-heading mb-2">
             Document Review Dashboard
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-body">
             Review and monitor team document submissions and approvals
           </p>
         </div>
@@ -776,61 +776,61 @@ const ReviewDocs = () => {
         {/* Statistics Cards */}
         {statistics && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+            <div className="bg-surface rounded-xl shadow-lg p-6 border border-edge-subtle">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">
+                  <p className="text-sm font-medium text-body">
                     Total Teams
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-2xl font-bold text-heading">
                     {statistics.totalTeams}
                   </p>
                 </div>
-                <div className="bg-teal-100 rounded-lg p-3">
-                  <Users className="w-6 h-6 text-teal-600" />
+                <div className="bg-primary-subtle rounded-lg p-3">
+                  <Users className="w-6 h-6 text-primary" />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+            <div className="bg-surface rounded-xl shadow-lg p-6 border border-edge-subtle">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">
+                  <p className="text-sm font-medium text-body">
                     Teams with Documents
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-2xl font-bold text-heading">
                     {statistics.teamsWithDocuments}
                   </p>
                 </div>
-                <div className="bg-teal-100 rounded-lg p-3">
-                  <FileText className="w-6 h-6 text-teal-600" />
+                <div className="bg-primary-subtle rounded-lg p-3">
+                  <FileText className="w-6 h-6 text-primary" />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+            <div className="bg-surface rounded-xl shadow-lg p-6 border border-edge-subtle">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">
+                  <p className="text-sm font-medium text-body">
                     Fully Approved
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-2xl font-bold text-heading">
                     {statistics.fullyApprovedTeams}
                   </p>
                 </div>
-                <div className="bg-teal-100 rounded-lg p-3">
-                  <CheckCircle className="w-6 h-6 text-teal-600" />
+                <div className="bg-primary-subtle rounded-lg p-3">
+                  <CheckCircle className="w-6 h-6 text-primary" />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+            <div className="bg-surface rounded-xl shadow-lg p-6 border border-edge-subtle">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">
+                  <p className="text-sm font-medium text-body">
                     Pending Review
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-2xl font-bold text-heading">
                     {statistics.pendingReviewCount}
                   </p>
                 </div>
@@ -845,18 +845,18 @@ const ReviewDocs = () => {
         {/* Document Type Statistics moved: per-team stats are shown inside each team's expanded card */}
 
         {/* Filters and Search */}
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+        <div className="bg-surface rounded-xl shadow-lg p-6 border border-edge-subtle">
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Search */}
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted w-5 h-5" />
                 <input
                   type="text"
                   placeholder="Search teams, members, or emails..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 border border-edge rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
               </div>
             </div>
@@ -866,7 +866,7 @@ const ReviewDocs = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="px-4 py-2 border border-edge rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               >
                 <option value="all">All Status</option>
                 <option value="approved">Approved</option>
@@ -877,7 +877,7 @@ const ReviewDocs = () => {
               <select
                 value={documentFilter}
                 onChange={(e) => setDocumentFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="px-4 py-2 border border-edge rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               >
                 <option value="all">All Documents</option>
                 <option value="complete">Fully Approved</option>
@@ -889,7 +889,7 @@ const ReviewDocs = () => {
                 <select
                   value={batchFilter}
                   onChange={(e) => setBatchFilter(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="px-4 py-2 border border-edge rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 >
                   <option value="all">All Batches</option>
                   {uniqueBatches.map((batch) => (
@@ -904,7 +904,7 @@ const ReviewDocs = () => {
                 <select
                   value={departmentFilter}
                   onChange={(e) => setDepartmentFilter(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="px-4 py-2 border border-edge rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 >
                   <option value="all">All Departments</option>
                   {uniqueDepartments.map((dept) => (
@@ -917,7 +917,7 @@ const ReviewDocs = () => {
 
               <button
                 onClick={fetchDocumentData}
-                className="flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+                className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors"
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Refresh
@@ -928,7 +928,7 @@ const ReviewDocs = () => {
 
         {/* Results Summary */}
         <div className="flex items-center justify-between">
-          <p className="text-gray-600">
+          <p className="text-body">
             Showing {filteredTeams.length} of {teams.length} teams
           </p>
           {searchTerm && (
@@ -940,7 +940,7 @@ const ReviewDocs = () => {
                 setBatchFilter("all");
                 setDepartmentFilter("all");
               }}
-              className="text-teal-600 hover:text-teal-700 text-sm font-medium"
+              className="text-primary hover:text-primary text-sm font-medium"
             >
               Clear all filters
             </button>
@@ -951,11 +951,11 @@ const ReviewDocs = () => {
         <div className="space-y-6">
           {filteredTeams.length === 0 ? (
             <div className="text-center py-12">
-              <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <AlertCircle className="w-12 h-12 text-muted mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-heading mb-2">
                 No teams found
               </h3>
-              <p className="text-gray-600">
+              <p className="text-body">
                 Try adjusting your search or filter criteria
               </p>
             </div>
@@ -968,18 +968,18 @@ const ReviewDocs = () => {
       {/* Reject Modal */}
       {rejectModal.show && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <div className="bg-surface rounded-lg shadow-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-semibold text-heading mb-4">
               Reject Document
             </h3>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-body mb-4">
               Please provide a reason for rejection (optional):
             </p>
             <textarea
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
               placeholder="Enter rejection reason..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+              className="w-full px-3 py-2 border border-edge rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
               rows={4}
             />
             <div className="flex gap-3 mt-6">
@@ -991,7 +991,7 @@ const ReviewDocs = () => {
               </button>
               <button
                 onClick={cancelReject}
-                className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                className="flex-1 px-4 py-2 bg-gray-200 text-heading rounded-lg hover:bg-gray-300 transition-colors font-medium"
               >
                 Cancel
               </button>

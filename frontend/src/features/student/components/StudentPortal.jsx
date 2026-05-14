@@ -25,11 +25,11 @@ const toTitleCase = (str) => {
 function StudentActionCard({ to, title, description, icon, disabled = false }) {
   const content = (
     <>
-      <div className="text-5xl text-teal-500 mb-5 group-hover:text-teal-600 transition-colors duration-300">
+      <div className="text-5xl text-primary mb-5 group-hover:text-primary transition-colors duration-300">
         {icon}
       </div>
-      <h3 className="text-xl font-bold text-gray-800 text-center">{title}</h3>
-      <p className="text-sm text-gray-500 mt-2 text-center px-2">
+      <h3 className="text-xl font-bold text-heading text-center">{title}</h3>
+      <p className="text-sm text-muted mt-2 text-center px-2">
         {description}
       </p>
     </>
@@ -37,7 +37,7 @@ function StudentActionCard({ to, title, description, icon, disabled = false }) {
 
   if (disabled) {
     return (
-      <div className="group flex flex-col items-center justify-start text-center p-6 bg-gray-100 rounded-2xl shadow-inner cursor-not-allowed opacity-60 h-full">
+      <div className="group flex flex-col items-center justify-start text-center p-6 bg-surface-alt rounded-2xl shadow-inner cursor-not-allowed opacity-60 h-full">
         {content}
       </div>
     );
@@ -46,7 +46,7 @@ function StudentActionCard({ to, title, description, icon, disabled = false }) {
   return (
     <Link
       to={to}
-      className="group flex flex-col items-center justify-start text-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all duration-300 h-full"
+      className="group flex flex-col items-center justify-start text-center p-6 bg-surface rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all duration-300 h-full"
     >
       {content}
     </Link>
@@ -63,9 +63,9 @@ export default function StudentPortal() {
   // For students, also check if studentData is fully loaded
   if (user.role === "student" && !user.studentData) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-slate-50">
-        <FaSpinner className="animate-spin text-4xl text-teal-600" />
-        <p className="ml-3 text-lg text-gray-700">Loading student data...</p>
+      <div className="flex justify-center items-center min-h-screen bg-base">
+        <FaSpinner className="animate-spin text-4xl text-primary" />
+        <p className="ml-3 text-lg text-body">Loading student data...</p>
       </div>
     );
   }
@@ -75,15 +75,15 @@ export default function StudentPortal() {
     String(user?._id) === String(user?.studentData?.currentTeam?.leader?._id);
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 to-sky-100 min-h-screen py-16 px-4 sm:px-6 lg:px-8">
+    <div className="bg-base min-h-screen py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         <header className="text-center mb-16">
-          <h1 className="text-5xl font-extrabold text-gray-900 tracking-tight">
+          <h1 className="text-5xl font-extrabold text-heading tracking-tight">
             Student Portal
           </h1>
-          <p className="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="mt-4 text-xl text-body max-w-3xl mx-auto">
             Welcome,{" "}
-            <span className="font-semibold text-teal-600">
+            <span className="font-semibold text-primary">
               {toTitleCase(user?.name).split(" ")[0] || "Student"}
             </span>
             ! Here&apos;s your command center for project success.
@@ -94,11 +94,11 @@ export default function StudentPortal() {
           // VIEW FOR STUDENTS IN A TEAM
           <div>
             <div className="flex justify-center mb-8">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-50 rounded-md border border-teal-200 shadow-sm">
-                <span className="text-sm text-teal-700 font-medium">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-subtle rounded-md border border-primary/20 shadow-sm">
+                <span className="text-sm text-primary font-medium">
                   Team Code:
                 </span>
-                <span className="font-mono font-bold text-teal-600 bg-white px-1.5 py-0.5 rounded text-sm">
+                <span className="font-mono font-bold text-primary bg-surface px-1.5 py-0.5 rounded text-sm">
                   {user.studentData?.currentTeam?.code}
                 </span>
               </div>
@@ -146,11 +146,11 @@ export default function StudentPortal() {
         ) : (
           // VIEW FOR STUDENTS NOT IN A TEAM
           <div>
-            <div className="text-center mb-12 p-6 bg-white rounded-xl shadow-md">
-              <h2 className="text-2xl font-bold text-gray-800">
+            <div className="text-center mb-12 p-6 bg-surface rounded-xl shadow-md">
+              <h2 className="text-2xl font-bold text-heading">
                 Let&apos;s Get You Started!
               </h2>
-              <p className="mt-2 text-gray-600">
+              <p className="mt-2 text-body">
                 You&apos;re not part of a team yet. Join an existing team or
                 create a new one to begin your project journey.
               </p>

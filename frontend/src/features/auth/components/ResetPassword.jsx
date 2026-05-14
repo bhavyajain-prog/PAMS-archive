@@ -79,32 +79,32 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4 py-12">
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-xl">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
+    <div className="flex items-center justify-center min-h-screen bg-base px-4 py-12">
+      <div className="w-full max-w-md bg-surface backdrop-blur-md p-8 rounded-lg shadow-xl border border-edge">
+        <h2 className="text-3xl font-bold text-center text-heading mb-6">
           {firstLogin ? "Set Your Password" : "Reset Password"}
         </h2>
 
         {message && (
-          <p className="text-green-600 bg-green-100 p-3 rounded-md text-center mb-4">
+          <p className="text-green-500 bg-green-500/10 p-3 rounded-md text-center mb-4">
             {message}
           </p>
         )}
         {error && (
-          <p className="text-red-600 bg-red-100 p-3 rounded-md text-center mb-4">
+          <p className="text-red-500 bg-red-500/10 p-3 rounded-md text-center mb-4">
             {error}
           </p>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-gray-700 font-medium mb-1">
+            <label className="block text-body font-medium mb-1">
               New Password
             </label>
             <input
               type="password"
               placeholder="Enter new password"
-              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+              className="w-full px-4 py-3 bg-input border border-edge rounded-md focus:outline-none focus:ring-2 focus:ring-primary/30 text-heading"
               value={newPass}
               onChange={(e) => setNewPass(e.target.value)}
               required
@@ -112,13 +112,13 @@ export default function ResetPassword() {
           </div>
 
           <div>
-            <label className="block text-gray-700 font-medium mb-1">
+            <label className="block text-body font-medium mb-1">
               Confirm Password
             </label>
             <input
               type="password"
               placeholder="Confirm new password"
-              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+              className="w-full px-4 py-3 bg-input border border-edge rounded-md focus:outline-none focus:ring-2 focus:ring-primary/30 text-heading"
               value={cPass}
               onChange={(e) => setCPass(e.target.value)}
               required
@@ -127,15 +127,15 @@ export default function ResetPassword() {
 
           <button
             type="submit"
-            className="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 rounded-md shadow-md transition duration-150 ease-in-out"
+            className="w-full bg-primary hover:bg-primary-hover text-white font-semibold py-3 rounded-md shadow-md transition duration-150 ease-in-out"
           >
             {firstLogin ? "Set Password" : "Reset Password"}
           </button>
         </form>
         {!firstLogin && token && (
-          <p className="text-center text-sm text-gray-600 mt-4">
+          <p className="text-center text-sm text-body mt-4">
             Remember your password?{" "}
-            <a href="/login" className="text-teal-600 hover:underline">
+            <a href="/login" className="text-primary hover:underline">
               Login
             </a>
           </p>

@@ -15,57 +15,57 @@ import axios from "../../../services/axios"; // Import axios
 
 // Icon components using react-icons
 const IconWrapper = ({ children }) => (
-  <div className="p-3 bg-teal-100 rounded-full mb-4 inline-block">
+  <div className="p-3 bg-primary-subtle rounded-full mb-4 inline-block">
     {children}
   </div>
 );
 
 const UploadIcon = () => (
   <IconWrapper>
-    <FaUpload className="text-3xl text-teal-600" />
+    <FaUpload className="text-3xl text-primary" />
   </IconWrapper>
 );
 const TeamIcon = () => (
   <IconWrapper>
-    <FaUsers className="text-3xl text-teal-600" />
+    <FaUsers className="text-3xl text-primary" />
   </IconWrapper>
 );
 const MentorIcon = () => (
   <IconWrapper>
-    <FaChalkboardTeacher className="text-3xl text-teal-600" />
+    <FaChalkboardTeacher className="text-3xl text-primary" />
   </IconWrapper>
 );
 const StudentIcon = () => (
   <IconWrapper>
-    <FaUserGraduate className="text-3xl text-teal-600" />
+    <FaUserGraduate className="text-3xl text-primary" />
   </IconWrapper>
 );
 const ProjectIcon = () => (
   <IconWrapper>
-    <FaProjectDiagram className="text-3xl text-teal-600" />
+    <FaProjectDiagram className="text-3xl text-primary" />
   </IconWrapper>
 );
 const FormsIcon = () => (
   <IconWrapper>
-    <FaClipboardList className="text-3xl text-teal-600" />
+    <FaClipboardList className="text-3xl text-primary" />
   </IconWrapper>
 );
-// const SettingsIcon = () => <IconWrapper><FaCog className="text-3xl text-teal-600" /></IconWrapper>; // Example for a potential settings card
+// const SettingsIcon = () => <IconWrapper><FaCog className="text-3xl text-primary" /></IconWrapper>; // Example for a potential settings card
 
 const AdminActionCard = ({ to, title, icon, description }) => (
   <Link
     to={to}
-    className="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out overflow-hidden flex flex-col text-center h-full" // Added h-full for consistent card height
+    className="group bg-surface rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out overflow-hidden flex flex-col text-center h-full" // Added h-full for consistent card height
   >
     <div className="pt-6 pb-4 px-6">
       {icon}
-      <h3 className="text-xl font-semibold text-gray-800 mb-2 group-hover:text-teal-600 transition-colors duration-300">
+      <h3 className="text-xl font-semibold text-heading mb-2 group-hover:text-primary transition-colors duration-300">
         {title}
       </h3>
-      <p className="text-sm text-gray-600 leading-relaxed">{description}</p>
+      <p className="text-sm text-body leading-relaxed">{description}</p>
     </div>
-    <div className="mt-auto p-4 bg-gray-50 group-hover:bg-teal-50 transition-colors duration-300">
-      <span className="text-sm font-medium text-teal-600 group-hover:text-teal-700">
+    <div className="mt-auto p-4 bg-surface-alt group-hover:bg-primary-subtle transition-colors duration-300">
+      <span className="text-sm font-medium text-primary group-hover:text-primary">
         Go to {title} &rarr;
       </span>
     </div>
@@ -155,7 +155,7 @@ export default function AdminPortal() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-slate-100 to-sky-100 min-h-screen py-12 px-4 sm:px-6 lg:px-8 relative">
+    <div className="bg-base min-h-screen py-12 px-4 sm:px-6 lg:px-8 relative">
       {" "}
       {/* Added relative positioning */}
       {/* Loading Overlay for Flushing - covers the whole page content area */}
@@ -169,8 +169,8 @@ export default function AdminPortal() {
       )}
       <div className="max-w-5xl mx-auto">
         <header className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-gray-800">Admin Dashboard</h1>{" "}
-          <p className="mt-5 text-lg text-gray-600 max-w-2xl mx-auto">
+          <h1 className="text-5xl font-bold text-heading">Admin Dashboard</h1>{" "}
+          <p className="mt-5 text-lg text-body max-w-2xl mx-auto">
             Streamline your PAMS workflow with powerful admin tools at your
             fingertips.
           </p>
@@ -229,7 +229,7 @@ export default function AdminPortal() {
             <h2 className="text-3xl font-bold text-red-700 flex items-center justify-center">
               <FaExclamationTriangle className="mr-3" /> Danger Zone
             </h2>
-            <p className="mt-3 text-md text-gray-600 max-w-xl mx-auto">
+            <p className="mt-3 text-md text-body max-w-xl mx-auto">
               Proceed with extreme caution. These actions are irreversible and
               can lead to significant data loss.
             </p>
@@ -238,14 +238,14 @@ export default function AdminPortal() {
           {/* Individual Flush Buttons Section */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-8">
             {/* Flush Students Data */}
-            <div className="bg-white p-6 rounded-xl shadow-lg text-center">
+            <div className="bg-surface p-6 rounded-xl shadow-lg text-center">
               <div className="mb-4">
                 <FaUserGraduate className="text-4xl text-red-500 mx-auto" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">
+              <h3 className="text-lg font-semibold text-heading mb-2">
                 Flush Students Data
               </h3>
-              <p className="text-xs text-gray-600 mb-4">
+              <p className="text-xs text-body mb-4">
                 Deletes all student accounts, their teams, and student-proposed projects.
               </p>
               <button
@@ -258,14 +258,14 @@ export default function AdminPortal() {
             </div>
 
             {/* Flush Mentors Data */}
-            <div className="bg-white p-6 rounded-xl shadow-lg text-center">
+            <div className="bg-surface p-6 rounded-xl shadow-lg text-center">
               <div className="mb-4">
                 <FaChalkboardTeacher className="text-4xl text-red-500 mx-auto" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">
+              <h3 className="text-lg font-semibold text-heading mb-2">
                 Flush Mentors Data
               </h3>
-              <p className="text-xs text-gray-600 mb-4">
+              <p className="text-xs text-body mb-4">
                 Deletes all mentor accounts from the system.
               </p>
               <button
@@ -278,14 +278,14 @@ export default function AdminPortal() {
             </div>
 
             {/* Flush Projects Data */}
-            <div className="bg-white p-6 rounded-xl shadow-lg text-center">
+            <div className="bg-surface p-6 rounded-xl shadow-lg text-center">
               <div className="mb-4">
                 <FaProjectDiagram className="text-4xl text-red-500 mx-auto" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">
+              <h3 className="text-lg font-semibold text-heading mb-2">
                 Flush Projects Data
               </h3>
-              <p className="text-xs text-gray-600 mb-4">
+              <p className="text-xs text-body mb-4">
                 Deletes all projects from the project bank.
               </p>
               <button
@@ -313,12 +313,12 @@ export default function AdminPortal() {
           {/* Confirmation Dialog for Individual Flush */}
           {showConfirmFlushType && (
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-              <div className="bg-white rounded-lg shadow-2xl max-w-lg w-full p-6">
+              <div className="bg-surface rounded-lg shadow-2xl max-w-lg w-full p-6">
                 <h4 className="text-xl font-bold text-red-800 mb-3 flex items-center">
                   <FaExclamationTriangle className="mr-2" />
                   Confirm {showConfirmFlushType.charAt(0).toUpperCase() + showConfirmFlushType.slice(1)} Deletion
                 </h4>
-                <div className="text-sm text-gray-700 mb-4 space-y-2">
+                <div className="text-sm text-body mb-4 space-y-2">
                   <p className="font-semibold">
                     Are you sure you want to delete all <strong className="text-red-600">{showConfirmFlushType}</strong> data?
                   </p>
@@ -376,7 +376,7 @@ export default function AdminPortal() {
                   <button
                     onClick={() => setShowConfirmFlushType(null)}
                     disabled={isFlushing}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 transition-colors"
+                    className="px-4 py-2 text-sm font-medium text-body bg-gray-200 hover:bg-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 transition-colors"
                   >
                     Cancel
                   </button>
@@ -400,11 +400,11 @@ export default function AdminPortal() {
           )}
 
           {/* Flush All Data Section */}
-          <div className="bg-white p-6 sm:p-8 rounded-xl shadow-xl max-w-lg mx-auto text-center">
-            <h3 className="text-xl font-semibold text-gray-800 mb-3">
+          <div className="bg-surface p-6 sm:p-8 rounded-xl shadow-xl max-w-lg mx-auto text-center">
+            <h3 className="text-xl font-semibold text-heading mb-3">
               Flush All Application Data
             </h3>
-            <p className="text-sm text-gray-600 mb-6">
+            <p className="text-sm text-body mb-6">
               This will permanently delete all student records, mentor details,
               team formations, project data, and other non-essential application
               data. Admin accounts will remain. This action cannot be undone.
@@ -442,7 +442,7 @@ export default function AdminPortal() {
                   <button
                     onClick={() => setShowConfirmFlush(false)}
                     disabled={isFlushing} // Disable button while flushing
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 transition-colors"
+                    className="px-4 py-2 text-sm font-medium text-body bg-gray-200 hover:bg-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 transition-colors"
                   >
                     Cancel
                   </button>

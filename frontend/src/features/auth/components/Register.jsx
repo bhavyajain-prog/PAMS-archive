@@ -45,7 +45,6 @@ const Register = () => {
         setError(data.message || "Registration failed. Please try again.");
       }
     } catch (err) {
-      // console.error("Registration failed:", err); // Optional: for debugging
       if (err.response && err.response.data && err.response.data.message) {
         setError(err.response.data.message);
       } else {
@@ -54,73 +53,75 @@ const Register = () => {
     }
   };
 
+  const inputClasses = "w-full px-3 py-2 bg-input border border-edge rounded-md focus:outline-none focus:ring-2 focus:ring-primary/30 text-heading";
+
   return (
     <div className="flex items-center justify-center px-4 mt-5">
-      <div className=" w-150 bg-white p-8 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center mb-6">Register</h2>
+      <div className="w-150 bg-surface backdrop-blur-md p-8 rounded-lg shadow-md border border-edge">
+        <h2 className="text-2xl font-bold text-center text-heading mb-6">Register</h2>
         <form onSubmit={handleRegister} className="space-y-4">
           <div>
-            <label className="block text-gray-700 mb-1">Username:</label>
+            <label className="block text-body mb-1">Username:</label>
             <input
               type="text"
               placeholder="Enter a username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className={inputClasses}
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-1">Name:</label>
+            <label className="block text-body mb-1">Name:</label>
             <input
               type="text"
               placeholder="Enter your name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className={inputClasses}
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-1">Email:</label>
+            <label className="block text-body mb-1">Email:</label>
             <input
               type="email"
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className={inputClasses}
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-1">Phone:</label>
+            <label className="block text-body mb-1">Phone:</label>
             <input
               type="text"
               placeholder="Enter your phone number"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               required
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className={inputClasses}
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-1">Password:</label>
+            <label className="block text-body mb-1">Password:</label>
             <input
               type="password"
               placeholder="Enter a password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className={inputClasses}
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-1">
+            <label className="block text-body mb-1">
               Confirm Password:
             </label>
             <input
@@ -129,17 +130,17 @@ const Register = () => {
               value={cpass}
               onChange={(e) => setCpass(e.target.value)}
               required
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className={inputClasses}
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-1">Role:</label>
+            <label className="block text-body mb-1">Role:</label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
               required
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className={inputClasses}
             >
               <option value="">Select a role</option>
               <option value="student">Student</option>
@@ -149,12 +150,12 @@ const Register = () => {
             </select>
           </div>
 
-          {error && <p className="text-red-600 text-sm">{error}</p>}
-          {success && <p className="text-green-600 text-sm">{success}</p>}
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {success && <p className="text-green-500 text-sm">{success}</p>}
 
           <button
             type="submit"
-            className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 rounded-md shadow"
+            className="w-full bg-primary hover:bg-primary-hover text-white font-semibold py-2 rounded-md shadow transition duration-200"
           >
             Register
           </button>

@@ -64,7 +64,6 @@ export default function Login() {
         );
       }
     } catch (err) {
-      // console.error("Login failed", err); // Optional: for debugging
       if (err.response && err.response.data && err.response.data.message) {
         setError(err.response.data.message);
       } else {
@@ -75,51 +74,51 @@ export default function Login() {
 
   return (
     <div className="flex items-center justify-center px-4 mt-30">
-      <div className="w-full max-w-md bg-white shadow-xl rounded-2xl p-8">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+      <div className="w-full max-w-md bg-surface backdrop-blur-md shadow-xl rounded-2xl p-8 border border-edge">
+        <h2 className="text-2xl font-bold text-center text-heading mb-6">
           Sign In
         </h2>
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-body">
               Username
             </label>
             <input
               type="text"
-              value={username} // Bind value to username state
+              value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-200"
+              className="w-full mt-1 px-4 py-2 bg-input border border-edge rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-heading"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-body">
               Password
             </label>
             <input
               type="password"
-              value={password} // Bind value to password state
+              value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-200"
+              className="w-full mt-1 px-4 py-2 bg-input border border-edge rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-heading"
             />
           </div>
 
-          {error && <p className="text-sm text-red-600 text-center">{error}</p>}
+          {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
-          <div className="flex items-center justify-between text-sm text-gray-600">
+          <div className="flex items-center justify-between text-sm text-body">
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"
                 defaultChecked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="h-4 w-4 text-teal-500 border-gray-300 rounded focus:ring-teal-200"
+                className="h-4 w-4 accent-primary rounded"
               />
               Remember Me
             </label>
             <Link
               to="/forgot-password"
-              className="text-teal-600 hover:underline"
+              className="text-primary hover:underline"
             >
               Forgot Password?
             </Link>
@@ -127,7 +126,7 @@ export default function Login() {
 
           <button
             type="submit"
-            className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 rounded-lg transition duration-200"
+            className="w-full bg-primary hover:bg-primary-hover text-white font-semibold py-2 rounded-lg transition duration-200"
           >
             Sign In
           </button>

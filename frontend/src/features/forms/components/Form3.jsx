@@ -401,10 +401,10 @@ const WeeklyStatusMatrix = () => {
 
   if (loadingStatus) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-slate-50 via-teal-50 to-cyan-50 flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center">
-          <FaSpinner className="animate-spin text-4xl text-teal-600 mb-4" />
-          <p className="text-gray-600">Loading weekly status matrix...</p>
+      <div className="min-h-screen bg-base flex items-center justify-center">
+        <div className="bg-surface rounded-xl shadow-lg p-8 flex flex-col items-center">
+          <FaSpinner className="animate-spin text-4xl text-primary mb-4" />
+          <p className="text-body">Loading weekly status matrix...</p>
         </div>
       </div>
     );
@@ -413,15 +413,15 @@ const WeeklyStatusMatrix = () => {
   // Check if team has timeline access
   if (!hasTimeline) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-slate-50 via-teal-50 to-cyan-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-base py-8 px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-4xl mx-auto">
-          <div className="bg-white rounded-xl shadow-lg p-8">
+          <div className="bg-surface rounded-xl shadow-lg p-8">
             <div className="text-center">
               <FaClock className="mx-auto text-6xl text-orange-500 mb-6" />
-              <h1 className="text-2xl font-bold text-gray-800 mb-4">
+              <h1 className="text-2xl font-bold text-heading mb-4">
                 Project Timeline Not Assigned
               </h1>
-              <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+              <p className="text-body mb-6 max-w-2xl mx-auto">
                 Your team&apos;s project timeline has not been assigned yet.
                 Weekly status submissions will be available once the admin sets
                 the project start date.
@@ -454,28 +454,28 @@ const WeeklyStatusMatrix = () => {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-teal-50 to-cyan-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-base py-8 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-none mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-t-xl shadow-lg border-b border-gray-200 p-6 sm:p-8 md:p-10">
+        <div className="bg-surface rounded-t-xl shadow-lg border-b border-edge p-6 sm:p-8 md:p-10">
           <div className="text-center mx-auto max-w-3xl">
-            <h1 className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent mb-1 sm:mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-500 to-cyan-500 bg-clip-text text-transparent mb-1 sm:mb-2">
               Weekly Status Matrix
             </h1>
-            <h2 className="text-base sm:text-lg font-medium text-gray-700">
+            <h2 className="text-base sm:text-lg font-medium text-body">
               PROJECT EVALUATION & PROGRESS TRACKING (2024-25)
             </h2>
             <div className="mt-4 space-y-3">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 border border-teal-200 rounded-lg">
-                <FaCalendarAlt className="text-teal-600" />
-                <span className="text-teal-800 font-medium">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-subtle border border-primary/20 rounded-lg">
+                <FaCalendarAlt className="text-primary" />
+                <span className="text-heading font-medium">
                   Current Week: {currentWeekInfo?.currentWeek || 1} of{" "}
                   {currentWeekInfo?.projectDuration || 12}
                 </span>
               </div>
 
               {currentWeekInfo && (
-                <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-600">
+                <div className="flex flex-wrap justify-center gap-4 text-sm text-body">
                   <div className="flex items-center gap-1">
                     <FaClock className="text-blue-500" />
                     <span>
@@ -507,12 +507,12 @@ const WeeklyStatusMatrix = () => {
         {existingData && (
           <div className="mt-4 px-6 sm:px-8 md:px-10">
             <div className="bg-linear-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
-              <h3 className="text-lg font-semibold text-gray-800 mb-3">
+              <h3 className="text-lg font-semibold text-heading mb-3">
                 Current Week Submission Status
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="font-medium text-gray-700">Status:</span>{" "}
+                  <span className="font-medium text-body">Status:</span>{" "}
                   <span
                     className={`font-semibold ${existingData.status === "mentor_approved"
                       ? "text-green-600"
@@ -529,20 +529,20 @@ const WeeklyStatusMatrix = () => {
                   </span>
                 </div>
                 <div>
-                  <span className="font-medium text-gray-700">
+                  <span className="font-medium text-body">
                     Submitted At:
                   </span>{" "}
                   {new Date(existingData.submittedAt).toLocaleString()}
                 </div>
                 <div>
-                  <span className="font-medium text-gray-700">Module:</span>{" "}
+                  <span className="font-medium text-body">Module:</span>{" "}
                   {existingData.module}
                 </div>
                 {/* Mentor score intentionally not shown on this page; visible only on View Score page */}
               </div>
               {!isEditable && (
-                <div className="mt-4 p-3 bg-white rounded border border-gray-200">
-                  <p className="text-sm text-gray-600">
+                <div className="mt-4 p-3 bg-surface rounded border border-edge">
+                  <p className="text-sm text-body">
                     <strong>Note:</strong> This submission cannot be edited.
                     {existingData.status === "mentor_approved"
                       ? " It has been approved by your mentor."
@@ -574,7 +574,7 @@ const WeeklyStatusMatrix = () => {
         )}
 
         {/* Form Content */}
-        <div className="bg-white rounded-b-xl shadow-lg p-8">
+        <div className="bg-surface rounded-b-xl shadow-lg p-8">
           <div className="space-y-8">
             {/* Current Submission Status Banner */}
             {existingData && (
@@ -628,11 +628,11 @@ const WeeklyStatusMatrix = () => {
                           : `Your Week ${existingData.week} submission is awaiting mentor review.`}
                     </p>
                     {existingData.mentorComments && (
-                      <div className="mt-2 p-3 bg-white rounded border border-gray-200">
-                        <p className="text-sm font-semibold text-gray-700 mb-1">
+                      <div className="mt-2 p-3 bg-surface rounded border border-edge">
+                        <p className="text-sm font-semibold text-body mb-1">
                           Mentor Feedback:
                         </p>
-                        <p className="text-sm text-gray-600 whitespace-pre-wrap">
+                        <p className="text-sm text-body whitespace-pre-wrap">
                           {existingData.mentorComments}
                         </p>
                       </div>
@@ -643,47 +643,47 @@ const WeeklyStatusMatrix = () => {
             )}
 
             {/* Week Information */}
-            <div className="bg-linear-to-r from-teal-50 to-cyan-50 rounded-lg p-6 border border-teal-200">
+            <div className="bg-primary-subtle rounded-lg p-6 border border-primary/20">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-semibold text-body mb-2">
                     Week Number
                   </label>
-                  <div className="flex items-center gap-2 p-3 bg-white rounded-lg border">
-                    <FaClock className="text-teal-600" />
+                  <div className="flex items-center gap-2 p-3 bg-surface rounded-lg border">
+                    <FaClock className="text-primary" />
                     <span className="font-semibold text-lg">
                       {formData.week}
                     </span>
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-semibold text-body mb-2">
                     Date Range (From)
                   </label>
                   <input
                     type="date"
                     value={formData.dateRange.from}
                     disabled
-                    className="w-full border border-gray-300 rounded-lg px-3 py-3 bg-gray-100 cursor-not-allowed"
+                    className="w-full border border-edge rounded-lg px-3 py-3 bg-surface-alt cursor-not-allowed"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-semibold text-body mb-2">
                     Date Range (To)
                   </label>
                   <input
                     type="date"
                     value={formData.dateRange.to}
                     disabled
-                    className="w-full border border-gray-300 rounded-lg px-3 py-3 bg-gray-100 cursor-not-allowed"
+                    className="w-full border border-edge rounded-lg px-3 py-3 bg-surface-alt cursor-not-allowed"
                   />
                 </div>
               </div>
             </div>
 
             {/* Module Selection */}
-            <div className="bg-gray-50 rounded-lg p-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
+            <div className="bg-surface-alt rounded-lg p-6">
+              <label className="block text-sm font-semibold text-body mb-3">
                 <FaChartLine className="inline mr-2" />
                 Module <span className="text-red-500">*</span>
               </label>
@@ -693,7 +693,7 @@ const WeeklyStatusMatrix = () => {
                 onChange={handleInputChange}
                 disabled={!isEditable}
                 required
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className="w-full border border-edge rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent disabled:bg-surface-alt disabled:cursor-not-allowed"
               >
                 <option value="">Select module to report on</option>
                 {availableModules.map((module, index) => (
@@ -706,7 +706,7 @@ const WeeklyStatusMatrix = () => {
                 allSubmissions.some(
                   (s) => s.week === currentWeekInfo?.currentWeek
                 ) && (
-                  <p className="mt-2 text-xs text-gray-500 italic">
+                  <p className="mt-2 text-xs text-muted italic">
                     Note: Modules already submitted for Week{" "}
                     {currentWeekInfo?.currentWeek} are not shown. You can submit
                     multiple modules per week.
@@ -724,8 +724,8 @@ const WeeklyStatusMatrix = () => {
             </div>
 
             {/* Progress Description */}
-            <div className="bg-gray-50 rounded-lg p-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
+            <div className="bg-surface-alt rounded-lg p-6">
+              <label className="block text-sm font-semibold text-body mb-3">
                 <FaChartLine className="inline mr-2" />
                 Progress Description <span className="text-red-500">*</span>
               </label>
@@ -737,18 +737,18 @@ const WeeklyStatusMatrix = () => {
                 placeholder="Describe the progress made this week on the selected module..."
                 required
                 rows="4"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-vertical disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className="w-full border border-edge rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent resize-vertical disabled:bg-surface-alt disabled:cursor-not-allowed"
               />
-              <p className="mt-2 text-xs text-gray-600">
+              <p className="mt-2 text-xs text-body">
                 Provide detailed information about what was accomplished,
                 completed features, milestones reached, etc.
               </p>
             </div>
 
             {/* Achievements */}
-            <div className="bg-gray-50 rounded-lg p-6">
+            <div className="bg-surface-alt rounded-lg p-6">
               <div className="flex justify-between items-center mb-4">
-                <label className="block text-sm font-semibold text-gray-700">
+                <label className="block text-sm font-semibold text-body">
                   <FaLightbulb className="inline mr-2" />
                   Achievements <span className="text-red-500">*</span>
                 </label>
@@ -756,7 +756,7 @@ const WeeklyStatusMatrix = () => {
                   type="button"
                   onClick={() => addArrayItem("achievements")}
                   disabled={!isEditable}
-                  className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   <FaPlus className="w-3 h-3" />
                   Add Achievement
@@ -774,7 +774,7 @@ const WeeklyStatusMatrix = () => {
                         handleArrayChange("achievements", index, e.target.value)
                       }
                       disabled={!isEditable}
-                      className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      className="flex-1 border border-edge rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent disabled:bg-surface-alt disabled:cursor-not-allowed"
                     />
                     {formData.achievements.length > 1 && isEditable && (
                       <button
@@ -792,9 +792,9 @@ const WeeklyStatusMatrix = () => {
             </div>
 
             {/* Challenges */}
-            <div className="bg-gray-50 rounded-lg p-6">
+            <div className="bg-surface-alt rounded-lg p-6">
               <div className="flex justify-between items-center mb-4">
-                <label className="block text-sm font-semibold text-gray-700">
+                <label className="block text-sm font-semibold text-body">
                   <FaExclamationCircle className="inline mr-2" />
                   Challenges <span className="text-red-500">*</span>
                 </label>
@@ -802,7 +802,7 @@ const WeeklyStatusMatrix = () => {
                   type="button"
                   onClick={() => addArrayItem("challenges")}
                   disabled={!isEditable}
-                  className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   <FaPlus className="w-3 h-3" />
                   Add Challenge
@@ -820,7 +820,7 @@ const WeeklyStatusMatrix = () => {
                         handleArrayChange("challenges", index, e.target.value)
                       }
                       disabled={!isEditable}
-                      className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      className="flex-1 border border-edge rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent disabled:bg-surface-alt disabled:cursor-not-allowed"
                     />
                     {formData.challenges.length > 1 && isEditable && (
                       <button
@@ -838,8 +838,8 @@ const WeeklyStatusMatrix = () => {
             </div>
 
             {/* Student Remarks */}
-            <div className="bg-gray-50 rounded-lg p-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
+            <div className="bg-surface-alt rounded-lg p-6">
+              <label className="block text-sm font-semibold text-body mb-3">
                 <FaCommentDots className="inline mr-2" />
                 Student Remarks
               </label>
@@ -850,17 +850,17 @@ const WeeklyStatusMatrix = () => {
                 disabled={!isEditable}
                 placeholder="Any additional comments, observations, or notes about this week's work..."
                 rows="3"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-vertical disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className="w-full border border-edge rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent resize-vertical disabled:bg-surface-alt disabled:cursor-not-allowed"
               />
-              <p className="mt-2 text-xs text-gray-600">
+              <p className="mt-2 text-xs text-body">
                 Optional: Share any additional thoughts, learnings, or plans for
                 next week.
               </p>
             </div>
 
             {/* Project File Upload (ZIP) */}
-            <div className="bg-linear-to-r from-teal-50 to-cyan-50 rounded-lg p-6 border-2 border-teal-200">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
+            <div className="bg-primary-subtle rounded-lg p-6 border-2 border-primary/20">
+              <label className="block text-sm font-semibold text-body mb-3">
                 <FaPlus className="inline mr-2" />
                 Project File Upload (Optional)
               </label>
@@ -870,15 +870,15 @@ const WeeklyStatusMatrix = () => {
                   accept=".zip"
                   onChange={handleZipFileChange}
                   disabled={!isEditable}
-                  className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-600 file:text-white hover:file:bg-teal-700 file:cursor-pointer cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="block w-full text-sm text-body file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary-hover file:cursor-pointer cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 {zipFileName && (
-                  <div className="flex items-center gap-2 text-sm text-teal-700 bg-teal-100 px-3 py-2 rounded-lg">
-                    <FaCheckCircle className="text-teal-600" />
+                  <div className="flex items-center gap-2 text-sm text-primary bg-primary-subtle px-3 py-2 rounded-lg">
+                    <FaCheckCircle className="text-primary" />
                     <span className="font-medium">{zipFileName}</span>
                   </div>
                 )}
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-body">
                   Upload your project files as a ZIP archive (max 50MB). Only
                   .zip files are accepted.
                 </p>
@@ -886,10 +886,10 @@ const WeeklyStatusMatrix = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6 border-t border-gray-200">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6 border-t border-edge">
               {!isEditable ? (
                 <div className="text-center py-2">
-                  <p className="text-gray-700 font-medium flex items-center justify-center gap-2">
+                  <p className="text-body font-medium flex items-center justify-center gap-2">
                     {existingData?.status === "mentor_approved" ? (
                       <>
                         <FaCheckCircle className="text-green-600" />
@@ -910,7 +910,7 @@ const WeeklyStatusMatrix = () => {
                   <button
                     onClick={handleSubmit}
                     disabled={submitting || !isEditable}
-                    className="px-8 py-3 bg-linear-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold rounded-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
+                    className="px-8 py-3 bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white font-semibold rounded-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
                   >
                     {submitting ? (
                       <>
@@ -956,7 +956,7 @@ const WeeklyStatusMatrix = () => {
 
                 return (
                   <div className="bg-linear-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                    <h3 className="text-lg font-semibold text-heading mb-4">
                       My Weekly Submissions ({mySubmissions.length})
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -965,15 +965,15 @@ const WeeklyStatusMatrix = () => {
                         .map((submission, index) => (
                           <div
                             key={submission._id || index}
-                            className={`bg-white rounded-lg p-4 border-2 shadow-sm ${submission.status === "mentor_approved"
+                            className={`bg-surface rounded-lg p-4 border-2 shadow-sm ${submission.status === "mentor_approved"
                               ? "border-green-300 bg-green-50"
                               : submission.status === "submitted"
                                 ? "border-yellow-300 bg-yellow-50"
-                                : "border-gray-200"
+                                : "border-edge"
                               }`}
                           >
                             <div className="flex items-center justify-between mb-2">
-                              <span className="font-semibold text-gray-800 flex items-center gap-2">
+                              <span className="font-semibold text-heading flex items-center gap-2">
                                 Week {submission.week}
                                 {submission.status === "mentor_approved" && (
                                   <FaCheckCircle className="text-green-600 text-sm" />
@@ -982,11 +982,11 @@ const WeeklyStatusMatrix = () => {
                                   <FaClock className="text-yellow-600 text-sm" />
                                 )}
                               </span>
-                              <span className="text-xs text-gray-600">
+                              <span className="text-xs text-body">
                                 {submission.submittedAt ? new Date(submission.submittedAt).toLocaleDateString() : "-"}
                               </span>
                             </div>
-                            <div className="text-sm text-gray-600 space-y-1">
+                            <div className="text-sm text-body space-y-1">
                               <p>
                                 <strong>Module:</strong> {submission.module}
                               </p>

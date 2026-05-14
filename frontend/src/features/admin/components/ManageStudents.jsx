@@ -20,12 +20,12 @@ const Modal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center p-4">
-      <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <div className="bg-surface p-6 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
+          <h3 className="text-xl font-semibold text-heading">{title}</h3>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl"
+            className="text-muted hover:text-body text-2xl"
           >
             &times;
           </button>
@@ -38,50 +38,50 @@ const Modal = ({ isOpen, onClose, title, children }) => {
 
 const StudentCard = ({ student, onOpenActionModal }) => {
   return (
-    <div className="bg-white shadow-lg rounded-lg p-6 transition-all duration-300 ease-in-out hover:shadow-xl">
+    <div className="bg-surface shadow-lg rounded-lg p-6 transition-all duration-300 ease-in-out hover:shadow-xl">
       <div className="flex items-center mb-4">
-        <FaUserGraduate className="text-3xl text-teal-600 mr-4" />
+        <FaUserGraduate className="text-3xl text-primary mr-4" />
         <div>
-          <h2 className="text-2xl font-bold text-teal-700">{student.name}</h2>
-          <p className="text-sm text-gray-600 flex items-center">
-            <FaEnvelope className="mr-2 text-gray-500" /> {student.email}
+          <h2 className="text-2xl font-bold text-primary">{student.name}</h2>
+          <p className="text-sm text-body flex items-center">
+            <FaEnvelope className="mr-2 text-muted" /> {student.email}
           </p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm mb-2">
-        <p className="font-semibold text-gray-800 flex items-center">
+        <p className="font-semibold text-heading flex items-center">
           <FaIdCard className="mr-2 text-indigo-500" /> Roll No:{" "}
-          <span className="font-normal text-gray-700 ml-1">
+          <span className="font-normal text-body ml-1">
             {student.studentData?.rollNumber || "N/A"}
           </span>
         </p>
-        <p className="font-semibold text-gray-800 flex items-center">
+        <p className="font-semibold text-heading flex items-center">
           <FaBuilding className="mr-2 text-indigo-500" /> Dept:{" "}
-          <span className="font-normal text-gray-700 ml-1">
+          <span className="font-normal text-body ml-1">
             {student.studentData?.department || "N/A"}
           </span>
         </p>
-        <p className="font-semibold text-gray-800 flex items-center">
+        <p className="font-semibold text-heading flex items-center">
           <FaUsers className="mr-2 text-indigo-500" /> Batch:{" "}
-          <span className="font-normal text-gray-700 ml-1">
+          <span className="font-normal text-body ml-1">
             {student.studentData?.batch || "N/A"}
           </span>
         </p>
-        <p className="text-gray-700 flex items-center">
-          <FaUserCircle className="mr-2 text-gray-500" /> Reg. No.:{" "}
+        <p className="text-body flex items-center">
+          <FaUserCircle className="mr-2 text-muted" /> Reg. No.:{" "}
           {student.username || "N/A"}
         </p>
-        <p className="text-gray-700 flex items-center">
-          <FaPhone className="mr-2 text-gray-500" /> Phone:{" "}
+        <p className="text-body flex items-center">
+          <FaPhone className="mr-2 text-muted" /> Phone:{" "}
           {student.phone || "N/A"}
         </p>
       </div>
 
       {student.studentData?.currentTeam && (
-        <div className="mt-4 pt-3 border-t border-gray-200">
-          <p className="text-sm text-gray-700">
-            <strong className="text-gray-800">Current Team:</strong>{" "}
+        <div className="mt-4 pt-3 border-t border-edge">
+          <p className="text-sm text-body">
+            <strong className="text-heading">Current Team:</strong>{" "}
             {student.studentData.currentTeam.name ||
               student.studentData.currentTeam.code ||
               "N/A"}{" "}
@@ -303,11 +303,11 @@ export default function ManageStudents() {
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-base">
         <div className="w-full max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, idx) => (
-              <div key={idx} className="bg-white rounded-lg shadow p-6 animate-pulse">
+              <div key={idx} className="bg-surface rounded-lg shadow p-6 animate-pulse">
                 <div className="flex items-center mb-4">
                   <div className="h-12 w-12 bg-slate-200 rounded-full mr-4" />
                   <div className="flex-1">
@@ -341,12 +341,12 @@ export default function ManageStudents() {
 
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-      <div className="bg-white shadow-md rounded-lg p-6 mb-8">
+      <div className="bg-surface shadow-md rounded-lg p-6 mb-8">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">Manage Students</h1>
+          <h1 className="text-3xl font-bold text-heading">Manage Students</h1>
           <button
             onClick={() => handleOpenActionModal(null, "add")}
-            className="mt-4 sm:mt-0 bg-teal-600 hover:bg-teal-700 text-white font-semibold px-6 py-2 rounded-md shadow-sm flex items-center transition-colors"
+            className="mt-4 sm:mt-0 bg-primary hover:bg-primary-hover text-white font-semibold px-6 py-2 rounded-md shadow-sm flex items-center transition-colors"
           >
             <FaUserPlus className="mr-2" /> Add New Student
           </button>
@@ -355,16 +355,16 @@ export default function ManageStudents() {
           <input
             type="text"
             placeholder="Search students (name, email, roll no, dept, username)..."
-            className="w-full p-3 pl-10 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-shadow"
+            className="w-full p-3 pl-10 border border-edge rounded-md focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-shadow"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted" />
         </div>
       </div>
 
       {filteredStudents.length === 0 ? (
-        <p className="text-center text-gray-600 text-lg">
+        <p className="text-center text-body text-lg">
           No students found matching your criteria, or no students available.
         </p>
       ) : (
@@ -397,7 +397,7 @@ export default function ManageStudents() {
             <div>
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-body"
               >
                 Full Name
               </label>
@@ -408,13 +408,13 @@ export default function ManageStudents() {
                 value={studentForm.name}
                 onChange={handleFormChange}
                 required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-edge rounded-md shadow-sm focus:outline-none focus:ring-primary/50 focus:border-primary sm:text-sm"
               />
             </div>
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-body"
               >
                 Email
               </label>
@@ -425,13 +425,13 @@ export default function ManageStudents() {
                 value={studentForm.email}
                 onChange={handleFormChange}
                 required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-edge rounded-md shadow-sm focus:outline-none focus:ring-primary/50 focus:border-primary sm:text-sm"
               />
             </div>
             <div>
               <label
                 htmlFor="username"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-body"
               >
                 Username (Optional, auto-generated if empty)
               </label>
@@ -442,13 +442,13 @@ export default function ManageStudents() {
                 value={studentForm.username}
                 onChange={handleFormChange}
                 placeholder="e.g. first.last or b23xxxx"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-edge rounded-md shadow-sm focus:outline-none focus:ring-primary/50 focus:border-primary sm:text-sm"
               />
             </div>
             <div>
               <label
                 htmlFor="phone"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-body"
               >
                 Phone
               </label>
@@ -459,13 +459,13 @@ export default function ManageStudents() {
                 value={studentForm.phone}
                 onChange={handleFormChange}
                 required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-edge rounded-md shadow-sm focus:outline-none focus:ring-primary/50 focus:border-primary sm:text-sm"
               />
             </div>
             <div>
               <label
                 htmlFor="rollNumber"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-body"
               >
                 Roll Number
               </label>
@@ -476,13 +476,13 @@ export default function ManageStudents() {
                 value={studentForm.rollNumber}
                 onChange={handleFormChange}
                 required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-edge rounded-md shadow-sm focus:outline-none focus:ring-primary/50 focus:border-primary sm:text-sm"
               />
             </div>
             <div>
               <label
                 htmlFor="batch"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-body"
               >
                 Batch
               </label>
@@ -493,13 +493,13 @@ export default function ManageStudents() {
                 value={studentForm.batch}
                 onChange={handleFormChange}
                 required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-edge rounded-md shadow-sm focus:outline-none focus:ring-primary/50 focus:border-primary sm:text-sm"
               />
             </div>
             <div>
               <label
                 htmlFor="department"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-body"
               >
                 Department
               </label>
@@ -510,7 +510,7 @@ export default function ManageStudents() {
                 value={studentForm.department}
                 onChange={handleFormChange}
                 required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-edge rounded-md shadow-sm focus:outline-none focus:ring-primary/50 focus:border-primary sm:text-sm"
               />
             </div>
 
@@ -528,14 +528,14 @@ export default function ManageStudents() {
               <button
                 type="button"
                 onClick={handleCloseActionModal}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+                className="px-4 py-2 text-sm font-medium text-body bg-surface-alt hover:bg-gray-200 rounded-md"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={actionLoading}
-                className="px-4 py-2 text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 rounded-md disabled:opacity-50"
+                className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-hover rounded-md disabled:opacity-50"
               >
                 {actionLoading
                   ? "Saving..."
@@ -555,7 +555,7 @@ export default function ManageStudents() {
           onClose={handleCloseActionModal}
           title="Remove Student"
         >
-          <p className="text-gray-700 mb-4">
+          <p className="text-body mb-4">
             Are you sure you want to remove student{" "}
             <strong className="font-semibold">
               {selectedStudentForAction.name}
@@ -578,7 +578,7 @@ export default function ManageStudents() {
           <div className="flex justify-end space-x-3">
             <button
               onClick={handleCloseActionModal}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+              className="px-4 py-2 text-sm font-medium text-body bg-surface-alt hover:bg-gray-200 rounded-md"
             >
               Cancel
             </button>

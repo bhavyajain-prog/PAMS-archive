@@ -30,13 +30,13 @@ const Modal = ({ isOpen, onClose, title, children, size = "md" }) => {
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div
-        className={`bg-white rounded-xl shadow-2xl w-full ${sizeClasses[size]} max-h-[90vh] overflow-hidden border border-gray-100`}
+        className={`bg-surface rounded-xl shadow-2xl w-full ${sizeClasses[size]} max-h-[90vh] overflow-hidden border border-edge-subtle`}
       >
-        <div className="flex justify-between items-center px-8 py-6 border-b border-gray-200 bg-gray-50">
-          <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
+        <div className="flex justify-between items-center px-8 py-6 border-b border-edge bg-surface-alt">
+          <h2 className="text-2xl font-bold text-heading">{title}</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center text-xl font-bold transition-all duration-200"
+            className="text-muted hover:text-body hover:bg-surface-alt w-8 h-8 rounded-full flex items-center justify-center text-xl font-bold transition-all duration-200"
           >
             ×
           </button>
@@ -99,21 +99,21 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
     >
       <div className="space-y-8">
         {/* Team Status and Basic Info */}
-        <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl border border-gray-200 shadow-sm">
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl border border-edge shadow-sm">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-1">
-              <h4 className="font-bold text-gray-800 mb-4 text-lg border-b border-gray-200 pb-2">
+              <h4 className="font-bold text-heading mb-4 text-lg border-b border-edge pb-2">
                 Team Information
               </h4>
               <div className="space-y-3 text-sm">
-                <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-100">
-                  <strong className="text-gray-600">Code:</strong>
-                  <span className="font-semibold text-gray-800">
+                <div className="flex items-center justify-between bg-surface p-3 rounded-lg border border-edge-subtle">
+                  <strong className="text-body">Code:</strong>
+                  <span className="font-semibold text-heading">
                     {team.code}
                   </span>
                 </div>
-                <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-100">
-                  <strong className="text-gray-600">Status:</strong>
+                <div className="flex items-center justify-between bg-surface p-3 rounded-lg border border-edge-subtle">
+                  <strong className="text-body">Status:</strong>
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-bold ${team.status === "approved"
                       ? "bg-green-100 text-green-800 border border-green-200"
@@ -125,44 +125,44 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                     {team.status.toUpperCase()}
                   </span>
                 </div>
-                <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-100">
-                  <strong className="text-gray-600">Department:</strong>
-                  <span className="font-semibold text-gray-800">
+                <div className="flex items-center justify-between bg-surface p-3 rounded-lg border border-edge-subtle">
+                  <strong className="text-body">Department:</strong>
+                  <span className="font-semibold text-heading">
                     {team.department ||
                       leader?.studentData?.department ||
                       "N/A"}
                   </span>
                 </div>
-                <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-100">
-                  <strong className="text-gray-600">Batch:</strong>
-                  <span className="font-semibold text-gray-800">
+                <div className="flex items-center justify-between bg-surface p-3 rounded-lg border border-edge-subtle">
+                  <strong className="text-body">Batch:</strong>
+                  <span className="font-semibold text-heading">
                     {team.batch || leader?.studentData?.batch || "N/A"}
                   </span>
                 </div>
-                <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-100">
-                  <strong className="text-gray-600">Team Size:</strong>
-                  <span className="font-semibold text-gray-800">
+                <div className="flex items-center justify-between bg-surface p-3 rounded-lg border border-edge-subtle">
+                  <strong className="text-body">Team Size:</strong>
+                  <span className="font-semibold text-heading">
                     {(team.members?.length || 0) + 1} members
                   </span>
                 </div>
               </div>
             </div>
             <div className="space-y-1">
-              <h4 className="font-bold text-gray-800 mb-4 text-lg border-b border-gray-200 pb-2">
+              <h4 className="font-bold text-heading mb-4 text-lg border-b border-edge pb-2">
                 Project & Mentor Status
               </h4>
               <div className="space-y-3 text-sm">
-                <div className="bg-white p-3 rounded-lg border border-gray-100">
-                  <strong className="text-gray-600 block mb-1">
+                <div className="bg-surface p-3 rounded-lg border border-edge-subtle">
+                  <strong className="text-body block mb-1">
                     Final Project:
                   </strong>
-                  <span className="font-semibold text-gray-800">
+                  <span className="font-semibold text-heading">
                     {team.finalProject?.title || "Not allocated"}
                   </span>
                 </div>
-                <div className="bg-white p-3 rounded-lg border border-gray-100">
-                  <strong className="text-gray-600 block mb-1">Mentor:</strong>
-                  <span className="font-semibold text-gray-800">
+                <div className="bg-surface p-3 rounded-lg border border-edge-subtle">
+                  <strong className="text-body block mb-1">Mentor:</strong>
+                  <span className="font-semibold text-heading">
                     {team.mentor?.assigned?.name ||
                       (team.mentor?.currentPreference === -1
                         ? "Needs allocation"
@@ -177,19 +177,19 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
         {/* Quick Evaluation Summary */}
         {team.evaluation?.weeklyStatus &&
           team.evaluation.weeklyStatus.length > 0 && (
-            <div className="bg-gradient-to-br from-teal-50 to-teal-100 p-4 rounded-xl border border-teal-200 shadow-sm">
-              <h4 className="font-bold text-teal-800 mb-3 text-md flex items-center">
+            <div className="bg-primary-subtle p-4 rounded-xl border border-primary/20 shadow-sm">
+              <h4 className="font-bold text-heading mb-3 text-md flex items-center">
                 <FaCheckCircle className="mr-2" />
                 Weekly Evaluation Summary
               </h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                <div className="bg-white bg-opacity-60 p-3 rounded-lg">
-                  <div className="text-lg font-bold text-teal-700">
+                <div className="bg-surface bg-opacity-60 p-3 rounded-lg">
+                  <div className="text-lg font-bold text-primary">
                     {team.evaluation.weeklyStatus.length}
                   </div>
-                  <div className="text-xs text-teal-600">Submissions</div>
+                  <div className="text-xs text-primary">Submissions</div>
                 </div>
-                <div className="bg-white bg-opacity-60 p-3 rounded-lg">
+                <div className="bg-surface bg-opacity-60 p-3 rounded-lg">
                   <div className="text-lg font-bold text-green-700">
                     {
                       team.evaluation.weeklyStatus.filter(
@@ -199,7 +199,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                   </div>
                   <div className="text-xs text-green-600">Reviewed</div>
                 </div>
-                <div className="bg-white bg-opacity-60 p-3 rounded-lg">
+                <div className="bg-surface bg-opacity-60 p-3 rounded-lg">
                   <div className="text-lg font-bold text-blue-700">
                     {team.evaluation.weeklyStatus.filter(
                       (s) =>
@@ -223,7 +223,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                   </div>
                   <div className="text-xs text-blue-600">Avg Score</div>
                 </div>
-                <div className="bg-white bg-opacity-60 p-3 rounded-lg">
+                <div className="bg-surface bg-opacity-60 p-3 rounded-lg">
                   <div className="text-lg font-bold text-orange-700">
                     {
                       team.evaluation.weeklyStatus.filter(
@@ -239,24 +239,24 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
 
         {/* Team Leader */}
         <div>
-          <h4 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-            <FaUsers className="mr-2 text-teal-600" />
+          <h4 className="text-lg font-semibold text-heading mb-3 flex items-center">
+            <FaUsers className="mr-2 text-primary" />
             Team Leader
           </h4>
-          <div className="bg-teal-50 p-4 rounded-lg border border-teal-200">
+          <div className="bg-primary-subtle p-4 rounded-lg border border-primary/20">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <p className="text-sm text-gray-600">Name</p>
+                <p className="text-sm text-body">Name</p>
                 <p className="font-medium">{leader?.name || "N/A"}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Roll Number</p>
+                <p className="text-sm text-body">Roll Number</p>
                 <p className="font-medium">
                   {leader?.studentData?.rollNumber || leader?.username || "N/A"}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Email</p>
+                <p className="text-sm text-body">Email</p>
                 <p className="font-medium">{leader?.email || "N/A"}</p>
               </div>
             </div>
@@ -265,8 +265,8 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
 
         {/* Team Members */}
         <div>
-          <h4 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-            <FaUsers className="mr-2 text-teal-600" />
+          <h4 className="text-lg font-semibold text-heading mb-3 flex items-center">
+            <FaUsers className="mr-2 text-primary" />
             Team Members (
             {team.members?.filter((m) => m.student?._id !== leader?._id)
               .length || 0}
@@ -280,17 +280,17 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                 .map((member, index) => (
                   <div
                     key={member.student?._id || index}
-                    className="bg-gray-50 p-4 rounded-lg border"
+                    className="bg-surface-alt p-4 rounded-lg border"
                   >
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <p className="text-sm text-gray-600">Name</p>
+                        <p className="text-sm text-body">Name</p>
                         <p className="font-medium">
                           {member.student?.name || "N/A"}
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Roll Number</p>
+                        <p className="text-sm text-body">Roll Number</p>
                         <p className="font-medium">
                           {member.student?.studentData?.rollNumber ||
                             member.student?.username ||
@@ -298,7 +298,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Email</p>
+                        <p className="text-sm text-body">Email</p>
                         <p className="font-medium">
                           {member.student?.email || "N/A"}
                         </p>
@@ -308,7 +308,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                 ))}
             </div>
           ) : (
-            <div className="bg-gray-50 p-4 rounded-lg border text-center text-gray-500">
+            <div className="bg-surface-alt p-4 rounded-lg border text-center text-muted">
               No other members in this team
             </div>
           )}
@@ -316,8 +316,8 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
 
         {/* Project Information */}
         <div>
-          <h4 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-            <FaProjectDiagram className="mr-2 text-teal-600" />
+          <h4 className="text-lg font-semibold text-heading mb-3 flex items-center">
+            <FaProjectDiagram className="mr-2 text-primary" />
             Project Information
           </h4>
           {team.finalProject ? (
@@ -339,7 +339,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
             </div>
           ) : (
             <div>
-              <h5 className="font-medium text-gray-700 mb-3">
+              <h5 className="font-medium text-body mb-3">
                 Project Choices
               </h5>
               {team.projectChoices?.length > 0 ? (
@@ -347,17 +347,17 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                   {team.projectChoices.map((project, index) => (
                     <div
                       key={project._id || index}
-                      className="bg-gray-50 p-4 rounded-lg border"
+                      className="bg-surface-alt p-4 rounded-lg border"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <p className="font-semibold text-teal-700">
+                          <p className="font-semibold text-primary">
                             Choice {index + 1}: {project.title}
                           </p>
-                          <p className="text-sm text-gray-600 mt-1">
+                          <p className="text-sm text-body mt-1">
                             <strong>Category:</strong> {project.category}
                           </p>
-                          <p className="text-sm text-gray-700 mt-2">
+                          <p className="text-sm text-body mt-2">
                             {project.description}
                           </p>
                         </div>
@@ -366,7 +366,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                   ))}
                 </div>
               ) : (
-                <div className="bg-gray-50 p-4 rounded-lg border text-center text-gray-500">
+                <div className="bg-surface-alt p-4 rounded-lg border text-center text-muted">
                   No project choices specified
                 </div>
               )}
@@ -376,8 +376,8 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
 
         {/* Mentor Information */}
         <div>
-          <h4 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-            <FaChalkboardTeacher className="mr-2 text-teal-600" />
+          <h4 className="text-lg font-semibold text-heading mb-3 flex items-center">
+            <FaChalkboardTeacher className="mr-2 text-primary" />
             Mentor Information
           </h4>
           {team.mentor?.assigned ? (
@@ -398,7 +398,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
             </div>
           ) : (
             <div>
-              <h5 className="font-medium text-gray-700 mb-3">
+              <h5 className="font-medium text-body mb-3">
                 Mentor Preferences
               </h5>
               {team.mentor?.preferences?.length > 0 ? (
@@ -406,7 +406,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                   {team.mentor.preferences.map((mentor, index) => (
                     <div
                       key={mentor._id || index}
-                      className="bg-gray-50 p-3 rounded-lg border"
+                      className="bg-surface-alt p-3 rounded-lg border"
                     >
                       <div className="flex items-center justify-between">
                         <span className="font-medium">
@@ -418,7 +418,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                   ))}
                 </div>
               ) : (
-                <div className="bg-gray-50 p-4 rounded-lg border text-center text-gray-500">
+                <div className="bg-surface-alt p-4 rounded-lg border text-center text-muted">
                   No mentor preferences specified
                 </div>
               )}
@@ -429,8 +429,8 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
         {/* Weekly Status Evaluation */}
         {team.evaluation && (
           <div>
-            <h4 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-              <FaCheckCircle className="mr-2 text-teal-600" />
+            <h4 className="text-lg font-semibold text-heading mb-3 flex items-center">
+              <FaCheckCircle className="mr-2 text-primary" />
               Weekly Status & Evaluation
             </h4>
 
@@ -443,7 +443,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                     <div className="flex items-center gap-2">
                       <FaCalendarAlt className="text-blue-600" />
                       <div>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-body">
                           Total Submissions
                         </p>
                         <p className="font-bold text-blue-700 text-lg">
@@ -457,7 +457,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                     <div className="flex items-center gap-2">
                       <FaStar className="text-green-600" />
                       <div>
-                        <p className="text-sm text-gray-600">Avg Score</p>
+                        <p className="text-sm text-body">Avg Score</p>
                         <p className="font-bold text-green-700 text-lg">
                           {team.evaluation.weeklyStatus.filter(
                             (s) =>
@@ -488,7 +488,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                     <div className="flex items-center gap-2">
                       <FaComment className="text-purple-600" />
                       <div>
-                        <p className="text-sm text-gray-600">Reviewed</p>
+                        <p className="text-sm text-body">Reviewed</p>
                         <p className="font-bold text-purple-700 text-lg">
                           {
                             team.evaluation.weeklyStatus.filter(
@@ -504,7 +504,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                     <div className="flex items-center gap-2">
                       <FaClock className="text-orange-600" />
                       <div>
-                        <p className="text-sm text-gray-600">Pending</p>
+                        <p className="text-sm text-body">Pending</p>
                         <p className="font-bold text-orange-700 text-lg">
                           {
                             team.evaluation.weeklyStatus.filter(
@@ -524,20 +524,20 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                     .map((submission, index) => (
                       <div
                         key={submission._id || index}
-                        className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+                        className="bg-surface border border-edge rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
                       >
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center">
-                              <span className="font-bold text-teal-700 text-sm">
+                            <div className="w-8 h-8 bg-primary-subtle rounded-full flex items-center justify-center">
+                              <span className="font-bold text-primary text-sm">
                                 W{submission.week}
                               </span>
                             </div>
                             <div>
-                              <h5 className="font-semibold text-gray-800">
+                              <h5 className="font-semibold text-heading">
                                 Week {submission.week} - {submission.module}
                               </h5>
-                              <p className="text-sm text-gray-600">
+                              <p className="text-sm text-body">
                                 {new Date(
                                   submission.dateRange.from
                                 ).toLocaleDateString()}{" "}
@@ -556,7 +556,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                                 ? "bg-green-100 text-green-800 border border-green-200"
                                 : submission.status === "submitted"
                                   ? "bg-yellow-100 text-yellow-800 border border-yellow-200"
-                                  : "bg-gray-100 text-gray-800 border border-gray-200"
+                                  : "bg-surface-alt text-heading border border-edge"
                                 }`}
                             >
                               {submission.status === "mentor_reviewed"
@@ -583,7 +583,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                                 onClick={() =>
                                   handleDownloadFile(team._id, submission.week)
                                 }
-                                className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded text-sm font-medium text-gray-700 transition-colors"
+                                className="flex items-center gap-1 bg-surface-alt hover:bg-gray-200 px-3 py-1 rounded text-sm font-medium text-body transition-colors"
                                 title={`Download ${submission.projectFile.filename}`}
                               >
                                 <FaDownload className="text-xs" />
@@ -596,10 +596,10 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                         {/* Progress & Achievements */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                           <div>
-                            <h6 className="font-medium text-gray-700 text-sm mb-1">
+                            <h6 className="font-medium text-body text-sm mb-1">
                               Progress:
                             </h6>
-                            <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                            <p className="text-sm text-body bg-surface-alt p-2 rounded">
                               {submission.progress}
                             </p>
                           </div>
@@ -607,7 +607,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                           {submission.achievements &&
                             submission.achievements.length > 0 && (
                               <div>
-                                <h6 className="font-medium text-gray-700 text-sm mb-1">
+                                <h6 className="font-medium text-body text-sm mb-1">
                                   Achievements:
                                 </h6>
                                 <div className="space-y-1">
@@ -616,13 +616,13 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                                     .map((achievement, i) => (
                                       <p
                                         key={i}
-                                        className="text-sm text-gray-600 bg-green-50 p-2 rounded"
+                                        className="text-sm text-body bg-green-50 p-2 rounded"
                                       >
                                         • {achievement}
                                       </p>
                                     ))}
                                   {submission.achievements.length > 2 && (
-                                    <p className="text-xs text-gray-500 italic">
+                                    <p className="text-xs text-muted italic">
                                       +{submission.achievements.length - 2} more
                                       achievements
                                     </p>
@@ -636,7 +636,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                         {submission.challenges &&
                           submission.challenges.length > 0 && (
                             <div className="mb-3">
-                              <h6 className="font-medium text-gray-700 text-sm mb-1">
+                              <h6 className="font-medium text-body text-sm mb-1">
                                 Challenges:
                               </h6>
                               <div className="space-y-1">
@@ -645,13 +645,13 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                                   .map((challenge, i) => (
                                     <p
                                       key={i}
-                                      className="text-sm text-gray-600 bg-red-50 p-2 rounded"
+                                      className="text-sm text-body bg-red-50 p-2 rounded"
                                     >
                                       • {challenge}
                                     </p>
                                   ))}
                                 {submission.challenges.length > 2 && (
-                                  <p className="text-xs text-gray-500 italic">
+                                  <p className="text-xs text-muted italic">
                                     +{submission.challenges.length - 2} more
                                     challenges
                                   </p>
@@ -663,7 +663,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                         {/* File Info */}
                         {submission.projectFile && (
                           <div className="mb-3">
-                            <h6 className="font-medium text-gray-700 text-sm mb-1">
+                            <h6 className="font-medium text-body text-sm mb-1">
                               Project File:
                             </h6>
                             <div className="flex items-center gap-2 bg-blue-50 p-2 rounded">
@@ -671,7 +671,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                               <span className="text-sm font-medium text-blue-700">
                                 {submission.projectFile.filename}
                               </span>
-                              <span className="text-xs text-gray-500">
+                              <span className="text-xs text-muted">
                                 (
                                 {(
                                   submission.projectFile.size /
@@ -686,10 +686,10 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                         {/* Mentor Comments */}
                         {submission.mentorComments && (
                           <div className="mb-3">
-                            <h6 className="font-medium text-gray-700 text-sm mb-1">
+                            <h6 className="font-medium text-body text-sm mb-1">
                               Mentor Comments:
                             </h6>
-                            <p className="text-sm text-gray-600 bg-yellow-50 p-2 rounded border border-yellow-200">
+                            <p className="text-sm text-body bg-yellow-50 p-2 rounded border border-yellow-200">
                               {submission.mentorComments}
                             </p>
                           </div>
@@ -698,17 +698,17 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                         {/* Student Remarks */}
                         {submission.studentRemarks && (
                           <div className="mb-3">
-                            <h6 className="font-medium text-gray-700 text-sm mb-1">
+                            <h6 className="font-medium text-body text-sm mb-1">
                               Student Remarks:
                             </h6>
-                            <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                            <p className="text-sm text-body bg-surface-alt p-2 rounded">
                               {submission.studentRemarks}
                             </p>
                           </div>
                         )}
 
                         {/* Timestamps */}
-                        <div className="flex items-center justify-between text-xs text-gray-500 border-t pt-2">
+                        <div className="flex items-center justify-between text-xs text-muted border-t pt-2">
                           <span>
                             Submitted:{" "}
                             {new Date(submission.submittedAt).toLocaleString()}
@@ -727,12 +727,12 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                 </div>
               </div>
             ) : (
-              <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 text-center">
-                <FaCalendarAlt className="mx-auto text-gray-400 text-2xl mb-2" />
-                <p className="text-gray-500 font-medium">
+              <div className="bg-surface-alt p-6 rounded-lg border border-edge text-center">
+                <FaCalendarAlt className="mx-auto text-muted text-2xl mb-2" />
+                <p className="text-muted font-medium">
                   No weekly submissions yet
                 </p>
-                <p className="text-sm text-gray-400 mt-1">
+                <p className="text-sm text-muted mt-1">
                   Weekly status submissions will appear here once students start
                   submitting
                 </p>
@@ -744,7 +744,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
         {/* Project Abstract */}
         {team.projectAbstract && (
           <div>
-            <h4 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+            <h4 className="text-lg font-semibold text-heading mb-3 flex items-center">
               <FaProjectDiagram className="mr-2 text-purple-600" />
               Project Abstract
               {team.projectAbstract.status && (
@@ -786,23 +786,23 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                       {team.projectAbstract.tools.map((tool, index) => (
                         <div
                           key={index}
-                          className="bg-white p-3 rounded-lg border border-blue-100"
+                          className="bg-surface p-3 rounded-lg border border-blue-100"
                         >
-                          <div className="font-medium text-gray-800">
+                          <div className="font-medium text-heading">
                             {tool.name}
                           </div>
                           {tool.version && (
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-body">
                               Version: {tool.version}
                             </div>
                           )}
                           {tool.type && (
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-body">
                               Type: {tool.type}
                             </div>
                           )}
                           {tool.purpose && (
-                            <div className="text-sm text-gray-500 mt-1">
+                            <div className="text-sm text-muted mt-1">
                               {tool.purpose}
                             </div>
                           )}
@@ -823,13 +823,13 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                       {team.projectAbstract.modules.map((module, index) => (
                         <div
                           key={index}
-                          className="bg-white p-3 rounded-lg border border-green-100"
+                          className="bg-surface p-3 rounded-lg border border-green-100"
                         >
-                          <div className="font-medium text-gray-800">
+                          <div className="font-medium text-heading">
                             {module.name}
                           </div>
                           {module.functionality && (
-                            <div className="text-sm text-gray-600 mt-1">
+                            <div className="text-sm text-body mt-1">
                               {module.functionality}
                             </div>
                           )}
@@ -841,8 +841,8 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
 
               {/* Submission Info */}
               {team.projectAbstract.submittedAt && (
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <div className="flex items-center justify-between text-sm text-gray-600">
+                <div className="bg-surface-alt p-4 rounded-lg border border-edge">
+                  <div className="flex items-center justify-between text-sm text-body">
                     <span>
                       Submitted:{" "}
                       {new Date(
@@ -871,7 +871,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
         {/* Role Specification */}
         {team.roleSpecification && (
           <div>
-            <h4 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+            <h4 className="text-lg font-semibold text-heading mb-3 flex items-center">
               <FaUsers className="mr-2 text-orange-600" />
               Role Specification
               {team.roleSpecification.status && (
@@ -932,25 +932,25 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                     {assignment.activities &&
                       assignment.activities.length > 0 && (
                         <div className="space-y-2">
-                          <h6 className="font-medium text-gray-700 text-sm">
+                          <h6 className="font-medium text-body text-sm">
                             Activities:
                           </h6>
                           {assignment.activities.map((activity, actIndex) => (
                             <div
                               key={actIndex}
-                              className="bg-white p-3 rounded-lg border border-orange-100"
+                              className="bg-surface p-3 rounded-lg border border-orange-100"
                             >
                               <div className="flex items-start justify-between">
                                 <div className="flex-1">
-                                  <div className="font-medium text-gray-800">
+                                  <div className="font-medium text-heading">
                                     {activity.name}
                                   </div>
                                   {activity.details && (
-                                    <div className="text-sm text-gray-600 mt-1">
+                                    <div className="text-sm text-body mt-1">
                                       {activity.details}
                                     </div>
                                   )}
-                                  <div className="flex gap-4 mt-2 text-xs text-gray-500">
+                                  <div className="flex gap-4 mt-2 text-xs text-muted">
                                     {activity.softDeadline && (
                                       <span>
                                         Soft:{" "}
@@ -979,8 +979,8 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
 
                 {/* Submission Info */}
                 {team.roleSpecification.submittedAt && (
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <div className="flex items-center justify-between text-sm text-gray-600">
+                  <div className="bg-surface-alt p-4 rounded-lg border border-edge">
+                    <div className="flex items-center justify-between text-sm text-body">
                       <span>
                         Submitted:{" "}
                         {new Date(
@@ -1004,7 +1004,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                 )}
               </div>
             ) : (
-              <div className="bg-gray-50 p-4 rounded-lg border text-center text-gray-500">
+              <div className="bg-surface-alt p-4 rounded-lg border text-center text-muted">
                 No role assignments specified
               </div>
             )}
@@ -1015,13 +1015,13 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
         {team.evaluation?.weeklyStatus &&
           team.evaluation.weeklyStatus.length > 0 && (
             <div>
-              <h4 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+              <h4 className="text-lg font-semibold text-heading mb-3 flex items-center">
                 <FaCheckCircle className="mr-2 text-indigo-600" />
                 Weekly Status Matrix
               </h4>
               <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
                 <div className="overflow-x-auto">
-                  <table className="w-full bg-white rounded-lg border border-indigo-200">
+                  <table className="w-full bg-surface rounded-lg border border-indigo-200">
                     <thead className="bg-indigo-100">
                       <tr>
                         <th className="px-4 py-3 text-left text-sm font-semibold text-indigo-800 border-b border-indigo-200">
@@ -1049,13 +1049,13 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                         <tr
                           key={index}
                           className={
-                            index % 2 === 0 ? "bg-white" : "bg-indigo-25"
+                            index % 2 === 0 ? "bg-surface" : "bg-indigo-25"
                           }
                         >
-                          <td className="px-4 py-3 text-sm text-gray-800 border-b border-gray-200">
+                          <td className="px-4 py-3 text-sm text-heading border-b border-edge">
                             Week {week.week}
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-600 border-b border-gray-200">
+                          <td className="px-4 py-3 text-sm text-body border-b border-edge">
                             {week.dateRange?.from && week.dateRange?.to && (
                               <>
                                 {new Date(
@@ -1068,10 +1068,10 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                               </>
                             )}
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-800 border-b border-gray-200">
+                          <td className="px-4 py-3 text-sm text-heading border-b border-edge">
                             {week.module}
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-600 border-b border-gray-200">
+                          <td className="px-4 py-3 text-sm text-body border-b border-edge">
                             <div
                               className="max-w-xs truncate"
                               title={week.progress}
@@ -1079,7 +1079,7 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                               {week.progress}
                             </div>
                           </td>
-                          <td className="px-4 py-3 text-sm border-b border-gray-200">
+                          <td className="px-4 py-3 text-sm border-b border-edge">
                             {week.mentorScore !== undefined ? (
                               <span
                                 className={`px-2 py-1 rounded text-xs font-medium ${week.mentorScore >= 8
@@ -1092,12 +1092,12 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                                 {week.mentorScore}/10
                               </span>
                             ) : (
-                              <span className="text-gray-400 text-xs">
+                              <span className="text-muted text-xs">
                                 Not scored
                               </span>
                             )}
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-600 border-b border-gray-200">
+                          <td className="px-4 py-3 text-sm text-body border-b border-edge">
                             {week.submittedAt &&
                               new Date(week.submittedAt).toLocaleDateString()}
                           </td>
@@ -1109,14 +1109,14 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
 
                 {/* Weekly Status Summary */}
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-white p-3 rounded-lg border border-indigo-200">
-                    <div className="text-sm text-gray-600">Total Weeks</div>
+                  <div className="bg-surface p-3 rounded-lg border border-indigo-200">
+                    <div className="text-sm text-body">Total Weeks</div>
                     <div className="font-semibold text-indigo-700">
                       {team.evaluation.weeklyStatus.length}
                     </div>
                   </div>
-                  <div className="bg-white p-3 rounded-lg border border-indigo-200">
-                    <div className="text-sm text-gray-600">Average Score</div>
+                  <div className="bg-surface p-3 rounded-lg border border-indigo-200">
+                    <div className="text-sm text-body">Average Score</div>
                     <div className="font-semibold text-indigo-700">
                       {team.evaluation.weeklyStatus.length > 0
                         ? (
@@ -1130,8 +1130,8 @@ const TeamDetailsModal = ({ isOpen, onClose, team, onOpenActionModal }) => {
                         : "N/A"}
                     </div>
                   </div>
-                  <div className="bg-white p-3 rounded-lg border border-indigo-200">
-                    <div className="text-sm text-gray-600">
+                  <div className="bg-surface p-3 rounded-lg border border-indigo-200">
+                    <div className="text-sm text-body">
                       Latest Submission
                     </div>
                     <div className="font-semibold text-indigo-700">
@@ -1196,20 +1196,20 @@ const TeamCard = ({ team, onOpenDetailsModal, onOpenActionModal }) => {
   const teamSize = (team.members?.length || 0) + 1; // +1 for leader
 
   return (
-    <div className="bg-white shadow-lg rounded-xl p-6 transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 border border-gray-100 group">
+    <div className="bg-surface shadow-lg rounded-xl p-6 transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 border border-edge-subtle group">
       {/* Header with Team Code and Status */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         {/* Left: Team Code and Leader Info */}
         <div className="flex-1 min-w-0">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2 group-hover:text-teal-700 transition-colors truncate">
+          <h2 className="text-2xl font-bold text-heading mb-2 group-hover:text-primary transition-colors truncate">
             {team.code}
           </h2>
-          <div className="bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
-            <p className="text-sm text-gray-700 font-medium truncate">
-              <span className="text-teal-600 font-semibold">Leader:</span>{" "}
+          <div className="bg-surface-alt px-3 py-2 rounded-lg border border-edge">
+            <p className="text-sm text-body font-medium truncate">
+              <span className="text-primary font-semibold">Leader:</span>{" "}
               {leader?.name || "N/A"}
             </p>
-            <p className="text-xs text-gray-500 truncate">
+            <p className="text-xs text-muted truncate">
               Roll:{" "}
               {leader?.studentData?.rollNumber || leader?.username || "N/A"}
             </p>
@@ -1230,14 +1230,14 @@ const TeamCard = ({ team, onOpenDetailsModal, onOpenActionModal }) => {
 
       {/* Team Information Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-        <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-lg border border-gray-200">
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-lg border border-edge">
           <div className="space-y-3 text-sm">
             <div className="flex items-center justify-between">
-              <strong className="text-gray-600">
+              <strong className="text-body">
                 <pre>Dept: </pre>
               </strong>
               <span
-                className="font-semibold text-gray-800 text-right truncate max-w-[140px]"
+                className="font-semibold text-heading text-right truncate max-w-[140px]"
                 title={
                   team.department || leader?.studentData?.department || "N/A"
                 }
@@ -1246,9 +1246,9 @@ const TeamCard = ({ team, onOpenDetailsModal, onOpenActionModal }) => {
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <strong className="text-gray-600">Batch:</strong>
+              <strong className="text-body">Batch:</strong>
               <span
-                className="font-semibold text-gray-800 text-right truncate max-w-[140px]"
+                className="font-semibold text-heading text-right truncate max-w-[140px]"
                 title={team.batch || leader?.studentData?.batch || "N/A"}
               >
                 {team.batch || leader?.studentData?.batch || "N/A"}
@@ -1257,22 +1257,22 @@ const TeamCard = ({ team, onOpenDetailsModal, onOpenActionModal }) => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-teal-50 to-cyan-50 p-4 rounded-lg border border-teal-200">
+        <div className="bg-gradient-to-br from-primary-subtle to-cyan-50 p-4 rounded-lg border border-primary/20">
           <div className="space-y-3 text-sm">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <FaUsers className="mr-2 text-teal-600" />
-                <strong className="text-gray-600">Team Size:</strong>
+                <FaUsers className="mr-2 text-primary" />
+                <strong className="text-body">Team Size:</strong>
               </div>
-              <span className="font-bold text-teal-700">{teamSize}</span>
+              <span className="font-bold text-primary">{teamSize}</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <FaProjectDiagram className="mr-2 text-teal-600" />
-                <strong className="text-gray-600">Project:</strong>
+                <FaProjectDiagram className="mr-2 text-primary" />
+                <strong className="text-body">Project:</strong>
               </div>
               <span
-                className="font-semibold text-gray-800 text-xs text-right max-w-[140px] truncate"
+                className="font-semibold text-heading text-xs text-right max-w-[140px] truncate"
                 title={
                   team.finalProject?.title ||
                   (team.projectChoices?.length > 0
@@ -1296,10 +1296,10 @@ const TeamCard = ({ team, onOpenDetailsModal, onOpenActionModal }) => {
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <FaChalkboardTeacher className="mr-3 text-blue-600" />
-              <strong className="text-gray-700">Mentor Status:</strong>
+              <strong className="text-body">Mentor Status:</strong>
             </div>
             <div className="text-right">
-              <span className="font-semibold text-gray-800 block">
+              <span className="font-semibold text-heading block">
                 {team.mentor?.assigned?.name ||
                   (team.mentor?.preferences?.length > 0
                     ? `${team.mentor.preferences.length} preferences`
@@ -1327,7 +1327,7 @@ const TeamCard = ({ team, onOpenDetailsModal, onOpenActionModal }) => {
       <div className="flex flex-wrap gap-3">
         <button
           onClick={() => onOpenDetailsModal(team)}
-          className="flex-1 min-w-fit bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-md font-medium transition-colors flex items-center justify-center"
+          className="flex-1 min-w-fit bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-md font-medium transition-colors flex items-center justify-center"
         >
           <FaInfoCircle className="mr-2" />
           View Details
@@ -1446,13 +1446,13 @@ const ActionModal = ({
         {action === "approveReject" ? (
           <>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-body mb-2">
                 Action
               </label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full px-3 py-2 border border-edge rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
                 required
               >
                 <option value="">Select action</option>
@@ -1461,13 +1461,13 @@ const ActionModal = ({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-body mb-2">
                 Feedback
               </label>
               <textarea
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full px-3 py-2 border border-edge rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
                 rows="3"
                 placeholder="Provide feedback for the team..."
                 required
@@ -1477,13 +1477,13 @@ const ActionModal = ({
         ) : (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-body mb-2">
                 Select Mentor
               </label>
               <select
                 value={selectedMentor}
                 onChange={(e) => setSelectedMentor(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full px-3 py-2 border border-edge rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
                 required
               >
                 <option value="">Select a mentor</option>
@@ -1498,14 +1498,14 @@ const ActionModal = ({
             {/* Final Project selection if not already allocated */}
             {!team?.finalProject && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-body mb-2">
                   Select Final Project (from team choices)
                 </label>
                 {team?.projectChoices?.length > 0 ? (
                   <select
                     value={selectedProject}
                     onChange={(e) => setSelectedProject(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full px-3 py-2 border border-edge rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
                     required
                   >
                     <option value="">Choose project</option>
@@ -1530,14 +1530,14 @@ const ActionModal = ({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
+            className="px-4 py-2 text-sm font-medium text-body bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 rounded-md transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-hover rounded-md transition-colors disabled:opacity-50"
           >
             {loading ? "Processing..." : "Submit"}
           </button>
@@ -1642,7 +1642,7 @@ export default function ManageTeams() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
         <div className="max-w-7xl mx-auto space-y-8">
           {/* Header skeleton */}
-          <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
+          <div className="bg-surface rounded-xl shadow-lg p-8 border border-edge">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
               <div className="flex items-center mb-4 sm:mb-0">
                 <div className="h-12 w-12 bg-slate-200 rounded mr-4 animate-pulse" />
@@ -1660,16 +1660,16 @@ export default function ManageTeams() {
 
           {/* Stats skeleton */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white p-4 rounded-lg border animate-pulse h-20" />
-            <div className="bg-white p-4 rounded-lg border animate-pulse h-20" />
-            <div className="bg-white p-4 rounded-lg border animate-pulse h-20" />
+            <div className="bg-surface p-4 rounded-lg border animate-pulse h-20" />
+            <div className="bg-surface p-4 rounded-lg border animate-pulse h-20" />
+            <div className="bg-surface p-4 rounded-lg border animate-pulse h-20" />
           </div>
 
           {/* Teams grid skeleton */}
           <div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {Array.from({ length: 6 }).map((_, idx) => (
-                <div key={idx} className="bg-white rounded-lg shadow p-6 animate-pulse">
+                <div key={idx} className="bg-surface rounded-lg shadow p-6 animate-pulse">
                   <div className="flex items-center mb-4">
                     <div className="h-12 w-12 bg-slate-200 rounded-full mr-4" />
                     <div className="flex-1">
@@ -1701,30 +1701,30 @@ export default function ManageTeams() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
+        <div className="bg-surface rounded-xl shadow-lg p-8 border border-edge">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
             <div className="flex items-center mb-4 sm:mb-0">
-              <div className="bg-teal-600 p-3 rounded-lg mr-4">
+              <div className="bg-primary p-3 rounded-lg mr-4">
                 <FaUsers className="text-white text-2xl" />
               </div>
               <div>
-                <h1 className="text-4xl font-bold text-gray-800 mb-1">
+                <h1 className="text-4xl font-bold text-heading mb-1">
                   Manage Teams
                 </h1>
-                <p className="text-gray-600">
+                <p className="text-body">
                   Oversee team formations, approvals, and mentor allocations
                 </p>
               </div>
             </div>
-            <div className="bg-teal-50 px-6 py-3 rounded-lg border border-teal-200">
-              <p className="text-sm text-gray-600 mb-1">Total Teams</p>
-              <p className="text-2xl font-bold text-teal-700">{teams.length}</p>
+            <div className="bg-primary-subtle px-6 py-3 rounded-lg border border-primary/20">
+              <p className="text-sm text-body mb-1">Total Teams</p>
+              <p className="text-2xl font-bold text-primary">{teams.length}</p>
             </div>
           </div>
         </div>
 
         {/* Search and Filter Controls */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200">
+        <div className="bg-surface rounded-xl shadow-lg border border-edge">
           <div className="p-6">
             <div className="flex flex-col lg:flex-row gap-4">
               {/* Search */}
@@ -1735,9 +1735,9 @@ export default function ManageTeams() {
                     placeholder="Search teams, leaders, roll numbers..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent shadow-sm bg-gray-50 focus:bg-white transition-all"
+                    className="w-full pl-12 pr-4 py-3 border border-edge rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent shadow-sm bg-surface-alt focus:bg-surface transition-all"
                   />
-                  <FaUsers className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <FaUsers className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted" />
                 </div>
               </div>
 
@@ -1745,8 +1745,8 @@ export default function ManageTeams() {
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className={`px-6 py-3 rounded-md font-medium transition-colors flex items-center ${showFilters
-                  ? "bg-teal-700 text-white"
-                  : "bg-teal-600 hover:bg-teal-700 text-white"
+                  ? "bg-primary-hover text-white"
+                  : "bg-primary hover:bg-primary-hover text-white"
                   }`}
               >
                 <FaFilter className="mr-2" />
@@ -1756,16 +1756,16 @@ export default function ManageTeams() {
 
             {/* Filter Options */}
             {showFilters && (
-              <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="mt-6 pt-6 border-t border-edge">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    <label className="block text-sm font-semibold text-body mb-3">
                       Status Filter
                     </label>
                     <select
                       value={statusFilter}
                       onChange={(e) => setStatusFilter(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent shadow-sm bg-gray-50 focus:bg-white transition-all"
+                      className="w-full px-4 py-3 border border-edge rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent shadow-sm bg-surface-alt focus:bg-surface transition-all"
                     >
                       <option value="all">All Status</option>
                       <option value="pending">Pending</option>
@@ -1775,13 +1775,13 @@ export default function ManageTeams() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    <label className="block text-sm font-semibold text-body mb-3">
                       Mentor Status
                     </label>
                     <select
                       value={mentorFilter}
                       onChange={(e) => setMentorFilter(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent shadow-sm bg-gray-50 focus:bg-white transition-all"
+                      className="w-full px-4 py-3 border border-edge rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent shadow-sm bg-surface-alt focus:bg-surface transition-all"
                     >
                       <option value="all">All Mentors</option>
                       <option value="assigned">Assigned</option>
@@ -1791,13 +1791,13 @@ export default function ManageTeams() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    <label className="block text-sm font-semibold text-body mb-3">
                       Project Status
                     </label>
                     <select
                       value={projectFilter}
                       onChange={(e) => setProjectFilter(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent shadow-sm bg-gray-50 focus:bg-white transition-all"
+                      className="w-full px-4 py-3 border border-edge rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent shadow-sm bg-surface-alt focus:bg-surface transition-all"
                     >
                       <option value="all">All Projects</option>
                       <option value="allocated">Allocated</option>
@@ -1809,11 +1809,11 @@ export default function ManageTeams() {
             )}
 
             {/* Results Summary */}
-            <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="mt-6 pt-6 border-t border-edge">
               <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-body">
                   Showing{" "}
-                  <span className="font-semibold text-teal-600">
+                  <span className="font-semibold text-primary">
                     {filteredTeams.length}
                   </span>{" "}
                   of <span className="font-semibold">{teams.length}</span> teams
@@ -1826,7 +1826,7 @@ export default function ManageTeams() {
                       setMentorFilter("all");
                       setProjectFilter("all");
                     }}
-                    className="text-sm text-teal-600 hover:text-teal-700 font-medium underline"
+                    className="text-sm text-primary hover:text-primary font-medium underline"
                   >
                     Clear filters
                   </button>
@@ -1838,14 +1838,14 @@ export default function ManageTeams() {
 
         {/* Teams Grid */}
         {filteredTeams.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-lg p-12 text-center border border-gray-200">
-            <div className="bg-gray-100 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
-              <FaUsers className="h-12 w-12 text-gray-400" />
+          <div className="bg-surface rounded-xl shadow-lg p-12 text-center border border-edge">
+            <div className="bg-surface-alt rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
+              <FaUsers className="h-12 w-12 text-muted" />
             </div>
-            <h3 className="text-xl font-bold text-gray-800 mb-3">
+            <h3 className="text-xl font-bold text-heading mb-3">
               No teams found
             </h3>
-            <p className="text-gray-600 max-w-md mx-auto leading-relaxed">
+            <p className="text-body max-w-md mx-auto leading-relaxed">
               {teams.length === 0
                 ? "No teams have been created yet. Teams will appear here once students start forming teams."
                 : "No teams match your current search and filter criteria. Try adjusting your filters or search terms."}

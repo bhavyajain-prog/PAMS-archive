@@ -346,25 +346,25 @@ const RoleSpecificationForm = () => {
 
   if (loadingStatus) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-cyan-50 flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center">
-          <FaSpinner className="animate-spin text-4xl text-teal-600 mb-4" />
-          <p className="text-gray-600">Loading role specification form...</p>
+      <div className="min-h-screen bg-base flex items-center justify-center">
+        <div className="bg-surface rounded-xl shadow-lg p-8 flex flex-col items-center">
+          <FaSpinner className="animate-spin text-4xl text-primary mb-4" />
+          <p className="text-body">Loading role specification form...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-cyan-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-base py-8 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-none mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-t-xl shadow-lg border-b border-gray-200 p-6 sm:p-8 md:p-10">
+        <div className="bg-surface rounded-t-xl shadow-lg border-b border-edge p-6 sm:p-8 md:p-10">
           <div className="text-center mx-auto max-w-3xl">
-            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent mb-1 sm:mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-500 to-cyan-500 bg-clip-text text-transparent mb-1 sm:mb-2">
               Role Specification Form
             </h1>
-            <h2 className="text-base sm:text-lg font-medium text-gray-700">
+            <h2 className="text-base sm:text-lg font-medium text-body">
               Assign modules and activities to each team member (one assignment
               per member)
             </h2>
@@ -410,7 +410,7 @@ const RoleSpecificationForm = () => {
                     : "Unknown"}
                 </span>
                 {existingData.submittedAt && (
-                  <span className="text-gray-700 text-xs sm:text-sm">
+                  <span className="text-body text-xs sm:text-sm">
                     • Last updated:{" "}
                     {new Date(existingData.submittedAt).toLocaleDateString()}
                   </span>
@@ -441,7 +441,7 @@ const RoleSpecificationForm = () => {
         )}
 
         {/* Form Content */}
-        <div className="bg-white rounded-b-xl shadow-lg p-8">
+        <div className="bg-surface rounded-b-xl shadow-lg p-8">
           <div className="space-y-8">
             {formData.assignments.map((assignment, assignmentIndex) => {
               // Find the member details for this assignment
@@ -452,18 +452,18 @@ const RoleSpecificationForm = () => {
               return (
                 <div
                   key={assignmentIndex}
-                  className="bg-gray-50 rounded-lg p-6"
+                  className="bg-surface-alt rounded-lg p-6"
                 >
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center">
-                      <FaUser className="w-5 h-5 mr-2 text-teal-600" />
+                      <FaUser className="w-5 h-5 mr-2 text-primary" />
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900">
+                        <h3 className="text-lg font-semibold text-heading">
                           {memberDetails ? (
                             <>
                               {memberDetails.name}
                               {memberDetails.isLeader && (
-                                <span className="ml-2 px-2 py-1 bg-teal-100 text-teal-800 text-xs rounded-full">
+                                <span className="ml-2 px-2 py-1 bg-primary-subtle text-heading text-xs rounded-full">
                                   Leader
                                 </span>
                               )}
@@ -473,7 +473,7 @@ const RoleSpecificationForm = () => {
                           )}
                         </h3>
                         {memberDetails && (
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-body">
                             {memberDetails.rollNumber || memberDetails.email}
                           </p>
                         )}
@@ -483,10 +483,10 @@ const RoleSpecificationForm = () => {
 
                   {/* Member Assignment Info (Read-only) */}
                   <div className="mb-6">
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    <label className="block text-sm font-semibold text-body mb-3">
                       Team Member
                     </label>
-                    <div className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-100 text-gray-700">
+                    <div className="w-full border border-edge rounded-lg px-4 py-3 bg-surface-alt text-body">
                       {memberDetails ? (
                         <>
                           {memberDetails.name}{" "}
@@ -497,7 +497,7 @@ const RoleSpecificationForm = () => {
                         "Member not found"
                       )}
                     </div>
-                    <p className="mt-1 text-xs text-gray-600">
+                    <p className="mt-1 text-xs text-body">
                       Each team member automatically gets one assignment. Add
                       modules and activities below.
                     </p>
@@ -506,14 +506,14 @@ const RoleSpecificationForm = () => {
                   {/* Modules */}
                   <div className="mb-6">
                     <div className="flex items-center justify-between mb-3">
-                      <label className="block text-sm font-semibold text-gray-700">
+                      <label className="block text-sm font-semibold text-body">
                         Modules <span className="text-red-500">*</span>
                       </label>
                       {isEditable && (
                         <button
                           type="button"
                           onClick={() => addModule(assignmentIndex)}
-                          className="bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1 transition-all duration-200"
+                          className="bg-primary hover:bg-primary-hover text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1 transition-all duration-200"
                         >
                           <FaPlus className="w-3 h-3" />
                           Add Module
@@ -539,10 +539,10 @@ const RoleSpecificationForm = () => {
                             placeholder="e.g., User Authentication, Dashboard"
                             disabled={!isEditable}
                             required
-                            className={`flex-1 border border-gray-300 rounded-lg px-3 py-2 transition-all ${
+                            className={`flex-1 border border-edge rounded-lg px-3 py-2 transition-all ${
                               isEditable
-                                ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                                : "bg-gray-100 cursor-not-allowed"
+                                ? "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent"
+                                : "bg-surface-alt cursor-not-allowed"
                             }`}
                           />
                           {assignment.modules.length > 1 && isEditable && (
@@ -565,14 +565,14 @@ const RoleSpecificationForm = () => {
                   {/* Activities */}
                   <div className="mb-4">
                     <div className="flex items-center justify-between mb-3">
-                      <label className="block text-sm font-semibold text-gray-700">
+                      <label className="block text-sm font-semibold text-body">
                         Activities
                       </label>
                       {isEditable && (
                         <button
                           type="button"
                           onClick={() => addActivity(assignmentIndex)}
-                          className="bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1 transition-all duration-200"
+                          className="bg-primary hover:bg-primary-hover text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1 transition-all duration-200"
                         >
                           <FaPlus className="w-3 h-3" />
                           Add Activity
@@ -583,10 +583,10 @@ const RoleSpecificationForm = () => {
                       {assignment.activities.map((activity, activityIndex) => (
                         <div
                           key={activityIndex}
-                          className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm"
+                          className="bg-surface p-5 rounded-lg border border-edge shadow-sm"
                         >
                           <div className="flex items-center justify-between mb-4">
-                            <h4 className="text-sm font-semibold text-gray-800">
+                            <h4 className="text-sm font-semibold text-heading">
                               Activity {activityIndex + 1}
                             </h4>
                             <div className="flex items-center gap-2">
@@ -611,7 +611,7 @@ const RoleSpecificationForm = () => {
 
                           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                             <div className="lg:col-span-2">
-                              <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+                              <label className="block text-xs font-semibold text-body mb-2 uppercase tracking-wide">
                                 Activity Name{" "}
                                 <span className="text-red-500">*</span>
                               </label>
@@ -629,16 +629,16 @@ const RoleSpecificationForm = () => {
                                 placeholder="e.g., Design user interface, Implement login system"
                                 disabled={!isEditable}
                                 required
-                                className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${
+                                className={`w-full border border-edge rounded-lg px-3 py-2 transition-all ${
                                   isEditable
-                                    ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                                    : "bg-gray-100 cursor-not-allowed"
+                                    ? "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent"
+                                    : "bg-surface-alt cursor-not-allowed"
                                 }`}
                               />
                             </div>
 
                             <div>
-                              <label className="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide flex items-center">
+                              <label className="text-xs font-semibold text-body mb-2 uppercase tracking-wide flex items-center">
                                 <FaCalendarAlt className="w-3 h-3 mr-1" />
                                 Soft Deadline
                               </label>
@@ -654,16 +654,16 @@ const RoleSpecificationForm = () => {
                                   )
                                 }
                                 disabled={!isEditable}
-                                className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${
+                                className={`w-full border border-edge rounded-lg px-3 py-2 transition-all ${
                                   isEditable
-                                    ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                                    : "bg-gray-100 cursor-not-allowed"
+                                    ? "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent"
+                                    : "bg-surface-alt cursor-not-allowed"
                                 }`}
                               />
                             </div>
 
                             <div>
-                              <label className="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide flex items-center">
+                              <label className="text-xs font-semibold text-body mb-2 uppercase tracking-wide flex items-center">
                                 <FaCalendarAlt className="w-3 h-3 mr-1" />
                                 Hard Deadline
                               </label>
@@ -679,16 +679,16 @@ const RoleSpecificationForm = () => {
                                   )
                                 }
                                 disabled={!isEditable}
-                                className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all ${
+                                className={`w-full border border-edge rounded-lg px-3 py-2 transition-all ${
                                   isEditable
-                                    ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                                    : "bg-gray-100 cursor-not-allowed"
+                                    ? "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent"
+                                    : "bg-surface-alt cursor-not-allowed"
                                 }`}
                               />
                             </div>
 
                             <div>
-                              <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+                              <label className="block text-xs font-semibold text-body mb-2 uppercase tracking-wide">
                                 Details
                               </label>
                               <textarea
@@ -704,10 +704,10 @@ const RoleSpecificationForm = () => {
                                 placeholder="Activity details and requirements..."
                                 disabled={!isEditable}
                                 rows={2}
-                                className={`w-full border border-gray-300 rounded-lg px-3 py-2 transition-all resize-none ${
+                                className={`w-full border border-edge rounded-lg px-3 py-2 transition-all resize-none ${
                                   isEditable
-                                    ? "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                                    : "bg-gray-100 cursor-not-allowed"
+                                    ? "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent"
+                                    : "bg-surface-alt cursor-not-allowed"
                                 }`}
                               />
                             </div>
@@ -721,13 +721,13 @@ const RoleSpecificationForm = () => {
             })}
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6 border-t border-gray-200">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6 border-t border-edge">
               {isEditable && (
                 <>
                   <button
                     onClick={handleSubmit}
                     disabled={submitting}
-                    className="px-8 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold rounded-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
+                    className="px-8 py-3 bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white font-semibold rounded-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
                   >
                     {submitting ? (
                       <>
@@ -755,14 +755,14 @@ const RoleSpecificationForm = () => {
               )}
               {!isEditable && (
                 <div className="text-center py-4">
-                  <p className="text-gray-600 text-sm">
+                  <p className="text-body text-sm">
                     This form is in read-only mode. Status:{" "}
                     <span className="font-semibold capitalize">
                       {existingData?.status || "Unknown"}
                     </span>
                   </p>
                   {existingData?.status === "submitted" && (
-                    <p className="text-gray-500 text-xs mt-1">
+                    <p className="text-muted text-xs mt-1">
                       The form will become editable again if rejected by
                       mentor/admin.
                     </p>

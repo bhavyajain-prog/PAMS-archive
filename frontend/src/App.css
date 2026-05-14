@@ -1,5 +1,90 @@
 @import "tailwindcss";
 
+/* ─────────────────────────────────────────────
+   PAMS Design Token System
+   
+   ALL theme colors are defined here as CSS
+   custom properties. Components consume them
+   via Tailwind utilities mapped in @theme.
+   
+   To add a new theme: add a new CSS class
+   (e.g. .ocean) with overridden --pams-* vars.
+   ───────────────────────────────────────────── */
+
+@theme inline {
+  /* Backgrounds */
+  --color-base: var(--pams-base);
+  --color-surface: var(--pams-surface);
+  --color-surface-alt: var(--pams-surface-alt);
+  --color-input: var(--pams-input);
+
+  /* Text */
+  --color-heading: var(--pams-heading);
+  --color-body: var(--pams-body);
+  --color-muted: var(--pams-muted);
+
+  /* Accent */
+  --color-primary: var(--pams-primary);
+  --color-primary-hover: var(--pams-primary-hover);
+  --color-primary-subtle: var(--pams-primary-subtle);
+  --color-secondary: var(--pams-secondary);
+
+  /* Borders */
+  --color-edge: var(--pams-edge);
+  --color-edge-subtle: var(--pams-edge-subtle);
+
+  /* Misc */
+  --color-overlay: var(--pams-overlay);
+  --color-card-shadow: var(--pams-card-shadow);
+}
+
+/* ── Light Theme (default) ── */
+:root {
+  --pams-base: #f8fafc;
+  --pams-surface: #ffffff;
+  --pams-surface-alt: #f1f5f9;
+  --pams-input: #ffffff;
+
+  --pams-heading: #1e1b4b;
+  --pams-body: #4b5563;
+  --pams-muted: #9ca3af;
+
+  --pams-primary: #7c3aed;
+  --pams-primary-hover: #6d28d9;
+  --pams-primary-subtle: #ede9fe;
+  --pams-secondary: #06b6d4;
+
+  --pams-edge: #e2e8f0;
+  --pams-edge-subtle: #f1f5f9;
+
+  --pams-overlay: rgba(0, 0, 0, 0.5);
+  --pams-card-shadow: rgba(0, 0, 0, 0.08);
+}
+
+/* ── Dark Theme ── */
+.dark {
+  --pams-base: #111827;
+  --pams-surface: rgba(31, 41, 55, 0.5);
+  --pams-surface-alt: rgba(31, 41, 55, 0.8);
+  --pams-input: #1f2937;
+
+  --pams-heading: #ffffff;
+  --pams-body: #d1d5db;
+  --pams-muted: #9ca3af;
+
+  --pams-primary: #c084fc;
+  --pams-primary-hover: #a855f7;
+  --pams-primary-subtle: rgba(192, 132, 252, 0.1);
+  --pams-secondary: #22d3ee;
+
+  --pams-edge: rgba(75, 85, 99, 0.5);
+  --pams-edge-subtle: rgba(55, 65, 81, 0.5);
+
+  --pams-overlay: rgba(0, 0, 0, 0.7);
+  --pams-card-shadow: rgba(0, 0, 0, 0.3);
+}
+
+/* ── Base Resets ── */
 html,
 body,
 #root {
@@ -9,5 +94,7 @@ body,
 }
 
 body {
-  background-color: #f1f2f7;
+  background-color: var(--pams-base);
+  color: var(--pams-body);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }

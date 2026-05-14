@@ -31,8 +31,8 @@ function DevActionCard({
       <div className="text-5xl text-blue-500 mb-5 group-hover:text-blue-600 transition-colors duration-300">
         {icon}
       </div>
-      <h3 className="text-xl font-bold text-gray-800 text-center">{title}</h3>
-      <p className="text-sm text-gray-500 mt-2 text-center px-2">
+      <h3 className="text-xl font-bold text-heading text-center">{title}</h3>
+      <p className="text-sm text-muted mt-2 text-center px-2">
         {description}
       </p>
     </>
@@ -40,7 +40,7 @@ function DevActionCard({
 
   if (disabled) {
     return (
-      <div className="group flex flex-col items-center justify-start text-center p-6 bg-gray-100 rounded-2xl shadow-inner cursor-not-allowed opacity-60 h-full">
+      <div className="group flex flex-col items-center justify-start text-center p-6 bg-surface-alt rounded-2xl shadow-inner cursor-not-allowed opacity-60 h-full">
         {content}
       </div>
     );
@@ -52,7 +52,7 @@ function DevActionCard({
         href={to}
         target="_blank"
         rel="noopener noreferrer"
-        className="group flex flex-col items-center justify-start text-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all duration-300 h-full"
+        className="group flex flex-col items-center justify-start text-center p-6 bg-surface rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all duration-300 h-full"
       >
         {content}
       </a>
@@ -62,7 +62,7 @@ function DevActionCard({
   return (
     <Link
       to={to}
-      className="group flex flex-col items-center justify-start text-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all duration-300 h-full"
+      className="group flex flex-col items-center justify-start text-center p-6 bg-surface rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all duration-300 h-full"
     >
       {content}
     </Link>
@@ -74,9 +74,9 @@ export default function DevPortal() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-slate-50">
+      <div className="flex justify-center items-center min-h-screen bg-base">
         <FaSpinner className="animate-spin text-4xl text-blue-600" />
-        <p className="ml-3 text-lg text-gray-700">Loading dev portal...</p>
+        <p className="ml-3 text-lg text-body">Loading dev portal...</p>
       </div>
     );
   }
@@ -123,10 +123,10 @@ export default function DevPortal() {
     <div className="bg-gradient-to-br from-slate-50 to-indigo-100 min-h-screen py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <header className="text-center mb-16">
-          <h1 className="text-5xl font-extrabold text-gray-900 tracking-tight">
+          <h1 className="text-5xl font-extrabold text-heading tracking-tight">
             Developer Portal
           </h1>
-          <p className="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="mt-4 text-xl text-body max-w-3xl mx-auto">
             Welcome,{" "}
             <span className="font-semibold text-blue-600">
               {toTitleCase(user?.name) || "Developer"}
@@ -159,8 +159,8 @@ export default function DevPortal() {
         </div>
 
         {/* Routes Directory */}
-        <div className="bg-white/80 backdrop-blur-sm p-8 rounded-xl shadow-lg border border-white/20">
-          <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+        <div className="bg-surface/80 backdrop-blur-sm p-8 rounded-xl shadow-lg border border-white/20">
+          <h3 className="text-2xl font-bold text-heading mb-6 flex items-center">
             <FaRoute className="mr-3 text-blue-600" />
             Application Routes
           </h3>
@@ -168,7 +168,7 @@ export default function DevPortal() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {Object.entries(routes).map(([category, routeList]) => (
               <div key={category} className="space-y-4">
-                <h4 className="text-lg font-semibold text-gray-700 capitalize border-b pb-2">
+                <h4 className="text-lg font-semibold text-body capitalize border-b pb-2">
                   {category} Routes
                 </h4>
                 <div className="space-y-2">
@@ -176,12 +176,12 @@ export default function DevPortal() {
                     <Link
                       key={route.path}
                       to={route.path}
-                      className="flex items-center justify-between p-3 bg-gray-50 hover:bg-blue-50 rounded-lg transition-colors duration-200 group"
+                      className="flex items-center justify-between p-3 bg-surface-alt hover:bg-blue-50 rounded-lg transition-colors duration-200 group"
                     >
-                      <span className="font-medium text-gray-700 group-hover:text-blue-700">
+                      <span className="font-medium text-body group-hover:text-blue-700">
                         {route.name}
                       </span>
-                      <code className="text-xs text-gray-500 bg-white px-2 py-1 rounded font-mono">
+                      <code className="text-xs text-muted bg-surface px-2 py-1 rounded font-mono">
                         {route.path}
                       </code>
                     </Link>
@@ -195,7 +195,7 @@ export default function DevPortal() {
         {/* Footer Info */}
         <div className="mt-16 text-center">
           <div className="bg-blue-50 p-6 rounded-xl">
-            <p className="text-gray-600">
+            <p className="text-body">
               <strong>Developer Mode Active:</strong> You have access to all
               routes and can impersonate any user role. Use this access
               responsibly for testing and development purposes only.

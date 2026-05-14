@@ -132,9 +132,9 @@ const TimelineManagement = ({ onRefresh }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 mb-6">
+    <div className="bg-surface rounded-lg shadow p-6 mb-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+        <h2 className="text-xl font-bold text-heading flex items-center gap-2">
           <FaClock className="text-blue-600" />
           Project Timeline Management
         </h2>
@@ -159,11 +159,11 @@ const TimelineManagement = ({ onRefresh }) => {
       )}
 
       {showSettings && (
-        <div className="border rounded-lg p-4 mb-4 bg-gray-50">
+        <div className="border rounded-lg p-4 mb-4 bg-surface-alt">
           <h3 className="font-semibold mb-3">Global Timeline Settings</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-body mb-1">
                 Global Start Date
               </label>
               <input
@@ -179,7 +179,7 @@ const TimelineManagement = ({ onRefresh }) => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-body mb-1">
                 Duration (weeks)
               </label>
               <input
@@ -209,7 +209,7 @@ const TimelineManagement = ({ onRefresh }) => {
                   }
                   className="w-4 h-4"
                 />
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-sm font-medium text-body">
                   Auto-assign to eligible teams
                 </span>
               </label>
@@ -256,7 +256,7 @@ const TimelineManagement = ({ onRefresh }) => {
               </div>
             </div>
           ) : (
-            <div className="text-gray-500">Loading settings...</div>
+            <div className="text-muted">Loading settings...</div>
           )}
         </div>
 
@@ -284,7 +284,7 @@ const TimelineManagement = ({ onRefresh }) => {
                 </div>
               ))
             ) : (
-              <div className="text-gray-500 text-sm">No eligible teams</div>
+              <div className="text-muted text-sm">No eligible teams</div>
             )}
           </div>
         </div>
@@ -298,12 +298,12 @@ const Modal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center p-4">
-      <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div className="bg-surface p-6 rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
+          <h3 className="text-xl font-semibold text-heading">{title}</h3>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl"
+            className="text-muted hover:text-body text-2xl"
           >
             &times;
           </button>
@@ -338,11 +338,11 @@ const ProjectCard = ({ project, onAction }) => {
   };
 
   return (
-    <div className="bg-white shadow-lg rounded-lg p-6 transition-all duration-300 ease-in-out">
+    <div className="bg-surface shadow-lg rounded-lg p-6 transition-all duration-300 ease-in-out">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
         <div>
-          <h2 className="text-2xl font-bold text-teal-700">{project.title}</h2>
-          <p className="text-sm text-gray-600">Category: {project.category}</p>
+          <h2 className="text-2xl font-bold text-primary">{project.title}</h2>
+          <p className="text-sm text-body">Category: {project.category}</p>
         </div>
         <span
           className={`px-3 py-1 text-sm font-semibold rounded-full ${getStatusClass(
@@ -364,7 +364,7 @@ const ProjectCard = ({ project, onAction }) => {
           Proposed by: {project.proposedBy?.name || "N/A"}
         </p>
         <p>
-          <FaUsers className="inline mr-2 text-teal-600" />
+          <FaUsers className="inline mr-2 text-primary" />
           Assigned Teams: {project.assignedTeams?.length || 0} /{" "}
           {project.maxTeams}
         </p>
@@ -431,8 +431,8 @@ const ProjectCard = ({ project, onAction }) => {
       )}
 
       {isExpanded && (
-        <div className="mt-6 border-t pt-4 text-sm text-gray-700 space-y-2">
-          <h4 className="text-md font-semibold text-gray-800 mb-2">
+        <div className="mt-6 border-t pt-4 text-sm text-body space-y-2">
+          <h4 className="text-md font-semibold text-heading mb-2">
             Full Details:
           </h4>
           <p>
@@ -459,10 +459,10 @@ const ProjectCard = ({ project, onAction }) => {
                 {project.feedback.map((fb, index) => (
                   <li
                     key={index}
-                    className="p-2 border-l-2 border-gray-200 bg-gray-50 rounded-r-md"
+                    className="p-2 border-l-2 border-edge bg-surface-alt rounded-r-md"
                   >
                     <p>&quot;{fb.message}&quot;</p>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-muted mt-1">
                       - {fb.byUser?.name || "System"} on{" "}
                       {new Date(fb.at).toLocaleDateString()}
                     </p>
@@ -507,15 +507,15 @@ const TTLStatus = () => {
   }, [showTTLStatus, ttlData, fetchTTLStatus]);
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 mb-6">
+    <div className="bg-surface rounded-lg shadow p-6 mb-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+        <h3 className="text-lg font-semibold text-heading flex items-center">
           <FaTrash className="mr-2 text-red-500" />
           Auto-Deletion Status (TTL)
         </h3>
         <button
           onClick={() => setShowTTLStatus(!showTTLStatus)}
-          className="flex items-center px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+          className="flex items-center px-3 py-1 text-sm bg-surface-alt hover:bg-gray-200 rounded-md transition-colors"
         >
           {showTTLStatus ? <FaChevronUp /> : <FaChevronDown />}
           <span className="ml-1">{showTTLStatus ? "Hide" : "Show"}</span>
@@ -543,8 +543,8 @@ const TTLStatus = () => {
           {ttlData && (
             <div className="grid md:grid-cols-2 gap-6">
               {/* TTL Index Status */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+              <div className="bg-surface-alt rounded-lg p-4">
+                <h4 className="font-semibold text-heading mb-3 flex items-center">
                   <FaClock className="mr-2 text-blue-500" />
                   TTL Index Status
                 </h4>
@@ -561,10 +561,10 @@ const TTLStatus = () => {
                   </div>
                   {ttlData.ttlIndex.exists && (
                     <>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-body">
                         Expires after: {ttlData.ttlIndex.expireAfterDays} days
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted">
                         Index name: {ttlData.ttlIndex.name}
                       </p>
                     </>
@@ -573,32 +573,32 @@ const TTLStatus = () => {
               </div>
 
               {/* Project Statistics */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+              <div className="bg-surface-alt rounded-lg p-4">
+                <h4 className="font-semibold text-heading mb-3 flex items-center">
                   <FaInfoCircle className="mr-2 text-blue-500" />
                   Project Statistics
                 </h4>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
-                    <span className="text-gray-600">Total:</span>
+                    <span className="text-body">Total:</span>
                     <span className="ml-2 font-medium">
                       {ttlData.statistics.total}
                     </span>
                   </div>
                   <div>
-                    <span className="text-gray-600">Approved:</span>
+                    <span className="text-body">Approved:</span>
                     <span className="ml-2 font-medium text-green-600">
                       {ttlData.statistics.approved}
                     </span>
                   </div>
                   <div>
-                    <span className="text-gray-600">Rejected:</span>
+                    <span className="text-body">Rejected:</span>
                     <span className="ml-2 font-medium text-red-600">
                       {ttlData.statistics.rejected}
                     </span>
                   </div>
                   <div>
-                    <span className="text-gray-600">Pending:</span>
+                    <span className="text-body">Pending:</span>
                     <span className="ml-2 font-medium text-yellow-600">
                       {ttlData.statistics.pending}
                     </span>
@@ -621,7 +621,7 @@ const TTLStatus = () => {
                     {ttlData.expiredProjects.projects.map((project, index) => (
                       <div
                         key={index}
-                        className="text-sm bg-white bg-opacity-50 p-2 rounded"
+                        className="text-sm bg-surface bg-opacity-50 p-2 rounded"
                       >
                         <span className="font-medium">{project.title}</span>
                         <span className="text-red-600 ml-2">
@@ -648,7 +648,7 @@ const TTLStatus = () => {
                     {ttlData.recentRejections.map((project, index) => (
                       <div
                         key={index}
-                        className="text-sm bg-white bg-opacity-50 p-2 rounded"
+                        className="text-sm bg-surface bg-opacity-50 p-2 rounded"
                       >
                         <span className="font-medium">{project.title}</span>
                         <span className="text-yellow-700 ml-2">
@@ -957,7 +957,7 @@ export default function ManageProjects() {
               <button
                 type="submit"
                 disabled={actionLoading}
-                className="px-4 py-2 bg-teal-600 text-white rounded disabled:bg-gray-400"
+                className="px-4 py-2 bg-primary text-white rounded disabled:bg-gray-400"
               >
                 {actionLoading ? (
                   <FaSpinner className="animate-spin" />
@@ -1063,7 +1063,7 @@ export default function ManageProjects() {
             </p>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-body mb-2">
                   Discussion Date & Time
                 </label>
                 <input
@@ -1075,7 +1075,7 @@ export default function ManageProjects() {
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                   required
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-muted mt-1">
                   Select a future date and time for the project discussion
                 </p>
               </div>
@@ -1118,7 +1118,7 @@ export default function ManageProjects() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-surface-alt py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto space-y-8">
           {/* Header skeleton */}
           <div className="flex justify-between items-center">
@@ -1136,7 +1136,7 @@ export default function ManageProjects() {
           </div>
 
           {/* Controls skeleton (search + filters) */}
-          <div className="bg-white rounded-lg p-4 shadow">
+          <div className="bg-surface rounded-lg p-4 shadow">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="h-10 bg-slate-200 rounded animate-pulse col-span-1 lg:col-span-4" />
               <div className="h-10 bg-slate-200 rounded animate-pulse" />
@@ -1149,7 +1149,7 @@ export default function ManageProjects() {
           {/* Projects grid skeleton */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, idx) => (
-              <div key={idx} className="bg-white rounded-lg shadow p-6 animate-pulse">
+              <div key={idx} className="bg-surface rounded-lg shadow p-6 animate-pulse">
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <div className="h-5 bg-slate-200 rounded w-48 mb-2" />
@@ -1177,12 +1177,12 @@ export default function ManageProjects() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center p-4">
+      <div className="min-h-screen bg-base flex flex-col justify-center items-center p-4">
         <FaInfoCircle className="text-4xl text-red-500 mb-4" />
         <p className="text-lg text-red-600 text-center">{error}</p>
         <button
           onClick={fetchProjects}
-          className="mt-6 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-4 rounded shadow transition-colors"
+          className="mt-6 bg-primary-subtle0 hover:bg-primary text-white font-semibold py-2 px-4 rounded shadow transition-colors"
         >
           Retry
         </button>
@@ -1191,12 +1191,12 @@ export default function ManageProjects() {
   }
 
   return (
-    <div className="container mx-auto p-4 md:p-6 lg:p-8 bg-gray-50 min-h-screen">
+    <div className="container mx-auto p-4 md:p-6 lg:p-8 bg-surface-alt min-h-screen">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Manage Projects</h1>
+        <h1 className="text-3xl font-bold text-heading">Manage Projects</h1>
         <button
           onClick={() => handleOpenModal("add")}
-          className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg flex items-center"
+          className="bg-primary hover:bg-primary-hover text-white font-bold py-2 px-4 rounded-lg flex items-center"
         >
           <FaPlus className="mr-2" /> Add New Project
         </button>
@@ -1209,7 +1209,7 @@ export default function ManageProjects() {
       <TTLStatus />
 
       {/* Search and Filter Controls */}
-      <div className="mb-6 p-4 bg-white rounded-lg shadow">
+      <div className="mb-6 p-4 bg-surface rounded-lg shadow">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <input
             type="text"
@@ -1267,8 +1267,8 @@ export default function ManageProjects() {
         </div>
       ) : (
         <div className="text-center py-10">
-          <FaInfoCircle className="mx-auto text-4xl text-gray-400 mb-4" />
-          <p className="text-lg text-gray-600">
+          <FaInfoCircle className="mx-auto text-4xl text-muted mb-4" />
+          <p className="text-lg text-body">
             No projects found matching your criteria.
           </p>
         </div>

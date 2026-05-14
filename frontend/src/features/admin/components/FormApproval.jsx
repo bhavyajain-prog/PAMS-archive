@@ -115,13 +115,13 @@ const FormApproval = () => {
   // Get status badge color
   const getStatusBadge = (status) => {
     const colors = {
-      draft: "bg-gray-100 text-gray-700",
+      draft: "bg-surface-alt text-body",
       submitted: "bg-blue-100 text-blue-700",
       mentor_approved: "bg-green-100 text-green-700",
       admin_approved: "bg-green-100 text-green-700",
       rejected: "bg-red-100 text-red-700",
     };
-    return colors[status] || "bg-gray-100 text-gray-700";
+    return colors[status] || "bg-surface-alt text-body";
   };
 
   // Check if form should be shown for approval based on user role
@@ -152,10 +152,10 @@ const FormApproval = () => {
       form.numberOfModules || (form.modules && form.modules.length) || (team.projectAbstract && team.projectAbstract.modules && team.projectAbstract.modules.length) || "N/A";
 
     return (
-      <div className="bg-gray-50 rounded-lg p-4 mt-3">
+      <div className="bg-surface-alt rounded-lg p-4 mt-3">
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <span className="font-medium text-gray-600">Submitted:</span>
+            <span className="font-medium text-body">Submitted:</span>
             <span className="ml-2">
               {form.submittedAt
                 ? new Date(form.submittedAt).toLocaleDateString()
@@ -163,7 +163,7 @@ const FormApproval = () => {
             </span>
           </div>
           <div>
-            <span className="font-medium text-gray-600">Status:</span>
+            <span className="font-medium text-body">Status:</span>
             <span
               className={`ml-2 px-2 py-1 rounded text-xs ${getStatusBadge(
                 form.status
@@ -186,7 +186,7 @@ const FormApproval = () => {
             </div>
             <div className="flex items-center space-x-4 text-xs">
               <div
-                className={`flex items-center ${form.status !== "draft" ? "text-green-600" : "text-gray-400"
+                className={`flex items-center ${form.status !== "draft" ? "text-green-600" : "text-muted"
                   }`}
               >
                 <span className="w-2 h-2 rounded-full bg-current mr-1"></span>
@@ -198,7 +198,7 @@ const FormApproval = () => {
                   ? "text-green-600"
                   : form.status === "submitted"
                     ? "text-blue-600"
-                    : "text-gray-400"
+                    : "text-muted"
                   }`}
               >
                 <span className="w-2 h-2 rounded-full bg-current mr-1"></span>
@@ -209,7 +209,7 @@ const FormApproval = () => {
                   ? "text-green-600"
                   : form.status === "mentor_approved"
                     ? "text-blue-600"
-                    : "text-gray-400"
+                    : "text-muted"
                   }`}
               >
                 <span className="w-2 h-2 rounded-full bg-current mr-1"></span>
@@ -223,30 +223,30 @@ const FormApproval = () => {
         {formType === "projectAbstract" && (
           <div className="mt-4 space-y-4">
             {/* Project Information */}
-            <div className="bg-white p-4 rounded-lg border border-gray-200">
-              <h5 className="font-semibold text-gray-800 mb-3 text-base">📋 Project Information</h5>
+            <div className="bg-surface p-4 rounded-lg border border-edge">
+              <h5 className="font-semibold text-heading mb-3 text-base">📋 Project Information</h5>
               <div className="space-y-2 text-sm">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <span className="font-semibold text-gray-700">Project Title:</span>
-                    <p className="text-gray-900 mt-1">{projectTitle}</p>
+                    <span className="font-semibold text-body">Project Title:</span>
+                    <p className="text-heading mt-1">{projectTitle}</p>
                   </div>
                   <div>
-                    <span className="font-semibold text-gray-700">Project Track:</span>
-                    <p className="text-gray-900 mt-1">{form.projectTrack || form.project?.track || 'N/A'}</p>
+                    <span className="font-semibold text-body">Project Track:</span>
+                    <p className="text-heading mt-1">{form.projectTrack || form.project?.track || 'N/A'}</p>
                   </div>
                   <div>
-                    <span className="font-semibold text-gray-700">Project Category:</span>
-                    <p className="text-gray-900 mt-1">{projectCategory}</p>
+                    <span className="font-semibold text-body">Project Category:</span>
+                    <p className="text-heading mt-1">{projectCategory}</p>
                   </div>
                   <div>
-                    <span className="font-semibold text-gray-700">Number of Modules:</span>
-                    <p className="text-gray-900 mt-1">{numberOfModules}</p>
+                    <span className="font-semibold text-body">Number of Modules:</span>
+                    <p className="text-heading mt-1">{numberOfModules}</p>
                   </div>
                 </div>
                 {form.githubRepo && (
                   <div className="mt-2">
-                    <span className="font-semibold text-gray-700">GitHub Repository:</span>
+                    <span className="font-semibold text-body">GitHub Repository:</span>
                     <p className="mt-1">
                       <a href={form.githubRepo} target="_blank" rel="noopener noreferrer"
                         className="text-blue-600 hover:underline break-all">
@@ -260,15 +260,15 @@ const FormApproval = () => {
 
             {/* Tools & Technologies */}
             {form.tools && form.tools.length > 0 && (
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <h5 className="font-semibold text-gray-800 mb-3 text-base">🛠️ Tools & Technologies</h5>
+              <div className="bg-surface p-4 rounded-lg border border-edge">
+                <h5 className="font-semibold text-heading mb-3 text-base">🛠️ Tools & Technologies</h5>
                 <div className="flex flex-wrap gap-2">
                   {form.tools.map((tool, idx) => {
                     // Handle both string and object formats
                     const toolName = typeof tool === 'string' ? tool : tool?.name || 'Unknown Tool';
                     const toolVersion = typeof tool === 'object' ? tool?.version : null;
                     return (
-                      <span key={idx} className="px-3 py-1 bg-teal-100 text-teal-800 rounded-full text-sm font-medium">
+                      <span key={idx} className="px-3 py-1 bg-primary-subtle text-heading rounded-full text-sm font-medium">
                         {toolName} {toolVersion && `(${toolVersion})`}
                       </span>
                     );
@@ -279,26 +279,26 @@ const FormApproval = () => {
 
             {/* Project Modules */}
             {form.modules && form.modules.length > 0 && (
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <h5 className="font-semibold text-gray-800 mb-3 text-base">📦 Project Modules</h5>
+              <div className="bg-surface p-4 rounded-lg border border-edge">
+                <h5 className="font-semibold text-heading mb-3 text-base">📦 Project Modules</h5>
                 <div className="space-y-3">
                   {form.modules.map((module, idx) => (
-                    <div key={idx} className="p-3 bg-gray-50 rounded-lg border-l-4 border-blue-500">
-                      <div className="font-semibold text-gray-900 mb-1">
+                    <div key={idx} className="p-3 bg-surface-alt rounded-lg border-l-4 border-blue-500">
+                      <div className="font-semibold text-heading mb-1">
                         Module {idx + 1}: {module?.name || 'Unnamed Module'}
                       </div>
                       {module?.functionality && (
-                        <p className="text-sm text-gray-600 mb-1">
+                        <p className="text-sm text-body mb-1">
                           <span className="font-medium">Functionality:</span> {module.functionality}
                         </p>
                       )}
                       {module?.description && (
-                        <p className="text-sm text-gray-700">
+                        <p className="text-sm text-body">
                           <span className="font-medium">Description:</span> {module.description}
                         </p>
                       )}
                       {!module?.functionality && !module?.description && (
-                        <p className="text-sm text-gray-500 italic">No details provided</p>
+                        <p className="text-sm text-muted italic">No details provided</p>
                       )}
                     </div>
                   ))}
@@ -308,13 +308,13 @@ const FormApproval = () => {
 
             {/* Team Members & Roles */}
             {form.teamMembers && form.teamMembers.length > 0 && (
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <h5 className="font-semibold text-gray-800 mb-3 text-base">👥 Team Members & Roles</h5>
+              <div className="bg-surface p-4 rounded-lg border border-edge">
+                <h5 className="font-semibold text-heading mb-3 text-base">👥 Team Members & Roles</h5>
                 <div className="space-y-2">
                   {form.teamMembers.map((member, idx) => (
-                    <div key={idx} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                      <span className="font-medium text-gray-900">{member.name}</span>
-                      <span className="text-sm text-gray-600 italic">{member.role}</span>
+                    <div key={idx} className="flex justify-between items-center p-2 bg-surface-alt rounded">
+                      <span className="font-medium text-heading">{member.name}</span>
+                      <span className="text-sm text-body italic">{member.role}</span>
                     </div>
                   ))}
                 </div>
@@ -323,9 +323,9 @@ const FormApproval = () => {
 
             {/* Objectives */}
             {form.objectives && (
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <h5 className="font-semibold text-gray-800 mb-3 text-base">🎯 Objectives</h5>
-                <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+              <div className="bg-surface p-4 rounded-lg border border-edge">
+                <h5 className="font-semibold text-heading mb-3 text-base">🎯 Objectives</h5>
+                <p className="text-sm text-body whitespace-pre-wrap leading-relaxed">
                   {form.objectives}
                 </p>
               </div>
@@ -333,9 +333,9 @@ const FormApproval = () => {
 
             {/* Scope of Work */}
             {form.scopeOfWork && (
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <h5 className="font-semibold text-gray-800 mb-3 text-base">📝 Scope of Work</h5>
-                <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+              <div className="bg-surface p-4 rounded-lg border border-edge">
+                <h5 className="font-semibold text-heading mb-3 text-base">📝 Scope of Work</h5>
+                <p className="text-sm text-body whitespace-pre-wrap leading-relaxed">
                   {form.scopeOfWork}
                 </p>
               </div>
@@ -347,15 +347,15 @@ const FormApproval = () => {
         {formType === "roleSpecification" && (
           <div className="mt-4 space-y-4">
             {/* Project Title */}
-            <div className="bg-white p-4 rounded-lg border border-gray-200">
-              <h5 className="font-semibold text-gray-800 mb-2 text-base">📋 Project Title</h5>
-              <p className="text-gray-900">{projectTitle}</p>
+            <div className="bg-surface p-4 rounded-lg border border-edge">
+              <h5 className="font-semibold text-heading mb-2 text-base">📋 Project Title</h5>
+              <p className="text-heading">{projectTitle}</p>
             </div>
 
             {/* Role Assignments */}
             {form.assignments && form.assignments.length > 0 && (
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <h5 className="font-semibold text-gray-800 mb-4 text-base">👥 Role Assignments ({form.assignments.length} members)</h5>
+              <div className="bg-surface p-4 rounded-lg border border-edge">
+                <h5 className="font-semibold text-heading mb-4 text-base">👥 Role Assignments ({form.assignments.length} members)</h5>
                 <div className="space-y-4">
                   {form.assignments.map((assignment, idx) => {
                     // Get member details - handle both populated and non-populated member field
@@ -368,10 +368,10 @@ const FormApproval = () => {
                       <div key={idx} className="p-4 bg-linear-to-r from-purple-50 to-blue-50 rounded-lg border-l-4 border-purple-500">
                         {/* Member Info */}
                         <div className="mb-3">
-                          <div className="font-semibold text-gray-900 text-base">
+                          <div className="font-semibold text-heading text-base">
                             {memberName}
                           </div>
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-body">
                             {memberEmail}
                             {memberRollNumber && <span className="ml-2">• {memberRollNumber}</span>}
                           </div>
@@ -380,12 +380,12 @@ const FormApproval = () => {
                         {/* Responsibilities */}
                         {assignment.responsibilities && assignment.responsibilities.length > 0 && (
                           <div className="mb-3">
-                            <div className="font-semibold text-gray-700 text-sm mb-2">📌 Responsibilities:</div>
+                            <div className="font-semibold text-body text-sm mb-2">📌 Responsibilities:</div>
                             <ul className="list-disc list-inside space-y-1">
                               {assignment.responsibilities.map((resp, rIdx) => {
                                 const respText = typeof resp === 'string' ? resp : resp?.description || resp?.name || 'Responsibility';
                                 return (
-                                  <li key={rIdx} className="text-sm text-gray-700 ml-2">{respText}</li>
+                                  <li key={rIdx} className="text-sm text-body ml-2">{respText}</li>
                                 );
                               })}
                             </ul>
@@ -395,7 +395,7 @@ const FormApproval = () => {
                         {/* Technologies */}
                         {assignment.technologies && assignment.technologies.length > 0 && (
                           <div className="mb-3">
-                            <div className="font-semibold text-gray-700 text-sm mb-2">💻 Technologies:</div>
+                            <div className="font-semibold text-body text-sm mb-2">💻 Technologies:</div>
                             <div className="flex flex-wrap gap-2">
                               {assignment.technologies.map((tech, tIdx) => {
                                 const techName = typeof tech === 'string' ? tech : tech?.name || 'Unknown Tech';
@@ -412,7 +412,7 @@ const FormApproval = () => {
                         {/* Modules */}
                         {assignment.modules && assignment.modules.length > 0 && (
                           <div className="mb-3">
-                            <div className="font-semibold text-gray-700 text-sm mb-2">📦 Assigned Modules:</div>
+                            <div className="font-semibold text-body text-sm mb-2">📦 Assigned Modules:</div>
                             <div className="flex flex-wrap gap-2">
                               {assignment.modules.map((module, mIdx) => {
                                 const moduleName = typeof module === 'string' ? module : module?.moduleName || module?.name || 'Module';
@@ -429,12 +429,12 @@ const FormApproval = () => {
                         {/* Activities */}
                         {assignment.activities && assignment.activities.length > 0 && (
                           <div>
-                            <div className="font-semibold text-gray-700 text-sm mb-2">✅ Activities:</div>
+                            <div className="font-semibold text-body text-sm mb-2">✅ Activities:</div>
                             <ul className="list-disc list-inside space-y-1">
                               {assignment.activities.map((activity, aIdx) => {
                                 const activityText = typeof activity === 'string' ? activity : activity?.description || activity?.name || 'Activity';
                                 return (
-                                  <li key={aIdx} className="text-sm text-gray-700 ml-2">{activityText}</li>
+                                  <li key={aIdx} className="text-sm text-body ml-2">{activityText}</li>
                                 );
                               })}
                             </ul>
@@ -454,10 +454,10 @@ const FormApproval = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-base py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto space-y-8">
           {/* Header skeleton */}
-          <div className="bg-white rounded-lg shadow p-6 border border-gray-100">
+          <div className="bg-surface rounded-lg shadow p-6 border border-edge-subtle">
             <div className="flex items-start gap-4">
               <div className="h-10 w-10 bg-slate-200 rounded animate-pulse" />
               <div className="flex-1">
@@ -470,7 +470,7 @@ const FormApproval = () => {
           {/* List skeletons */}
           <div className="space-y-4">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="border border-gray-200 rounded-lg bg-white">
+              <div key={i} className="border border-edge rounded-lg bg-surface">
                 <div className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -514,12 +514,12 @@ const FormApproval = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+      <div className="bg-surface rounded-lg shadow p-6">
+        <h2 className="text-2xl font-bold text-heading mb-4 flex items-center">
           <FaCommentDots className="mr-3 text-blue-600" />
           Form Approval Center
         </h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-body mb-6">
           {user.role === "admin" || user.role === "sub-admin"
             ? "Review and approve forms that have been approved by mentors. Final approval step."
             : "Review and approve forms from your assigned teams. First approval step."}
@@ -527,46 +527,46 @@ const FormApproval = () => {
 
         {teams.length === 0 ? (
           <div className="text-center py-12">
-            <FaInfoCircle className="mx-auto text-4xl text-gray-400 mb-4" />
-            <p className="text-lg text-gray-600">
+            <FaInfoCircle className="mx-auto text-4xl text-muted mb-4" />
+            <p className="text-lg text-body">
               No forms pending approval at this time.
             </p>
           </div>
         ) : (
           <div className="space-y-4">
             {teams.map((team) => (
-              <div key={team._id} className="border border-gray-200 rounded-lg">
+              <div key={team._id} className="border border-edge rounded-lg">
                 <div
-                  className="p-4 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
+                  className="p-4 bg-surface-alt cursor-pointer hover:bg-surface-alt transition-colors"
                   onClick={() => toggleTeamExpansion(team._id)}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <FaUsers className="text-blue-600 mr-3" />
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-800">
+                        <h3 className="text-lg font-semibold text-heading">
                           Team {team.code}
                         </h3>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-body">
                           {team.batch} - {team.department}
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-body">
                         {team.pendingFormsCount} pending form(s)
                       </span>
                       {expandedTeams.has(team._id) ? (
-                        <FaChevronUp className="text-gray-400" />
+                        <FaChevronUp className="text-muted" />
                       ) : (
-                        <FaChevronDown className="text-gray-400" />
+                        <FaChevronDown className="text-muted" />
                       )}
                     </div>
                   </div>
                 </div>
 
                 {expandedTeams.has(team._id) && (
-                  <div className="p-4 border-t border-gray-200">
+                  <div className="p-4 border-t border-edge">
                     {/* Project Abstract Form */}
                     {team.projectAbstract &&
                       shouldShowFormForApproval(
@@ -575,7 +575,7 @@ const FormApproval = () => {
                       ) && (
                         <div className="mb-6">
                           <div className="flex items-center justify-between mb-3">
-                            <h4 className="text-lg font-medium text-gray-800 flex items-center">
+                            <h4 className="text-lg font-medium text-heading flex items-center">
                               <FaCode className="mr-2 text-green-600" />
                               Project Abstract (Form 1)
                             </h4>
@@ -629,7 +629,7 @@ const FormApproval = () => {
                       ) && (
                         <div className="mb-6">
                           <div className="flex items-center justify-between mb-3">
-                            <h4 className="text-lg font-medium text-gray-800 flex items-center">
+                            <h4 className="text-lg font-medium text-heading flex items-center">
                               <FaTasks className="mr-2 text-purple-600" />
                               Role Specification (Form 2)
                             </h4>
@@ -685,15 +685,15 @@ const FormApproval = () => {
       {/* Approval Modal */}
       {showApprovalModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          <div className="bg-surface rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold text-heading mb-4">
               {approvalData.action === "approve" ? "Approve" : "Reject"} Form
             </h3>
             <div className="mb-4">
-              <p className="text-sm text-gray-600 mb-2">
+              <p className="text-sm text-body mb-2">
                 Team: <strong>{selectedTeam?.code}</strong>
               </p>
-              <p className="text-sm text-gray-600 mb-4">
+              <p className="text-sm text-body mb-4">
                 Form:{" "}
                 <strong>
                   {approvalData.formType === "projectAbstract"
@@ -702,7 +702,7 @@ const FormApproval = () => {
                 </strong>
               </p>
 
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-body mb-2">
                 Custom Message (Optional)
               </label>
               <textarea
@@ -714,7 +714,7 @@ const FormApproval = () => {
                   }))
                 }
                 placeholder={`Add a custom message for ${approvalData.action}...`}
-                className="w-full p-3 border border-gray-300 rounded-md resize-none"
+                className="w-full p-3 border border-edge rounded-md resize-none"
                 rows="3"
               />
             </div>
@@ -723,7 +723,7 @@ const FormApproval = () => {
               <button
                 onClick={() => setShowApprovalModal(false)}
                 disabled={actionLoading}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors disabled:opacity-50"
+                className="px-4 py-2 bg-gray-300 text-body rounded hover:bg-gray-400 transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
