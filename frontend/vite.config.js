@@ -9,4 +9,11 @@ export default defineConfig({
   build: {
     outDir: "dist",
   },
+  server: {
+    host: true,
+    port: 3000,
+    watch: {
+      usePolling: true,
+    },
+  },
 });

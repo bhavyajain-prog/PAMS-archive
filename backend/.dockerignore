@@ -6,11 +6,12 @@ npm-debug.log*
 .gitignore
 .vscode
 .idea
-uploads/
-test/
-docs/
+uploads
+test
+docs
 README.md
 guide.*
-data/
+data
 docker-compose.yml
 .dockerignore
+Dockerfile

@@ -1,0 +1,21 @@
+services:
+  database:
+    restart: always
+    container_name: pams_db_prod
+  backend:
+    container_name: pams_backend_prod
+    build:
+      context: ./backend
+      target: production
+    volumes:
+      - pams_uploads:/app/uploads
+  frontend:
+    container_name: pams_frontend_prod
+    build:
+      context: ./frontend
+      target: production
+    ports:
+      - "8080:8080"
+
+volumes:
+  pams_uploads:

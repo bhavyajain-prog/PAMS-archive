@@ -1,31 +1,57 @@
 services:
   database:
-    image: mongo:latest
+    image: mongo:noble
     container_name: pams_db
-    ports:
-      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${ROOT_PASSWORD}
+      - APP_USERNAME=${APP_USERNAME}
+      - APP_PASSWORD=${APP_PASSWORD}
     volumes:
       - mongo_data:/data/db
+      - ./database/init.js:/docker-entrypoint-initdb.d/init.js:ro
+    networks:
+      - pams_backend_network
+    healthcheck:
+      test: echo "db.runCommand('ping').ok" | mongosh --quiet --username ${ROOT_USERNAME} --password ${ROOT_PASSWORD} --authenticationDatabase admin
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      target: development
     container_name: pams_backend
     env_file:
       - ./backend/.env
     ports:
       - "5000:5000"
     environment:
-      - MONGO_URI=mongodb://database:27017/pams
+      - MONGO_URI=mongodb://${APP_USERNAME}:${APP_PASSWORD}@database:27017/pams
     depends_on:
-      - database
+      database:
+        condition: service_healthy
+    networks:
+      - pams_backend_network
+      - pams_frontend_network
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      target: development
     container_name: pams_frontend
-    ports:
-      - "3000:3000"
     depends_on:
       - backend
+    networks:
+      - pams_frontend_network
 
 volumes:
   mongo_data:
+
+networks:
+  pams_backend_network:
+    driver: bridge
+  pams_frontend_network:
+    driver: bridge

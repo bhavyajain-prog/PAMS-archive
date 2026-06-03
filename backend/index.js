@@ -33,12 +33,12 @@ function validateEnv() {
     required.push("CLIENT_URL");
   }
   const missing = required.filter(
-    (k) => !process.env[k] || process.env[k].trim() === ""
+    (k) => !process.env[k] || process.env[k].trim() === "",
   );
   if (missing.length > 0) {
     console.error(
       "Missing required environment variables:",
-      missing.join(", ")
+      missing.join(", "),
     );
     process.exit(1);
   }
@@ -95,7 +95,7 @@ if (process.env.NODE_ENV === "production") {
 app.use(
   helmet({
     contentSecurityPolicy: false, // disable if you have inline scripts or dynamic sources, else configure it
-  })
+  }),
 );
 // Prevent MongoDB operator injection ($/.) in inputs (Express 5-safe)
 const sanitizeNoSQL = (obj) => {
