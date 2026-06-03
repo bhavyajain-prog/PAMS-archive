@@ -82,10 +82,11 @@ router.post(
       { expiresIn }
     );
 
+    const isProd = process.env.NODE_ENV === "production";
     const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
       maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000,
     };
 
@@ -103,7 +104,12 @@ router.post(
 );
 
 router.post("/logout", (req, res) => {
-  res.clearCookie("token");
+  const isProd = process.env.NODE_ENV === "production";
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
+  });
   res.status(200).json({ message: "Logged out successfully" });
 });
 

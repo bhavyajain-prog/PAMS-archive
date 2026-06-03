@@ -25,10 +25,11 @@ const authenticate = async (req, res, next) => {
     if (!user) {
       // User no longer exists; clear cookie if present and respond with same error shape
       if (req.cookies && req.cookies.token) {
+        const isProd = process.env.NODE_ENV === "production";
         res.clearCookie("token", {
           httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "strict",
+          secure: isProd,
+          sameSite: isProd ? "none" : "lax",
         });
       }
       return res.status(403).json({ message: "Invalid or expired token." });
@@ -38,10 +39,11 @@ const authenticate = async (req, res, next) => {
   } catch (err) {
     console.error("Token verification failed:", err.message);
     if (req.cookies && req.cookies.token) {
+      const isProd = process.env.NODE_ENV === "production";
       res.clearCookie("token", {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
       });
     }
     res.status(403).json({ message: "Invalid or expired token." });

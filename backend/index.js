@@ -146,6 +146,17 @@ app.use((req, _res, next) => {
 });
 app.use(cookieParser());
 
+// Health check endpoint (before auth routes, not rate-limited)
+app.get("/health", (req, res) => {
+  const mongoose = require("mongoose");
+  res.status(200).json({
+    status: "ok",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+    db: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+  });
+});
+
 // Routes
 app.use("/auth", auth);
 app.use("/admin", admin);
