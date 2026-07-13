@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "node test/runTests.js all",
+    "test": "jest --detectOpenHandles",
     "test:dummy": "node test/dummyData.js",
     "test:ttl": "node test/test-ttl.js",
     "test:run": "node test/runTests.js"
@@ -33,5 +33,10 @@
     "nodemailer": "^6.10.1",
     "nodemon": "^3.1.14",
     "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "mongodb-memory-server": "^9.5.0",
+    "supertest": "^6.3.4"
   }
 }
